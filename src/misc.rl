@@ -21,7 +21,7 @@ abbreviation = latin_letter ("." latin_letter)+;
 #     foobar@qux.com
 #     café@café.coiffé
 #
-# Not all emails domains have an extension (.net, .com, etc.). But not requiring
+# Not all email domains have an extension (.net, .com, etc.). But not requiring
 # the extension would make the pattern too general.
 
 email = (code_point+ -- whitespace) "@" (code_point+ -- whitespace) "." latin_letter+;
@@ -70,10 +70,10 @@ path = home_path | root_path;
 
 # Everything but one of the known token types.
 #
-# This includes words not written in Latin
-# notation. We try to match the longest possible sequence of unknown characters
-# so that we at least have a text segment that could be a word. This works well
-# in practice when a foreign script is mixed with predominantly Latin text.
+# This includes words not written in Latin notation. We try to match the longest
+# possible sequence of unknown characters so that we at least have a text
+# segment that could be a word. This works well in practice when a foreign
+# script is mixed with predominantly Latin text.
 
 unknown = code_point+ -- (symbol | latin | whitespace);
 

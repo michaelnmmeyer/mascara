@@ -102,5 +102,5 @@ static void $LANG_init(struct mascara *mr)
 
 static void $LANG_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
-	%% write exec;
+   %% write exec;
 }
