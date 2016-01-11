@@ -5,6 +5,7 @@ LANGS = ["en", "fr"]
 import os, sys, unicodedata
 
 TPL = """\
+/* Generated file, don't edit! */
 %%{
 
 machine LANG_CATEGORY;
@@ -16,22 +17,13 @@ DATA
 }%%
 """
 
-#-------------------------------------------------------------------------------
-# Prefixes, lexicon.
-#-------------------------------------------------------------------------------
-
 def full_path(path):
    this_dir = os.path.dirname(__file__)
    return os.path.join(this_dir, path)
 
-def write_file(path, data):
-   with open(full_path(path), "w") as fp:
-      print("/* Generated file, don't edit! */", file=fp)
-      fp.write(data)
-
 def mkregex(word):
    buf = []
-   for c in unicodedata.normalize("NFC", word):
+   for c in word:
       assert c != '"'
       c = c.lower()
       # Apostrophe.
@@ -110,6 +102,7 @@ def load_words(fp):
    words = []
    for word in fp:
       word = strip_comment(word).replace("\#", "#").strip()
+      word = unicodedata.normalize("NFC", word)
       if word:
          words.append(word)
    return words
@@ -122,5 +115,4 @@ for lang in LANGS:
       machine = mkmachine(tks, lang, category)
       path = full_path("gen/%s_%s.rl" % (lang, category))
       with open(path, "w", encoding="UTF-8") as fp:
-         print("/* Generated file, don't edit! */", file=fp)
          fp.write(machine)

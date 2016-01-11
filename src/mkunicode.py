@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Generates machines for matching Latin letters
+Generates Ragel machines for matching Latin letters.
 
 We don't cover all possible cases. In particular, we only include basic
 combinining diacritics (Combining Diacritical Marks). The goal is to keep the
@@ -61,23 +61,25 @@ def combining_diacritics():
    my_range = "0300..036F"
    return set(iter_code_points(my_range))
 
-head = """\
+tpl_head = """\
 /* Generated file, don't edit! */
-%%%%{
-   machine %s;
+%%{
 
-   %s ="""
-tail = """\
- ;
+machine NAME;
+
+NAME ="""
+tpl_tail = """\
+;
+
 }%%"""
 def dump_machine(fp, name, code_points):
-   print(head % (name, name), file=fp)
+   print(tpl_head.replace("NAME", name), file=fp)
    sep = " "
    for c in code_points:
       bytes = [hex(b) for b in chr(c).encode("UTF-8")]
-      print(" %s %s" % (sep, " ".join(bytes)), file=fp)
+      print("%s %s" % (sep, " ".join(bytes)), file=fp)
       sep = "|"
-   print(tail, file=fp)
+   print(tpl_tail, file=fp)
 
 def dump_code_points(name, code_points):
    code_points = sorted(code_points)

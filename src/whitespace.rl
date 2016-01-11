@@ -73,8 +73,6 @@ whitespace =
 # in-between but whitespace indicates the end of a paragraph. While matching
 # a paragraph break, we try to eat as much whitespace as possible.
 
-whitespace_not_new_line = (whitespace+ -- new_line)*;
-
 paragraph_break =
 
 # Explicit unicode paragraph separator.
@@ -88,6 +86,6 @@ paragraph_break =
 # ("\r\r" would not match two lines anymore, etc.). We then opt instead for
 # this solution.
 
-| (((whitespace_not_new_line new_line){2,}) - (whitespace_not_new_line "\r\n")) whitespace*
+| (((horizontal_whitespace* new_line){2,}) - (horizontal_whitespace* "\r\n")) whitespace*
 ;
 }%%

@@ -119,11 +119,11 @@ static const int fr_suffix_main_en_main = 19;
  */
 static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 {
-	int cs, act;
-	const unsigned char *ts, *te;
-	const unsigned char *const eof = pe;
-	
-	
+   int cs, act;
+   const unsigned char *ts, *te;
+   const unsigned char *const eof = pe;
+
+   
 #line 128 "gen/suffix_fr.ic"
 	{
 	cs = fr_suffix_main_start;
@@ -133,7 +133,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 	}
 
 #line 44 "gen/suffix_fr.rl"
-	
+   
 #line 138 "gen/suffix_fr.ic"
 	{
 	int _klen;
@@ -267,10 +267,11 @@ _again:
 	}
 
 #line 45 "gen/suffix_fr.rl"
-	
-	return 0;
-	
-	(void)act;
-	(void)te;
-	(void)eof;
+
+   return 0;
+
+   /* Unused variables. */
+   (void)act;
+   (void)te;
+   (void)eof;
 }

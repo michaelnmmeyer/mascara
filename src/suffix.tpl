@@ -35,16 +35,17 @@ main := |*
  */
 static size_t $LANG_suffix(const unsigned char *p, const unsigned char *pe)
 {
-	int cs, act;
-	const unsigned char *ts, *te;
-	const unsigned char *const eof = pe;
-	
-	%% write init;
-	%% write exec;
-	
-	return 0;
-	
-	(void)act;
-	(void)te;
-	(void)eof;
+   int cs, act;
+   const unsigned char *ts, *te;
+   const unsigned char *const eof = pe;
+
+   %% write init;
+   %% write exec;
+
+   return 0;
+
+   /* Unused variables. */
+   (void)act;
+   (void)te;
+   (void)eof;
 }

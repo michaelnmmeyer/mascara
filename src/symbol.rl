@@ -20,6 +20,7 @@ machine symbol;
 # We define separately "apostrophe" and "double_quote" because they are
 # needed for the main machine.
 
+# Keep that in sync with mklang.py!
 apostrophe =
   "'"
 | "‘"    # This one is sometimes used for apostrophes, even if it shouldn't.

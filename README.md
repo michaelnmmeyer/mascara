@@ -23,7 +23,7 @@ A command-line tool `mascara` is included. To compile and install it:
 The API is described in `mascara.h`. There is a concrete example in
 `example.c`. Use the corresponding binary like so:
 
-    ./example "And now, Laertes, what's the news with you?"
+    $ ./example "And now, Laertes, what's the news with you?"
 
 During tokenization, each token is annotated with a type. This information is
 sometimes useful for its own sake, but it is intended to be used as feature for
