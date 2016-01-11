@@ -24,6 +24,7 @@ struct mascara;
 
 /* Allocates a new tokenizer.
  * If there is no implementation for the provided language name, returns NULL.
+ * Available languages are "en" and "fr".
  */
 struct mascara *mr_alloc(const char *lang);
 void mr_dealloc(struct mascara *);
@@ -57,9 +58,11 @@ struct mr_sentence {
    size_t alloc;
 };
 
+/* Initializer and destructor. */
 #define MR_SENTENCE_INIT {.tokens = 0}
 void mr_sentence_fini(struct mr_sentence *);
 
+/* Fetch the next sentence. */
 int mr_next_sentence(struct mascara *, struct mr_sentence *);
 
 #endif

@@ -1,7 +1,7 @@
 PREFIX = /usr/local
 
 CFLAGS = -std=c11 -g -Wall -Werror
-#CFLAGS += -O2 -DNDEBUG -march=native -mtune=native -fomit-frame-pointer -s
+CFLAGS += -O2 -DNDEBUG -march=native -mtune=native -fomit-frame-pointer -s
 
 AMALG = mascara.h mascara.c
 
@@ -9,7 +9,7 @@ AMALG = mascara.h mascara.c
 # Abstract targets
 #--------------------------------------
 
-all: $(AMALG) mascara
+all: $(AMALG) mascara example
 
 clean:
 	rm -f mascara test/mascara.so vgcore* core
@@ -44,6 +44,9 @@ mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
 
 mascara: $(AMALG) cmd/mascara.ih cmd/mascara.c cmd/cmd.c
 	$(CC) $(CFLAGS) mascara.c cmd/mascara.c cmd/cmd.c -o $@
+
+example: example.c $(AMALG)
+	$(CC) $(CFLAGS) $< mascara.c -o $@
 
 test/mascara.so: $(AMALG) test/mascara.c
 	$(CC) $(CFLAGS) -fPIC -shared mascara.c test/mascara.c -o $@

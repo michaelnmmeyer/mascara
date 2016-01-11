@@ -30,6 +30,7 @@ struct mascara;
 
 /* Allocates a new tokenizer.
  * If there is no implementation for the provided language name, returns NULL.
+ * Available languages are "en" and "fr".
  */
 struct mascara *mr_alloc(const char *lang);
 void mr_dealloc(struct mascara *);
