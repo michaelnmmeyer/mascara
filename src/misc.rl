@@ -37,7 +37,7 @@ email = (code_point+ -- whitespace) "@" (code_point+ -- whitespace) "." latin_le
 # prefixes are relatively ambiguous, so we use them here; being too general
 # would prevent proper recognition of abbreviations.
 
-uri = ("www."i | "ftp."i) (code_point+ -- whitespace) "." alpha+
+uri = ("www."i | "ftp."i) (code_point+ -- whitespace) "." alpha+ (code_point+ -- whitespace)*
     | alpha+ "://" (code_point+ -- whitespace) (alnum | "/")
     ;
 
