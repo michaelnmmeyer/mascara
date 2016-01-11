@@ -70,6 +70,7 @@ const char *mr_token_type_name(enum mr_token_type t)
       [MR_ABBR] = "ABBR",
       [MR_EMAIL] = "EMAIL",
       [MR_URI] = "URI",
+      [MR_PATH] = "PATH",
    };
 
    if (t >= 0 && (size_t)t < sizeof tbl / sizeof *tbl)

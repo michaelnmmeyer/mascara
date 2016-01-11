@@ -9,21 +9,6 @@ check{
    }
 }
 
--- Path in the file system.
-check{
-   input = "/usr/bin/foobar, ~/foobar, qux",
-   output = {
-      "/usr/bin/foobar", ",", "~/foobar", ",", "qux",
-   }
-}
-check{
-   input = "/usr/bin/foobar, ~/foobar, qux",
-   output = {
-      "PATH", "SYM", "PATH", "SYM", "LATIN",
-   },
-   format = "type",
-}
-
 -- Ensure that we recognize paragraph breaks when appropriate.
 check{
    input = "foo\nbar",

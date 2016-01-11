@@ -15,6 +15,7 @@ enum mr_token_type {
    MR_ABBR,
    MR_EMAIL,
    MR_URI,
+   MR_PATH,
 };
 
 /* String representation of a token type. */

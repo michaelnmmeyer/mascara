@@ -80,8 +80,8 @@ word_normal = "°"? latin+ word_tail;
 #     désir(s)
 #     4-(parahydroxyphenyl)-2-butanone
 
-word_bracket = "(" latin_letter+ ")" "-"? latin+ word_tail
-             | latin+ word_chunk* "-"? "(" latin_letter+ ")" ("-"? latin+ word_tail)?
+word_bracket = "(" latin_letter latin* ")" "-"? latin+ word_tail
+             | latin+ word_chunk* "-"? "(" latin_letter latin* ")" ("-"? latin+ word_tail)?
              ;
 
 # Substraction needed below for correct tokenization of elisions.

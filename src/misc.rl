@@ -66,7 +66,7 @@ home_path = ("~" | "."{1,2}) "/" (code_point+ -- whitespace) latin;
 
 root_path = "/" dir_at_root ("/" (code_point+ -- whitespace) latin)?;
 
-path = home_path | root_path;
+path = (home_path | root_path) "/"?;
 
 # Everything but one of the known token types.
 #

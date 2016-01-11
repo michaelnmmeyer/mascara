@@ -25,6 +25,7 @@ include en_assimilation "en_assimilation.rl";
 
 main := |*
    symbol         => { SAVE(MR_SYM); fbreak; };
+   path           => { SAVE(MR_PATH); fbreak; };
    uri            => { SAVE(MR_URI); fbreak; };
    abbreviation   => { SAVE(MR_ABBR); fbreak; };
    numeric        => { SAVE(MR_NUM); fbreak; };

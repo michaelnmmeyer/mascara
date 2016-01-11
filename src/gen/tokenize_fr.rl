@@ -26,6 +26,7 @@ include void "void.rl";
 
 main := |*
    symbol         => { SAVE(MR_SYM); fbreak; };
+   path           => { SAVE(MR_PATH); fbreak; };
    uri            => { SAVE(MR_URI); fbreak; };
    abbreviation   => { SAVE(MR_ABBR); fbreak; };
    numeric        => { SAVE(MR_NUM); fbreak; };
@@ -103,5 +104,5 @@ static void fr_init(struct mascara *mr)
 
 static void fr_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
-	%% write exec;
+   %% write exec;
 }

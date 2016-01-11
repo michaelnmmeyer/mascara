@@ -167,6 +167,21 @@ check{
    lang = "fr",
 }
 
+-- Path in the file system.
+check{
+   input = [[
+      /usr/local/bin/qux
+      /usr/foobar/
+      ~/foo/bar
+   ]],
+   format = {"str", "type"},
+   output = {
+      {"/usr/local/bin/qux", "PATH"},
+      {"/usr/foobar/", "PATH"},
+      {"~/foo/bar", "PATH"},
+   }
+}
+
 -- Numbers.
 check{
    input = [[
