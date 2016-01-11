@@ -1,0 +1,14 @@
+# Tokens that must not be split, but would be if not given here.
+
+d'abord
+d'accord
+d'après
+d'autant
+d'œuvre
+c'est-à-dire
+
+par-ci
+par-là
+rendez-vous    # Ambiguous, but acceptable.
+
+# d'ailleurs   # Too ambiguous.

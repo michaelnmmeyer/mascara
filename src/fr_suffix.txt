@@ -1,0 +1,32 @@
+-t-elle			# pense-t-elle
+-t-elles			# pensent-t-elles
+-t-il				# pense-t-il
+-t-ils			# pense-t-ils
+-t-on				# pense-t-on
+
+-ce				# qu'est-ce ?
+-ci				# celui-ci
+-le				# dis-le
+-la            # récite-la
+-les				# regarde-les
+-là				# celui-là
+
+-moi				# dis-moi
+-toi				# dis-toi
+-lui				# dis-lui
+-leur				# dis-leur
+
+-je				# disais-je
+-tu				# disais-tu
+-il				# disait-il
+-elle				# disait-elle
+-on				# disait-on
+-nous				# dites-nous
+-vous				# dites-vous
+-ils				# disaient-ils
+-elles			# disaient-elles
+
+-en				# parlez-en
+
+-y					# vas-y Francky
+

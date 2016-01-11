@@ -1,0 +1,219 @@
+
+#line 1 "gen/suffix_en.rl"
+/* Generated file, don't edit! */
+
+#line 14 "gen/suffix_en.rl"
+
+
+
+#line 10 "gen/suffix_en.ic"
+static const char _en_suffix_main_key_offsets[] = {
+	0, 0, 3, 4, 5, 6, 10, 12, 
+	17, 20, 22, 23, 24, 25
+};
+
+static const unsigned char _en_suffix_main_trans_keys[] = {
+	39u, 153u, 180u, 128u, 226u, 194u, 82u, 86u, 
+	114u, 118u, 76u, 108u, 39u, 69u, 101u, 153u, 
+	180u, 39u, 153u, 180u, 78u, 110u, 128u, 226u, 
+	194u, 68u, 69u, 76u, 77u, 83u, 84u, 100u, 
+	101u, 108u, 109u, 115u, 116u, 0
+};
+
+static const char _en_suffix_main_single_lengths[] = {
+	0, 3, 1, 1, 1, 4, 2, 5, 
+	3, 2, 1, 1, 1, 12
+};
+
+static const char _en_suffix_main_range_lengths[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0
+};
+
+static const char _en_suffix_main_index_offsets[] = {
+	0, 0, 4, 6, 8, 10, 15, 18, 
+	24, 28, 31, 33, 35, 37
+};
+
+static const char _en_suffix_main_indicies[] = {
+	0, 2, 3, 1, 4, 1, 0, 1, 
+	0, 1, 5, 5, 5, 5, 1, 5, 
+	5, 1, 0, 5, 5, 2, 3, 1, 
+	6, 7, 8, 1, 0, 0, 1, 9, 
+	1, 6, 1, 6, 1, 5, 10, 11, 
+	12, 5, 13, 5, 10, 11, 12, 5, 
+	13, 1, 0
+};
+
+static const char _en_suffix_main_trans_targs[] = {
+	13, 0, 2, 4, 3, 1, 9, 10, 
+	12, 11, 5, 6, 7, 8
+};
+
+static const char _en_suffix_main_trans_actions[] = {
+	1, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0
+};
+
+static const char _en_suffix_main_to_state_actions[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 2
+};
+
+static const char _en_suffix_main_from_state_actions[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 3
+};
+
+static const int en_suffix_main_start = 13;
+static const int en_suffix_main_first_final = 13;
+static const int en_suffix_main_error = 0;
+
+static const int en_suffix_main_en_main = 13;
+
+
+#line 17 "gen/suffix_en.rl"
+
+/* Finds the longest known suffix of a string.
+ * "p" must point to the last byte in the string to examine.
+ * "pe" must point to the first character of the string to examine.
+ *
+ * We require that a suffix doesn't match the whole string; in other words, the
+ * string must have a leading part of length >= 1. This is required both because
+ * we don't want a suffix to be recognized as such when it doesn't occur
+ * immediately after a word, and because there is an ambiguity when a token has
+ * both a prefix and a suffix but the prefix and the suffix overlap, e.g.:
+ *
+ *    C’s de facto packaging system
+ *
+ * Here C’ is a valid French prefix, and ’s is a valid English suffix. There is
+ * no easy way to decide which segmentation is the best one, so we choose
+ * (arbitrarily) to emit only the prefix, and treat the rest of the string as a
+ * single token.
+ *
+ * If a suffix is found, returns its length, otherwise zero.
+ */
+static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
+{
+	int cs, act;
+	const unsigned char *ts, *te;
+	const unsigned char *const eof = pe;
+	
+	
+#line 104 "gen/suffix_en.ic"
+	{
+	cs = en_suffix_main_start;
+	ts = 0;
+	te = 0;
+	act = 0;
+	}
+
+#line 44 "gen/suffix_en.rl"
+	
+#line 114 "gen/suffix_en.ic"
+	{
+	int _klen;
+	const unsigned char *_keys;
+	int _trans;
+
+	if ( p == pe )
+		goto _test_eof;
+	if ( cs == 0 )
+		goto _out;
+_resume:
+	switch ( _en_suffix_main_from_state_actions[cs] ) {
+	case 3:
+#line 1 "NONE"
+	{ts = p;}
+	break;
+#line 130 "gen/suffix_en.ic"
+	}
+
+	_keys = _en_suffix_main_trans_keys + _en_suffix_main_key_offsets[cs];
+	_trans = _en_suffix_main_index_offsets[cs];
+
+	_klen = _en_suffix_main_single_lengths[cs];
+	if ( _klen > 0 ) {
+		const unsigned char *_lower = _keys;
+		const unsigned char *_mid;
+		const unsigned char *_upper = _keys + _klen - 1;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + ((_upper-_lower) >> 1);
+			if ( (*p) < *_mid )
+				_upper = _mid - 1;
+			else if ( (*p) > *_mid )
+				_lower = _mid + 1;
+			else {
+				_trans += (unsigned int)(_mid - _keys);
+				goto _match;
+			}
+		}
+		_keys += _klen;
+		_trans += _klen;
+	}
+
+	_klen = _en_suffix_main_range_lengths[cs];
+	if ( _klen > 0 ) {
+		const unsigned char *_lower = _keys;
+		const unsigned char *_mid;
+		const unsigned char *_upper = _keys + (_klen<<1) - 2;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			if ( (*p) < _mid[0] )
+				_upper = _mid - 2;
+			else if ( (*p) > _mid[1] )
+				_lower = _mid + 2;
+			else {
+				_trans += (unsigned int)((_mid - _keys)>>1);
+				goto _match;
+			}
+		}
+		_trans += _klen;
+	}
+
+_match:
+	_trans = _en_suffix_main_indicies[_trans];
+	cs = _en_suffix_main_trans_targs[_trans];
+
+	if ( _en_suffix_main_trans_actions[_trans] == 0 )
+		goto _again;
+
+	switch ( _en_suffix_main_trans_actions[_trans] ) {
+	case 1:
+#line 11 "gen/suffix_en.rl"
+	{te = p-1;{ return ts + 1 - p; }}
+	break;
+#line 193 "gen/suffix_en.ic"
+	}
+
+_again:
+	switch ( _en_suffix_main_to_state_actions[cs] ) {
+	case 2:
+#line 1 "NONE"
+	{ts = 0;}
+	break;
+#line 202 "gen/suffix_en.ic"
+	}
+
+	if ( cs == 0 )
+		goto _out;
+	if ( --p != pe )
+		goto _resume;
+	_test_eof: {}
+	_out: {}
+	}
+
+#line 45 "gen/suffix_en.rl"
+	
+	return 0;
+	
+	(void)act;
+	(void)te;
+	(void)eof;
+}

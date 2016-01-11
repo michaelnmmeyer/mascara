@@ -1,0 +1,7 @@
+%%{
+
+machine void;
+
+void = empty;
+
+}%%

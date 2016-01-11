@@ -1,0 +1,19 @@
+Usage: %s [options] [--] [file]
+Tokenize a file.
+
+Options:
+   -l, --lang=<string>      tokenization language [en]
+   -f, --format=<string>    token format string (see below) [%%s\n]
+   -e, --eos=<string>       string to append at the end of a sentence [\n]
+
+   -h, --help               display this message
+       --version            display the library version
+
+Format string syntax:
+   %%s    Token string
+   %%t    Token type
+   %%l    Token length
+   %%o    Token offset (counting in bytes)
+   \n    Newline
+   \t    Tabulation
+   \\    Backslash
