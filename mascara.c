@@ -9835,18 +9835,16 @@ void mr_dealloc(struct mascara *mr)
 void mr_set_text(struct mascara *mr, const char *str, size_t len)
 {
    const unsigned char *s = (const unsigned char *)str;
-   
-   /* Skip the leading BOM, if any. */
-   if (len >= 3 && s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf) {
-      s += 3;
-      len -= 3;
-   }
 
    mr->str = s;
    mr->p = s;
    mr->pe = &s[len];
    mr->eof = mr->pe;
    mr->tokenizer->init(mr);
+   
+   /* Skip the leading BOM, if any. Preserver correct token offsets. */
+   if (len >= 3 && s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf)
+      mr->p += 3;
 }
 
 static int fetch_token(struct mascara *mr, struct mr_token *tk, int emit_para)

@@ -21,7 +21,7 @@ A command-line tool `mascara` is included. To compile and install it:
 ## Usage
 
 The API is described in `mascara.h`. There is a concrete example in
-`example.c`. Use the corresponding binary like so:
+`example.c`. Compile this file with `make`, and use the output binary like so:
 
     $ ./example "And now, Laertes, what's the news with you?"
 

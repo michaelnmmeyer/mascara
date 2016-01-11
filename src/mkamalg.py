@@ -13,20 +13,23 @@ are taken into account. System-wide includes and includes containing a macro:
 
 are ignored.
 
-We don't prevent multiple inclusions because this is too hard. To do that
-correctly, we'd need to evaluate macros like:
+As concerns files inclusion, we can either a) include a source file each time
+there is a directive asking for that, or b) include it only the first time. To
+do selective inclusions, we'd need to evaluate macros like a real preprocessor,
+which is too much trouble.
 
-   #if FOOBAR == 64 % 51 + 32
-      #include "foobar.h"
-   #endif
-
-The preprocessor can easily discard unused text anyway.
+The solution a) is the safest one, because it can cope with the ugly macro magic
+that involves multiple inclusions of the same source file with different defined
+macros, etc. But b) produces smaller amalgamated files.
 """
 
 import sys, os, re
 
+# Whether to emit #line preprocessor directives.
 EMIT_LINENO = True
-INCLUDE_DUPLICATES = False
+
+# Whether to include a source file only one time.
+INCLUDE_ONCE = True
 
 FILES = {}
 
@@ -50,20 +53,11 @@ def concat_headers(file):
       match = re.match(r'^\s*#\s*include\s+"(.+?)"', line)
       if match:
          new_file = os.path.join(dirname, match.group(1))
-         if INCLUDE_DUPLICATES or new_file not in FILES:
+         if not INCLUDE_ONCE or new_file not in FILES:
             concat_headers(new_file)
             lineno_emitted = False
       else:
          print(line)
-
-for arg in sys.argv[1:]:
-   if arg == "-no-lineno":
-      EMIT_LINENO = False
-   elif arg == "-no-duplicates":
-      INCLUDE_DUPLICATES = True
-   else:
-      continue
-   sys.argv.remove(arg)
 
 for file in sys.argv[1:]:
    concat_headers(file)
