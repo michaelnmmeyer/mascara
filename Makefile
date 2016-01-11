@@ -18,7 +18,7 @@ realclean: clean
 	rm -f cmd/*.ih src/gen/*
 
 check: test/mascara.so
-	cd test && lua test.lua
+	cd test && valgrind --leak-check=full --error-exitcode=1 lua test.lua
 
 install: mascara
 	install -spm 0755 $< $(PREFIX)/bin/mascara
