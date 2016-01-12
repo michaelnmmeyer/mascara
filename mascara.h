@@ -40,8 +40,8 @@ void mr_set_text(struct mascara *, const char *str, size_t len);
 
 struct mr_token {
    const char *str;
-   size_t len;
-   size_t offset;
+   size_t len;                /* Length, in bytes. */
+   size_t offset;             /* Offset from the start of the text, in bytes. */
    enum mr_token_type type;
 };
 

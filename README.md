@@ -100,3 +100,17 @@ You can check wich type is assigned to which token with the command-line tool:
     $ echo "And now, Laertes, what's the news with you?" | mascara -f "%s/%t "
     And/LATIN now/LATIN ,/SYM Laertes/LATIN ,/SYM what/LATIN 's/SUFFIX the/LATIN
     news/LATIN with/LATIN you/LATIN ?/SYM
+
+## Implementation
+
+From what I gathered by reading the relevant literature, there are two main
+approaches for implementing a tokenizer: a) using finite-state automata, and b)
+using a supervised sequence model. The second solution is much heavier than its
+alternative and doesn't seem to be worth the extra work for such a light task as
+tokenization, so I discarded it.
+
+Each tokenizer uses two finite-state machines, written in
+[Ragel](http://www.colm.net/open-source/ragel/). The first one matches the input
+text from left to right, in the usual way. The second one reads it from right to
+left, and is used to recognize contractions at the end of a word. Using two
+separate machines helps to disambiguate the role of single quotes.
