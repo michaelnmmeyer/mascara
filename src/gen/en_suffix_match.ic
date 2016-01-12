@@ -1,18 +1,18 @@
 
-#line 1 "gen/suffix_en.rl"
+#line 1 "gen/en_suffix_match.rl"
 /* Generated file, don't edit! */
 
-#line 14 "gen/suffix_en.rl"
+#line 14 "gen/en_suffix_match.rl"
 
 
 
-#line 10 "gen/suffix_en.ic"
-static const char _en_suffix_main_key_offsets[] = {
+#line 10 "gen/en_suffix_match.ic"
+static const char _en_suffix_match_key_offsets[] = {
 	0, 0, 3, 4, 5, 6, 10, 12, 
 	17, 20, 22, 23, 24, 25
 };
 
-static const unsigned char _en_suffix_main_trans_keys[] = {
+static const unsigned char _en_suffix_match_trans_keys[] = {
 	39u, 153u, 180u, 128u, 226u, 194u, 82u, 86u, 
 	114u, 118u, 76u, 108u, 39u, 69u, 101u, 153u, 
 	180u, 39u, 153u, 180u, 78u, 110u, 128u, 226u, 
@@ -20,22 +20,22 @@ static const unsigned char _en_suffix_main_trans_keys[] = {
 	101u, 108u, 109u, 115u, 116u, 0
 };
 
-static const char _en_suffix_main_single_lengths[] = {
+static const char _en_suffix_match_single_lengths[] = {
 	0, 3, 1, 1, 1, 4, 2, 5, 
 	3, 2, 1, 1, 1, 12
 };
 
-static const char _en_suffix_main_range_lengths[] = {
+static const char _en_suffix_match_range_lengths[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0
 };
 
-static const char _en_suffix_main_index_offsets[] = {
+static const char _en_suffix_match_index_offsets[] = {
 	0, 0, 4, 6, 8, 10, 15, 18, 
 	24, 28, 31, 33, 35, 37
 };
 
-static const char _en_suffix_main_indicies[] = {
+static const char _en_suffix_match_indicies[] = {
 	0, 2, 3, 1, 4, 1, 0, 1, 
 	0, 1, 5, 5, 5, 5, 1, 5, 
 	5, 1, 0, 5, 5, 2, 3, 1, 
@@ -45,34 +45,34 @@ static const char _en_suffix_main_indicies[] = {
 	13, 1, 0
 };
 
-static const char _en_suffix_main_trans_targs[] = {
+static const char _en_suffix_match_trans_targs[] = {
 	13, 0, 2, 4, 3, 1, 9, 10, 
 	12, 11, 5, 6, 7, 8
 };
 
-static const char _en_suffix_main_trans_actions[] = {
+static const char _en_suffix_match_trans_actions[] = {
 	1, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0
 };
 
-static const char _en_suffix_main_to_state_actions[] = {
+static const char _en_suffix_match_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 2
 };
 
-static const char _en_suffix_main_from_state_actions[] = {
+static const char _en_suffix_match_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 3
 };
 
-static const int en_suffix_main_start = 13;
-static const int en_suffix_main_first_final = 13;
-static const int en_suffix_main_error = 0;
+static const int en_suffix_match_start = 13;
+static const int en_suffix_match_first_final = 13;
+static const int en_suffix_match_error = 0;
 
-static const int en_suffix_main_en_main = 13;
+static const int en_suffix_match_en_main = 13;
 
 
-#line 17 "gen/suffix_en.rl"
+#line 17 "gen/en_suffix_match.rl"
 
 /* Finds the longest known suffix of a string.
  * "p" must point to the last byte in the string to examine.
@@ -100,17 +100,17 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 104 "gen/suffix_en.ic"
+#line 104 "gen/en_suffix_match.ic"
 	{
-	cs = en_suffix_main_start;
+	cs = en_suffix_match_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
 
-#line 44 "gen/suffix_en.rl"
+#line 44 "gen/en_suffix_match.rl"
    
-#line 114 "gen/suffix_en.ic"
+#line 114 "gen/en_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -121,18 +121,18 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 	if ( cs == 0 )
 		goto _out;
 _resume:
-	switch ( _en_suffix_main_from_state_actions[cs] ) {
+	switch ( _en_suffix_match_from_state_actions[cs] ) {
 	case 3:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 130 "gen/suffix_en.ic"
+#line 130 "gen/en_suffix_match.ic"
 	}
 
-	_keys = _en_suffix_main_trans_keys + _en_suffix_main_key_offsets[cs];
-	_trans = _en_suffix_main_index_offsets[cs];
+	_keys = _en_suffix_match_trans_keys + _en_suffix_match_key_offsets[cs];
+	_trans = _en_suffix_match_index_offsets[cs];
 
-	_klen = _en_suffix_main_single_lengths[cs];
+	_klen = _en_suffix_match_single_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -155,7 +155,7 @@ _resume:
 		_trans += _klen;
 	}
 
-	_klen = _en_suffix_main_range_lengths[cs];
+	_klen = _en_suffix_match_range_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -178,27 +178,27 @@ _resume:
 	}
 
 _match:
-	_trans = _en_suffix_main_indicies[_trans];
-	cs = _en_suffix_main_trans_targs[_trans];
+	_trans = _en_suffix_match_indicies[_trans];
+	cs = _en_suffix_match_trans_targs[_trans];
 
-	if ( _en_suffix_main_trans_actions[_trans] == 0 )
+	if ( _en_suffix_match_trans_actions[_trans] == 0 )
 		goto _again;
 
-	switch ( _en_suffix_main_trans_actions[_trans] ) {
+	switch ( _en_suffix_match_trans_actions[_trans] ) {
 	case 1:
-#line 11 "gen/suffix_en.rl"
+#line 11 "gen/en_suffix_match.rl"
 	{te = p-1;{ return ts + 1 - p; }}
 	break;
-#line 193 "gen/suffix_en.ic"
+#line 193 "gen/en_suffix_match.ic"
 	}
 
 _again:
-	switch ( _en_suffix_main_to_state_actions[cs] ) {
+	switch ( _en_suffix_match_to_state_actions[cs] ) {
 	case 2:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 202 "gen/suffix_en.ic"
+#line 202 "gen/en_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -209,7 +209,7 @@ _again:
 	_out: {}
 	}
 
-#line 45 "gen/suffix_en.rl"
+#line 45 "gen/en_suffix_match.rl"
 
    return 0;
 

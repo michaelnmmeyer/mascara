@@ -110,26 +110,26 @@ struct mascara {
 
 #define MR_PARA_BREAK 666
 
-#line 1 "tokenize_en.ic"
+#line 1 "en_tokenize.ic"
 
-#line 1 "gen/tokenize_en.rl"
+#line 1 "gen/en_tokenize.rl"
 /* Generated file, don't edit! */
-#line 1 "suffix_en.ic"
+#line 1 "en_suffix_match.ic"
 
-#line 1 "gen/suffix_en.rl"
+#line 1 "gen/en_suffix_match.rl"
 /* Generated file, don't edit! */
 
-#line 14 "gen/suffix_en.rl"
+#line 14 "gen/en_suffix_match.rl"
 
 
 
-#line 10 "gen/suffix_en.ic"
-static const char _en_suffix_main_key_offsets[] = {
+#line 10 "gen/en_suffix_match.ic"
+static const char _en_suffix_match_key_offsets[] = {
 	0, 0, 3, 4, 5, 6, 10, 12, 
 	17, 20, 22, 23, 24, 25
 };
 
-static const unsigned char _en_suffix_main_trans_keys[] = {
+static const unsigned char _en_suffix_match_trans_keys[] = {
 	39u, 153u, 180u, 128u, 226u, 194u, 82u, 86u, 
 	114u, 118u, 76u, 108u, 39u, 69u, 101u, 153u, 
 	180u, 39u, 153u, 180u, 78u, 110u, 128u, 226u, 
@@ -137,22 +137,22 @@ static const unsigned char _en_suffix_main_trans_keys[] = {
 	101u, 108u, 109u, 115u, 116u, 0
 };
 
-static const char _en_suffix_main_single_lengths[] = {
+static const char _en_suffix_match_single_lengths[] = {
 	0, 3, 1, 1, 1, 4, 2, 5, 
 	3, 2, 1, 1, 1, 12
 };
 
-static const char _en_suffix_main_range_lengths[] = {
+static const char _en_suffix_match_range_lengths[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0
 };
 
-static const char _en_suffix_main_index_offsets[] = {
+static const char _en_suffix_match_index_offsets[] = {
 	0, 0, 4, 6, 8, 10, 15, 18, 
 	24, 28, 31, 33, 35, 37
 };
 
-static const char _en_suffix_main_indicies[] = {
+static const char _en_suffix_match_indicies[] = {
 	0, 2, 3, 1, 4, 1, 0, 1, 
 	0, 1, 5, 5, 5, 5, 1, 5, 
 	5, 1, 0, 5, 5, 2, 3, 1, 
@@ -162,34 +162,34 @@ static const char _en_suffix_main_indicies[] = {
 	13, 1, 0
 };
 
-static const char _en_suffix_main_trans_targs[] = {
+static const char _en_suffix_match_trans_targs[] = {
 	13, 0, 2, 4, 3, 1, 9, 10, 
 	12, 11, 5, 6, 7, 8
 };
 
-static const char _en_suffix_main_trans_actions[] = {
+static const char _en_suffix_match_trans_actions[] = {
 	1, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0
 };
 
-static const char _en_suffix_main_to_state_actions[] = {
+static const char _en_suffix_match_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 2
 };
 
-static const char _en_suffix_main_from_state_actions[] = {
+static const char _en_suffix_match_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 3
 };
 
-static const int en_suffix_main_start = 13;
-static const int en_suffix_main_first_final = 13;
-static const int en_suffix_main_error = 0;
+static const int en_suffix_match_start = 13;
+static const int en_suffix_match_first_final = 13;
+static const int en_suffix_match_error = 0;
 
-static const int en_suffix_main_en_main = 13;
+static const int en_suffix_match_en_main = 13;
 
 
-#line 17 "gen/suffix_en.rl"
+#line 17 "gen/en_suffix_match.rl"
 
 /* Finds the longest known suffix of a string.
  * "p" must point to the last byte in the string to examine.
@@ -217,17 +217,17 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 104 "gen/suffix_en.ic"
+#line 104 "gen/en_suffix_match.ic"
 	{
-	cs = en_suffix_main_start;
+	cs = en_suffix_match_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
 
-#line 44 "gen/suffix_en.rl"
+#line 44 "gen/en_suffix_match.rl"
    
-#line 114 "gen/suffix_en.ic"
+#line 114 "gen/en_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -238,18 +238,18 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 	if ( cs == 0 )
 		goto _out;
 _resume:
-	switch ( _en_suffix_main_from_state_actions[cs] ) {
+	switch ( _en_suffix_match_from_state_actions[cs] ) {
 	case 3:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 130 "gen/suffix_en.ic"
+#line 130 "gen/en_suffix_match.ic"
 	}
 
-	_keys = _en_suffix_main_trans_keys + _en_suffix_main_key_offsets[cs];
-	_trans = _en_suffix_main_index_offsets[cs];
+	_keys = _en_suffix_match_trans_keys + _en_suffix_match_key_offsets[cs];
+	_trans = _en_suffix_match_index_offsets[cs];
 
-	_klen = _en_suffix_main_single_lengths[cs];
+	_klen = _en_suffix_match_single_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -272,7 +272,7 @@ _resume:
 		_trans += _klen;
 	}
 
-	_klen = _en_suffix_main_range_lengths[cs];
+	_klen = _en_suffix_match_range_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -295,27 +295,27 @@ _resume:
 	}
 
 _match:
-	_trans = _en_suffix_main_indicies[_trans];
-	cs = _en_suffix_main_trans_targs[_trans];
+	_trans = _en_suffix_match_indicies[_trans];
+	cs = _en_suffix_match_trans_targs[_trans];
 
-	if ( _en_suffix_main_trans_actions[_trans] == 0 )
+	if ( _en_suffix_match_trans_actions[_trans] == 0 )
 		goto _again;
 
-	switch ( _en_suffix_main_trans_actions[_trans] ) {
+	switch ( _en_suffix_match_trans_actions[_trans] ) {
 	case 1:
-#line 11 "gen/suffix_en.rl"
+#line 11 "gen/en_suffix_match.rl"
 	{te = p-1;{ return ts + 1 - p; }}
 	break;
-#line 193 "gen/suffix_en.ic"
+#line 193 "gen/en_suffix_match.ic"
 	}
 
 _again:
-	switch ( _en_suffix_main_to_state_actions[cs] ) {
+	switch ( _en_suffix_match_to_state_actions[cs] ) {
 	case 2:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 202 "gen/suffix_en.ic"
+#line 202 "gen/en_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -326,7 +326,7 @@ _again:
 	_out: {}
 	}
 
-#line 45 "gen/suffix_en.rl"
+#line 45 "gen/en_suffix_match.rl"
 
    return 0;
 
@@ -335,10 +335,10 @@ _again:
    (void)te;
    (void)eof;
 }
-#line 5 "tokenize_en.ic"
+#line 5 "en_tokenize.ic"
 
 
-#line 89 "gen/tokenize_en.rl"
+#line 89 "gen/en_tokenize.rl"
 
 
 #define SAVE(t) do {                                                           \
@@ -349,7 +349,7 @@ _again:
 } while (0)
 
 
-#line 19 "gen/tokenize_en.ic"
+#line 19 "gen/en_tokenize.ic"
 static const short _tokenize_en_key_offsets[] = {
 	0, 0, 16, 31, 47, 80, 83, 90, 
 	99, 104, 109, 114, 119, 123, 128, 137, 
@@ -4324,12 +4324,12 @@ static const int tokenize_en_error = 0;
 static const int tokenize_en_en_main = 903;
 
 
-#line 99 "gen/tokenize_en.rl"
+#line 99 "gen/en_tokenize.rl"
 
 static void en_init(struct mascara *mr)
 {
    
-#line 3999 "gen/tokenize_en.ic"
+#line 3999 "gen/en_tokenize.ic"
 	{
 	 mr->cs = tokenize_en_start;
 	 mr->ts = 0;
@@ -4337,13 +4337,13 @@ static void en_init(struct mascara *mr)
 	 mr->act = 0;
 	}
 
-#line 103 "gen/tokenize_en.rl"
+#line 103 "gen/en_tokenize.rl"
 }
 
 static void en_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
    
-#line 4013 "gen/tokenize_en.ic"
+#line 4013 "gen/en_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -4359,7 +4359,7 @@ _resume:
 #line 1 "NONE"
 	{ mr->ts = ( mr->p);}
 	break;
-#line 4029 "gen/tokenize_en.ic"
+#line 4029 "gen/en_tokenize.ic"
 	}
 
 	_keys = _tokenize_en_trans_keys + _tokenize_en_key_offsets[ mr->cs];
@@ -4424,27 +4424,27 @@ _eof_trans:
 	{ mr->te = ( mr->p)+1;}
 	break;
 	case 30:
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 33:
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 35:
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 34:
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 31:
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 36:
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       /* Drop one code point. */
       do mr->te--;
@@ -4455,7 +4455,7 @@ _eof_trans:
    }}
 	break;
 	case 32:
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       SAVE(MR_LATIN);
       mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
@@ -4464,15 +4464,15 @@ _eof_trans:
    }}
 	break;
 	case 27:
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 26:
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 29:
-#line 70 "gen/tokenize_en.rl"
+#line 70 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -4481,31 +4481,31 @@ _eof_trans:
    }}
 	break;
 	case 28:
-#line 76 "gen/tokenize_en.rl"
+#line 76 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;}
 	break;
 	case 9:
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 16:
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 20:
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 18:
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 14:
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 22:
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       /* Drop one code point. */
       do mr->te--;
@@ -4516,7 +4516,7 @@ _eof_trans:
    }}
 	break;
 	case 13:
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       SAVE(MR_LATIN);
       mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
@@ -4525,15 +4525,15 @@ _eof_trans:
    }}
 	break;
 	case 3:
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 4:
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 6:
-#line 70 "gen/tokenize_en.rl"
+#line 70 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -4542,7 +4542,7 @@ _eof_trans:
    }}
 	break;
 	case 8:
-#line 76 "gen/tokenize_en.rl"
+#line 76 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}}
 	break;
 	case 1:
@@ -4606,64 +4606,64 @@ _eof_trans:
 	case 23:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{ mr->act = 1;}
 	break;
 	case 15:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{ mr->act = 2;}
 	break;
 	case 19:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{ mr->act = 3;}
 	break;
 	case 17:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{ mr->act = 4;}
 	break;
 	case 11:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{ mr->act = 5;}
 	break;
 	case 21:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{ mr->act = 7;}
 	break;
 	case 12:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{ mr->act = 8;}
 	break;
 	case 2:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{ mr->act = 9;}
 	break;
 	case 5:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{ mr->act = 10;}
 	break;
 	case 10:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 79 "gen/tokenize_en.rl"
+#line 79 "gen/en_tokenize.rl"
 	{ mr->act = 13;}
 	break;
-#line 4333 "gen/tokenize_en.ic"
+#line 4333 "gen/en_tokenize.ic"
 	}
 
 _again:
@@ -4674,7 +4674,7 @@ _again:
 #line 1 "NONE"
 	{ mr->act = 0;}
 	break;
-#line 4344 "gen/tokenize_en.ic"
+#line 4344 "gen/en_tokenize.ic"
 	}
 
 	if (  mr->cs == 0 )
@@ -4693,30 +4693,30 @@ _again:
 	_out: {}
 	}
 
-#line 108 "gen/tokenize_en.rl"
+#line 108 "gen/en_tokenize.rl"
 }
 #line 43 "api.c"
-#line 1 "tokenize_fr.ic"
+#line 1 "fr_tokenize.ic"
 
-#line 1 "gen/tokenize_fr.rl"
+#line 1 "gen/fr_tokenize.rl"
 /* Generated file, don't edit! */
-#line 1 "suffix_fr.ic"
+#line 1 "fr_suffix_match.ic"
 
-#line 1 "gen/suffix_fr.rl"
+#line 1 "gen/fr_suffix_match.rl"
 /* Generated file, don't edit! */
 
-#line 14 "gen/suffix_fr.rl"
+#line 14 "gen/fr_suffix_match.rl"
 
 
 
-#line 10 "gen/suffix_fr.ic"
-static const char _fr_suffix_main_key_offsets[] = {
+#line 10 "gen/fr_suffix_match.ic"
+static const char _fr_suffix_match_key_offsets[] = {
 	0, 0, 2, 3, 9, 12, 14, 15, 
 	21, 25, 27, 31, 33, 35, 41, 43, 
 	45, 49, 51, 52, 72
 };
 
-static const unsigned char _fr_suffix_main_trans_keys[] = {
+static const unsigned char _fr_suffix_match_trans_keys[] = {
 	76u, 108u, 45u, 67u, 74u, 76u, 99u, 106u, 
 	108u, 45u, 76u, 108u, 69u, 101u, 45u, 67u, 
 	79u, 85u, 99u, 111u, 117u, 77u, 84u, 109u, 
@@ -4729,25 +4729,25 @@ static const unsigned char _fr_suffix_main_trans_keys[] = {
 	84u, 116u, 0
 };
 
-static const char _fr_suffix_main_single_lengths[] = {
+static const char _fr_suffix_match_single_lengths[] = {
 	0, 2, 1, 6, 3, 2, 1, 6, 
 	4, 2, 4, 2, 2, 6, 2, 2, 
 	4, 2, 1, 20, 2
 };
 
-static const char _fr_suffix_main_range_lengths[] = {
+static const char _fr_suffix_match_range_lengths[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0
 };
 
-static const char _fr_suffix_main_index_offsets[] = {
+static const char _fr_suffix_match_index_offsets[] = {
 	0, 0, 3, 5, 12, 16, 19, 21, 
 	28, 33, 36, 41, 44, 47, 54, 57, 
 	60, 65, 68, 70, 91
 };
 
-static const char _fr_suffix_main_indicies[] = {
+static const char _fr_suffix_match_indicies[] = {
 	0, 0, 1, 3, 2, 0, 0, 4, 
 	0, 0, 4, 1, 3, 5, 5, 1, 
 	6, 6, 1, 7, 1, 0, 8, 9, 
@@ -4762,44 +4762,44 @@ static const char _fr_suffix_main_indicies[] = {
 	21, 21, 1, 0, 0, 22, 0
 };
 
-static const char _fr_suffix_main_trans_targs[] = {
+static const char _fr_suffix_match_trans_targs[] = {
 	2, 0, 19, 19, 4, 5, 6, 20, 
 	8, 1, 12, 14, 9, 15, 16, 3, 
 	7, 10, 11, 13, 17, 18, 19
 };
 
-static const char _fr_suffix_main_trans_actions[] = {
+static const char _fr_suffix_match_trans_actions[] = {
 	0, 0, 1, 2, 0, 0, 0, 3, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 6
 };
 
-static const char _fr_suffix_main_to_state_actions[] = {
+static const char _fr_suffix_match_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 4, 0
 };
 
-static const char _fr_suffix_main_from_state_actions[] = {
+static const char _fr_suffix_match_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 5, 0
 };
 
-static const char _fr_suffix_main_eof_trans[] = {
+static const char _fr_suffix_match_eof_trans[] = {
 	0, 0, 3, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 23
 };
 
-static const int fr_suffix_main_start = 19;
-static const int fr_suffix_main_first_final = 19;
-static const int fr_suffix_main_error = 0;
+static const int fr_suffix_match_start = 19;
+static const int fr_suffix_match_first_final = 19;
+static const int fr_suffix_match_error = 0;
 
-static const int fr_suffix_main_en_main = 19;
+static const int fr_suffix_match_en_main = 19;
 
 
-#line 17 "gen/suffix_fr.rl"
+#line 17 "gen/fr_suffix_match.rl"
 
 /* Finds the longest known suffix of a string.
  * "p" must point to the last byte in the string to examine.
@@ -4827,17 +4827,17 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 128 "gen/suffix_fr.ic"
+#line 128 "gen/fr_suffix_match.ic"
 	{
-	cs = fr_suffix_main_start;
+	cs = fr_suffix_match_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
 
-#line 44 "gen/suffix_fr.rl"
+#line 44 "gen/fr_suffix_match.rl"
    
-#line 138 "gen/suffix_fr.ic"
+#line 138 "gen/fr_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -4848,18 +4848,18 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 	if ( cs == 0 )
 		goto _out;
 _resume:
-	switch ( _fr_suffix_main_from_state_actions[cs] ) {
+	switch ( _fr_suffix_match_from_state_actions[cs] ) {
 	case 5:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 154 "gen/suffix_fr.ic"
+#line 154 "gen/fr_suffix_match.ic"
 	}
 
-	_keys = _fr_suffix_main_trans_keys + _fr_suffix_main_key_offsets[cs];
-	_trans = _fr_suffix_main_index_offsets[cs];
+	_keys = _fr_suffix_match_trans_keys + _fr_suffix_match_key_offsets[cs];
+	_trans = _fr_suffix_match_index_offsets[cs];
 
-	_klen = _fr_suffix_main_single_lengths[cs];
+	_klen = _fr_suffix_match_single_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -4882,7 +4882,7 @@ _resume:
 		_trans += _klen;
 	}
 
-	_klen = _fr_suffix_main_range_lengths[cs];
+	_klen = _fr_suffix_match_range_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -4905,20 +4905,20 @@ _resume:
 	}
 
 _match:
-	_trans = _fr_suffix_main_indicies[_trans];
+	_trans = _fr_suffix_match_indicies[_trans];
 _eof_trans:
-	cs = _fr_suffix_main_trans_targs[_trans];
+	cs = _fr_suffix_match_trans_targs[_trans];
 
-	if ( _fr_suffix_main_trans_actions[_trans] == 0 )
+	if ( _fr_suffix_match_trans_actions[_trans] == 0 )
 		goto _again;
 
-	switch ( _fr_suffix_main_trans_actions[_trans] ) {
+	switch ( _fr_suffix_match_trans_actions[_trans] ) {
 	case 2:
-#line 11 "gen/suffix_fr.rl"
+#line 11 "gen/fr_suffix_match.rl"
 	{te = p-1;{ return ts + 1 - p; }}
 	break;
 	case 6:
-#line 11 "gen/suffix_fr.rl"
+#line 11 "gen/fr_suffix_match.rl"
 	{te = p;p++;{ return ts + 1 - p; }}
 	break;
 	case 1:
@@ -4936,21 +4936,21 @@ _eof_trans:
 	case 3:
 #line 1 "NONE"
 	{te = p-1;}
-#line 11 "gen/suffix_fr.rl"
+#line 11 "gen/fr_suffix_match.rl"
 	{act = 1;}
 	break;
-#line 240 "gen/suffix_fr.ic"
+#line 240 "gen/fr_suffix_match.ic"
 	}
 
 _again:
-	switch ( _fr_suffix_main_to_state_actions[cs] ) {
+	switch ( _fr_suffix_match_to_state_actions[cs] ) {
 	case 4:
 #line 1 "NONE"
 	{ts = 0;}
 #line 1 "NONE"
 	{act = 0;}
 	break;
-#line 251 "gen/suffix_fr.ic"
+#line 251 "gen/fr_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -4960,8 +4960,8 @@ _again:
 	_test_eof: {}
 	if ( p == eof )
 	{
-	if ( _fr_suffix_main_eof_trans[cs] > 0 ) {
-		_trans = _fr_suffix_main_eof_trans[cs] - 1;
+	if ( _fr_suffix_match_eof_trans[cs] > 0 ) {
+		_trans = _fr_suffix_match_eof_trans[cs] - 1;
 		goto _eof_trans;
 	}
 	}
@@ -4969,7 +4969,7 @@ _again:
 	_out: {}
 	}
 
-#line 45 "gen/suffix_fr.rl"
+#line 45 "gen/fr_suffix_match.rl"
 
    return 0;
 
@@ -4978,10 +4978,10 @@ _again:
    (void)te;
    (void)eof;
 }
-#line 5 "tokenize_fr.ic"
+#line 5 "fr_tokenize.ic"
 
 
-#line 89 "gen/tokenize_fr.rl"
+#line 89 "gen/fr_tokenize.rl"
 
 
 #define SAVE(t) do {                                                           \
@@ -4992,7 +4992,7 @@ _again:
 } while (0)
 
 
-#line 19 "gen/tokenize_fr.ic"
+#line 19 "gen/fr_tokenize.ic"
 static const short _tokenize_fr_key_offsets[] = {
 	0, 0, 16, 31, 47, 80, 83, 90, 
 	99, 104, 109, 114, 119, 123, 128, 137, 
@@ -9414,12 +9414,12 @@ static const int tokenize_fr_error = 0;
 static const int tokenize_fr_en_main = 926;
 
 
-#line 99 "gen/tokenize_fr.rl"
+#line 99 "gen/fr_tokenize.rl"
 
 static void fr_init(struct mascara *mr)
 {
    
-#line 4446 "gen/tokenize_fr.ic"
+#line 4446 "gen/fr_tokenize.ic"
 	{
 	 mr->cs = tokenize_fr_start;
 	 mr->ts = 0;
@@ -9427,13 +9427,13 @@ static void fr_init(struct mascara *mr)
 	 mr->act = 0;
 	}
 
-#line 103 "gen/tokenize_fr.rl"
+#line 103 "gen/fr_tokenize.rl"
 }
 
 static void fr_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
    
-#line 4460 "gen/tokenize_fr.ic"
+#line 4460 "gen/fr_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -9449,7 +9449,7 @@ _resume:
 #line 1 "NONE"
 	{ mr->ts = ( mr->p);}
 	break;
-#line 4476 "gen/tokenize_fr.ic"
+#line 4476 "gen/fr_tokenize.ic"
 	}
 
 	_keys = _tokenize_fr_trans_keys + _tokenize_fr_key_offsets[ mr->cs];
@@ -9514,27 +9514,27 @@ _eof_trans:
 	{ mr->te = ( mr->p)+1;}
 	break;
 	case 30:
-#line 28 "gen/tokenize_fr.rl"
+#line 28 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 33:
-#line 29 "gen/tokenize_fr.rl"
+#line 29 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 35:
-#line 30 "gen/tokenize_fr.rl"
+#line 30 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 34:
-#line 31 "gen/tokenize_fr.rl"
+#line 31 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 31:
-#line 32 "gen/tokenize_fr.rl"
+#line 32 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 36:
-#line 49 "gen/tokenize_fr.rl"
+#line 49 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       /* Drop one code point. */
       do mr->te--;
@@ -9545,7 +9545,7 @@ _eof_trans:
    }}
 	break;
 	case 32:
-#line 61 "gen/tokenize_fr.rl"
+#line 61 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       SAVE(MR_LATIN);
       mr->suffix_len = fr_suffix(mr->te - 1, mr->ts);
@@ -9554,15 +9554,15 @@ _eof_trans:
    }}
 	break;
 	case 27:
-#line 68 "gen/tokenize_fr.rl"
+#line 68 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 26:
-#line 69 "gen/tokenize_fr.rl"
+#line 69 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 29:
-#line 70 "gen/tokenize_fr.rl"
+#line 70 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -9571,31 +9571,31 @@ _eof_trans:
    }}
 	break;
 	case 28:
-#line 76 "gen/tokenize_fr.rl"
+#line 76 "gen/fr_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;}
 	break;
 	case 10:
-#line 28 "gen/tokenize_fr.rl"
+#line 28 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 15:
-#line 29 "gen/tokenize_fr.rl"
+#line 29 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 22:
-#line 30 "gen/tokenize_fr.rl"
+#line 30 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 17:
-#line 31 "gen/tokenize_fr.rl"
+#line 31 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 13:
-#line 32 "gen/tokenize_fr.rl"
+#line 32 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 20:
-#line 49 "gen/tokenize_fr.rl"
+#line 49 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       /* Drop one code point. */
       do mr->te--;
@@ -9606,7 +9606,7 @@ _eof_trans:
    }}
 	break;
 	case 12:
-#line 61 "gen/tokenize_fr.rl"
+#line 61 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       SAVE(MR_LATIN);
       mr->suffix_len = fr_suffix(mr->te - 1, mr->ts);
@@ -9615,15 +9615,15 @@ _eof_trans:
    }}
 	break;
 	case 3:
-#line 68 "gen/tokenize_fr.rl"
+#line 68 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 4:
-#line 69 "gen/tokenize_fr.rl"
+#line 69 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 6:
-#line 70 "gen/tokenize_fr.rl"
+#line 70 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -9632,7 +9632,7 @@ _eof_trans:
    }}
 	break;
 	case 8:
-#line 76 "gen/tokenize_fr.rl"
+#line 76 "gen/fr_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}}
 	break;
 	case 1:
@@ -9689,64 +9689,64 @@ _eof_trans:
 	case 23:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 28 "gen/tokenize_fr.rl"
+#line 28 "gen/fr_tokenize.rl"
 	{ mr->act = 1;}
 	break;
 	case 14:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 29 "gen/tokenize_fr.rl"
+#line 29 "gen/fr_tokenize.rl"
 	{ mr->act = 2;}
 	break;
 	case 18:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 30 "gen/tokenize_fr.rl"
+#line 30 "gen/fr_tokenize.rl"
 	{ mr->act = 3;}
 	break;
 	case 16:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 31 "gen/tokenize_fr.rl"
+#line 31 "gen/fr_tokenize.rl"
 	{ mr->act = 4;}
 	break;
 	case 9:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 32 "gen/tokenize_fr.rl"
+#line 32 "gen/fr_tokenize.rl"
 	{ mr->act = 5;}
 	break;
 	case 21:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 33 "gen/tokenize_fr.rl"
+#line 33 "gen/fr_tokenize.rl"
 	{ mr->act = 6;}
 	break;
 	case 19:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 49 "gen/tokenize_fr.rl"
+#line 49 "gen/fr_tokenize.rl"
 	{ mr->act = 7;}
 	break;
 	case 11:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 61 "gen/tokenize_fr.rl"
+#line 61 "gen/fr_tokenize.rl"
 	{ mr->act = 8;}
 	break;
 	case 2:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 68 "gen/tokenize_fr.rl"
+#line 68 "gen/fr_tokenize.rl"
 	{ mr->act = 9;}
 	break;
 	case 5:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 69 "gen/tokenize_fr.rl"
+#line 69 "gen/fr_tokenize.rl"
 	{ mr->act = 10;}
 	break;
-#line 4773 "gen/tokenize_fr.ic"
+#line 4773 "gen/fr_tokenize.ic"
 	}
 
 _again:
@@ -9757,7 +9757,7 @@ _again:
 #line 1 "NONE"
 	{ mr->act = 0;}
 	break;
-#line 4784 "gen/tokenize_fr.ic"
+#line 4784 "gen/fr_tokenize.ic"
 	}
 
 	if (  mr->cs == 0 )
@@ -9776,7 +9776,7 @@ _again:
 	_out: {}
 	}
 
-#line 108 "gen/tokenize_fr.rl"
+#line 108 "gen/fr_tokenize.rl"
 }
 #line 44 "api.c"
 
@@ -9842,7 +9842,7 @@ void mr_set_text(struct mascara *mr, const char *str, size_t len)
    mr->eof = mr->pe;
    mr->tokenizer->init(mr);
    
-   /* Skip the leading BOM, if any. Preserver correct token offsets. */
+   /* Skip the leading BOM, if any. Preserve correct token offsets. */
    if (len >= 3 && s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf)
       mr->p += 3;
 }

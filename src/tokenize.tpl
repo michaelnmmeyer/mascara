@@ -1,4 +1,4 @@
-#include "suffix_$LANG.ic"
+#include "$LANG_suffix_match.ic"
 
 %%{
 
@@ -16,7 +16,7 @@ include whitespace "whitespace.rl";
 include numeric "numeric.rl";
 include latin "latin.rl";
 include misc "misc.rl";
-include word "word_$LANG.rl";
+include word "$LANG_word.rl";
 include $LANG_lexicon "$LANG_lexicon.rl";
 include en_assimilation "en_assimilation.rl";
 

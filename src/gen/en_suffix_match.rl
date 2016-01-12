@@ -1,7 +1,7 @@
 /* Generated file, don't edit! */
 %%{
 
-machine en_suffix_main;
+machine en_suffix_match;
 
 include en_suffix "en_suffix.rl";
 

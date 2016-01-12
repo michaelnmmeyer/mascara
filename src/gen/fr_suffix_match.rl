@@ -1,13 +1,14 @@
+/* Generated file, don't edit! */
 %%{
 
-machine $LANG_suffix_main;
+machine fr_suffix_match;
 
-include $LANG_suffix "$LANG_suffix.rl";
+include fr_suffix "fr_suffix.rl";
 
 alphtype unsigned char;
 
 main := |*
-   $LANG_suffix => { return ts + 1 - p; };
+   fr_suffix => { return ts + 1 - p; };
 *|;
 
 }%%
@@ -33,7 +34,7 @@ main := |*
  *
  * If a suffix is found, returns its length, otherwise zero.
  */
-static size_t $LANG_suffix(const unsigned char *p, const unsigned char *pe)
+static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 {
    int cs, act;
    const unsigned char *ts, *te;

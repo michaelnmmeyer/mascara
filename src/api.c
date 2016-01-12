@@ -39,8 +39,8 @@ struct mascara {
 
 #define MR_PARA_BREAK 666
 
-#include "gen/tokenize_en.ic"
-#include "gen/tokenize_fr.ic"
+#include "gen/en_tokenize.ic"
+#include "gen/fr_tokenize.ic"
 
 static const struct tokenizer *find_tokenizer(const char *name)
 {
@@ -104,7 +104,7 @@ void mr_set_text(struct mascara *mr, const char *str, size_t len)
    mr->eof = mr->pe;
    mr->tokenizer->init(mr);
    
-   /* Skip the leading BOM, if any. Preserver correct token offsets. */
+   /* Skip the leading BOM, if any. Preserve correct token offsets. */
    if (len >= 3 && s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf)
       mr->p += 3;
 }

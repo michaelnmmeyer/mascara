@@ -18,8 +18,8 @@ def reverse_machine(code):
 
 path = sys.argv[1]
 
-with open(path) as fp:
+with open(path, encoding="UTF-8") as fp:
    code = reverse_machine(fp.read())
 
-with open(path, "w") as fp:
+with open(path, "w", encoding="UTF-8") as fp:
    fp.write(code)

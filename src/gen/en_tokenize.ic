@@ -1,10 +1,10 @@
 
-#line 1 "gen/tokenize_en.rl"
+#line 1 "gen/en_tokenize.rl"
 /* Generated file, don't edit! */
-#include "suffix_en.ic"
+#include "en_suffix_match.ic"
 
 
-#line 89 "gen/tokenize_en.rl"
+#line 89 "gen/en_tokenize.rl"
 
 
 #define SAVE(t) do {                                                           \
@@ -15,7 +15,7 @@
 } while (0)
 
 
-#line 19 "gen/tokenize_en.ic"
+#line 19 "gen/en_tokenize.ic"
 static const short _tokenize_en_key_offsets[] = {
 	0, 0, 16, 31, 47, 80, 83, 90, 
 	99, 104, 109, 114, 119, 123, 128, 137, 
@@ -3990,12 +3990,12 @@ static const int tokenize_en_error = 0;
 static const int tokenize_en_en_main = 903;
 
 
-#line 99 "gen/tokenize_en.rl"
+#line 99 "gen/en_tokenize.rl"
 
 static void en_init(struct mascara *mr)
 {
    
-#line 3999 "gen/tokenize_en.ic"
+#line 3999 "gen/en_tokenize.ic"
 	{
 	 mr->cs = tokenize_en_start;
 	 mr->ts = 0;
@@ -4003,13 +4003,13 @@ static void en_init(struct mascara *mr)
 	 mr->act = 0;
 	}
 
-#line 103 "gen/tokenize_en.rl"
+#line 103 "gen/en_tokenize.rl"
 }
 
 static void en_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
    
-#line 4013 "gen/tokenize_en.ic"
+#line 4013 "gen/en_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -4025,7 +4025,7 @@ _resume:
 #line 1 "NONE"
 	{ mr->ts = ( mr->p);}
 	break;
-#line 4029 "gen/tokenize_en.ic"
+#line 4029 "gen/en_tokenize.ic"
 	}
 
 	_keys = _tokenize_en_trans_keys + _tokenize_en_key_offsets[ mr->cs];
@@ -4090,27 +4090,27 @@ _eof_trans:
 	{ mr->te = ( mr->p)+1;}
 	break;
 	case 30:
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 33:
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 35:
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 34:
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 31:
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 36:
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       /* Drop one code point. */
       do mr->te--;
@@ -4121,7 +4121,7 @@ _eof_trans:
    }}
 	break;
 	case 32:
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       SAVE(MR_LATIN);
       mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
@@ -4130,15 +4130,15 @@ _eof_trans:
    }}
 	break;
 	case 27:
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 26:
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 29:
-#line 70 "gen/tokenize_en.rl"
+#line 70 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -4147,31 +4147,31 @@ _eof_trans:
    }}
 	break;
 	case 28:
-#line 76 "gen/tokenize_en.rl"
+#line 76 "gen/en_tokenize.rl"
 	{ mr->te = ( mr->p);( mr->p)--;}
 	break;
 	case 9:
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_SYM); {( mr->p)++; goto _out; } }}
 	break;
 	case 16:
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_PATH); {( mr->p)++; goto _out; } }}
 	break;
 	case 20:
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_URI); {( mr->p)++; goto _out; } }}
 	break;
 	case 18:
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_ABBR); {( mr->p)++; goto _out; } }}
 	break;
 	case 14:
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_NUM); {( mr->p)++; goto _out; } }}
 	break;
 	case 22:
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       /* Drop one code point. */
       do mr->te--;
@@ -4182,7 +4182,7 @@ _eof_trans:
    }}
 	break;
 	case 13:
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       SAVE(MR_LATIN);
       mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
@@ -4191,15 +4191,15 @@ _eof_trans:
    }}
 	break;
 	case 3:
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_EMAIL); {( mr->p)++; goto _out; } }}
 	break;
 	case 4:
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{ SAVE(MR_UNK); {( mr->p)++; goto _out; } }}
 	break;
 	case 6:
-#line 70 "gen/tokenize_en.rl"
+#line 70 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}{
       if (emit_para) {
          SAVE(MR_PARA_BREAK);
@@ -4208,7 +4208,7 @@ _eof_trans:
    }}
 	break;
 	case 8:
-#line 76 "gen/tokenize_en.rl"
+#line 76 "gen/en_tokenize.rl"
 	{{( mr->p) = (( mr->te))-1;}}
 	break;
 	case 1:
@@ -4272,64 +4272,64 @@ _eof_trans:
 	case 23:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 28 "gen/tokenize_en.rl"
+#line 28 "gen/en_tokenize.rl"
 	{ mr->act = 1;}
 	break;
 	case 15:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 29 "gen/tokenize_en.rl"
+#line 29 "gen/en_tokenize.rl"
 	{ mr->act = 2;}
 	break;
 	case 19:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 30 "gen/tokenize_en.rl"
+#line 30 "gen/en_tokenize.rl"
 	{ mr->act = 3;}
 	break;
 	case 17:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 31 "gen/tokenize_en.rl"
+#line 31 "gen/en_tokenize.rl"
 	{ mr->act = 4;}
 	break;
 	case 11:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 32 "gen/tokenize_en.rl"
+#line 32 "gen/en_tokenize.rl"
 	{ mr->act = 5;}
 	break;
 	case 21:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 49 "gen/tokenize_en.rl"
+#line 49 "gen/en_tokenize.rl"
 	{ mr->act = 7;}
 	break;
 	case 12:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 61 "gen/tokenize_en.rl"
+#line 61 "gen/en_tokenize.rl"
 	{ mr->act = 8;}
 	break;
 	case 2:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 68 "gen/tokenize_en.rl"
+#line 68 "gen/en_tokenize.rl"
 	{ mr->act = 9;}
 	break;
 	case 5:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 69 "gen/tokenize_en.rl"
+#line 69 "gen/en_tokenize.rl"
 	{ mr->act = 10;}
 	break;
 	case 10:
 #line 1 "NONE"
 	{ mr->te = ( mr->p)+1;}
-#line 79 "gen/tokenize_en.rl"
+#line 79 "gen/en_tokenize.rl"
 	{ mr->act = 13;}
 	break;
-#line 4333 "gen/tokenize_en.ic"
+#line 4333 "gen/en_tokenize.ic"
 	}
 
 _again:
@@ -4340,7 +4340,7 @@ _again:
 #line 1 "NONE"
 	{ mr->act = 0;}
 	break;
-#line 4344 "gen/tokenize_en.ic"
+#line 4344 "gen/en_tokenize.ic"
 	}
 
 	if (  mr->cs == 0 )
@@ -4359,5 +4359,5 @@ _again:
 	_out: {}
 	}
 
-#line 108 "gen/tokenize_en.rl"
+#line 108 "gen/en_tokenize.rl"
 }

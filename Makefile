@@ -14,9 +14,6 @@ all: $(AMALG) mascara example
 clean:
 	rm -f mascara test/mascara.so vgcore* core
 
-realclean: clean
-	rm -f cmd/*.ih src/gen/*
-
 check: test/mascara.so
 	cd test && valgrind --leak-check=full --error-exitcode=1 lua test.lua
 
@@ -26,7 +23,7 @@ install: mascara
 uninstall:
 	rm -f $(PREFIX)/bin/mascara
 
-.PHONY: all clean realclean check install uninstall
+.PHONY: all clean check install uninstall
 
 
 #--------------------------------------
@@ -48,5 +45,5 @@ mascara: $(AMALG) cmd/mascara.ih cmd/mascara.c cmd/cmd.c
 example: example.c $(AMALG)
 	$(CC) $(CFLAGS) $< mascara.c -o $@
 
-test/mascara.so: $(AMALG) test/mascara.c
-	$(CC) $(CFLAGS) -fPIC -shared mascara.c test/mascara.c -o $@
+test/mascara.so: test/mascara.c $(AMALG)
+	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c -o $@

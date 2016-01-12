@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-LANGS = ["en", "fr"]
-
 import os, sys, unicodedata
 
 TPL = """\
@@ -107,12 +105,11 @@ def load_words(fp):
          words.append(word)
    return words
 
-for lang in LANGS:
-   for category in ("prefix", "suffix", "lexicon"):
-      path = full_path("%s_%s.txt" % (lang, category))
-      with open(path, encoding="UTF-8") as fp:
-         tks = load_words(fp)
-      machine = mkmachine(tks, lang, category)
-      path = full_path("gen/%s_%s.rl" % (lang, category))
-      with open(path, "w", encoding="UTF-8") as fp:
-         fp.write(machine)
+name = sys.argv[1]
+path = full_path(name) + ".txt"
+with open(path, encoding="UTF-8") as fp:
+   tks = load_words(fp)
+
+lang, category = name.split("_")
+machine = mkmachine(tks, lang, category)
+sys.stdout.buffer.write(machine.encode())

@@ -72,26 +72,21 @@ tpl_tail = """\
 ;
 
 }%%"""
-def dump_machine(fp, name, code_points):
-   print(tpl_head.replace("NAME", name), file=fp)
+def mkmachine(name, code_points):
+   uni_data = load_unidata()
+   print(tpl_head.replace("NAME", name))
    sep = " "
    for c in code_points:
       bytes = [hex(b) for b in chr(c).encode("UTF-8")]
-      print("%s %s" % (sep, " ".join(bytes)), file=fp)
+      print("%s %s # %s" % (sep, " ".join(bytes), uni_data[c]))
       sep = "|"
-   print(tpl_tail, file=fp)
+   print(tpl_tail)
 
-def dump_code_points(name, code_points):
-   code_points = sorted(code_points)
-   this_dir = os.path.dirname(__file__)
-   out_file = os.path.join(this_dir, "gen", name)
-   with open(out_file + ".rl", "w") as fp:
-      dump_machine(fp, name, code_points)
-   uni_data = load_unidata()
-   # Also dump a description of the machine for debugging.
-   with open(out_file + ".txt", "w") as fp:
-      for c in code_points:
-         print(uni_data[c], file=fp)
 
-dump_code_points("raw_latin_letter", latin_letters())
-dump_code_points("combining_diacritic", combining_diacritics())
+MACHINES = {
+   "raw_latin_letter": latin_letters,
+   "combining_diacritic": combining_diacritics,
+}
+
+name = sys.argv[1]
+mkmachine(name, MACHINES[name]())

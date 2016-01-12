@@ -1,9 +1,9 @@
 /* Generated file, don't edit! */
-#include "suffix_fr.ic"
+#include "en_suffix_match.ic"
 
 %%{
 
-machine tokenize_fr;
+machine tokenize_en;
 
 alphtype unsigned char;
 
@@ -17,9 +17,9 @@ include whitespace "whitespace.rl";
 include numeric "numeric.rl";
 include latin "latin.rl";
 include misc "misc.rl";
-include word "word_fr.rl";
-include fr_lexicon "fr_lexicon.rl";
-include void "void.rl";
+include word "en_word.rl";
+include en_lexicon "en_lexicon.rl";
+include en_assimilation "en_assimilation.rl";
 
 # Patterns order is significant: when there is an ambiguity, the first ones
 # take precedence.
@@ -30,7 +30,7 @@ main := |*
    uri            => { SAVE(MR_URI); fbreak; };
    abbreviation   => { SAVE(MR_ABBR); fbreak; };
    numeric        => { SAVE(MR_NUM); fbreak; };
-   fr_lexicon  => { SAVE(MR_LATIN); fbreak; };
+   en_lexicon  => { SAVE(MR_LATIN); fbreak; };
 
    # A one-code-point lookahead is needed for elisions, to avoid tokenizing
    # strings like:
@@ -60,7 +60,7 @@ main := |*
    # that directly in the machine.
    word => {
       SAVE(MR_LATIN);
-      mr->suffix_len = fr_suffix(mr->te - 1, mr->ts);
+      mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
       tk->len -= mr->suffix_len;
       fbreak;
    };
@@ -76,7 +76,7 @@ main := |*
    whitespace+;
    
    # Split assimilations: 'twas -> 't, was. Only done for English.
-   void => {
+   en_assimilation => {
       mr->te = mr->ts + 2;
       while (mr->te[-1] != 't' && mr->te[-1] != 'T')
          mr->te++;
@@ -97,12 +97,12 @@ main := |*
 
 %% write data;
 
-static void fr_init(struct mascara *mr)
+static void en_init(struct mascara *mr)
 {
    %% write init;
 }
 
-static void fr_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
+static void en_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
 {
    %% write exec;
 }
