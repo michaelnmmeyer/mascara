@@ -35,7 +35,7 @@ local function check(test)
    end
    if #tokens ~= #test.output then check_fail(test.output, tokens) end
    for i, tok in ipairs(tokens) do
-      if type(tok) == "string" then
+      if type(tok) ~= "table" then
          if tok ~= test.output[i] then
             check_fail(test.output, tokens)
          end
@@ -49,6 +49,12 @@ local function check(test)
    end
 end
 
+-- Don't mess up offsets when the input text starts with a BOM.
+check{
+   input = "\xef\xbb\xbffoo",
+   output = {3},
+   format = "offset",
+}
 
 -- Must not split tokens on extended diacritics.
 check{
