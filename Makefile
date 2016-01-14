@@ -12,7 +12,7 @@ AMALG = mascara.h mascara.c
 all: $(AMALG) mascara example
 
 clean:
-	rm -f mascara test/mascara.so vgcore* core
+	rm -f mascara example test/mascara.so vgcore* core
 
 check: test/mascara.so
 	cd test && valgrind --leak-check=full --error-exitcode=1 lua test.lua

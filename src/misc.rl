@@ -5,6 +5,9 @@
 machine misc;
 
 include utf8 "utf8.rl";
+include latin "latin.rl";
+include whitespace "whitespace.rl";
+include symbol "symbol.rl";
 
 # Abbreviation.
 #
