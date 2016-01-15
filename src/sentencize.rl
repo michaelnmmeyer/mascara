@@ -113,7 +113,7 @@ main := whitespace* %{ start = fpc; }
 
 }%%
 
-%% write data;
+%% write data noerror nofinal;
 
 static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
                                           size_t *len,
@@ -144,4 +144,6 @@ found:
    return start;
    
    (void)stack;
+   (void)sentencize_en_main;
+   (void)sentencize_en_find_eos;
 }

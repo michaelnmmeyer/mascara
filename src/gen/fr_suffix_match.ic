@@ -90,8 +90,6 @@ static const char _fr_suffix_match_eof_trans[] = {
 };
 
 static const int fr_suffix_match_start = 19;
-static const int fr_suffix_match_first_final = 19;
-static const int fr_suffix_match_error = 0;
 
 static const int fr_suffix_match_en_main = 19;
 
@@ -124,7 +122,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 128 "gen/fr_suffix_match.ic"
+#line 126 "gen/fr_suffix_match.ic"
 	{
 	cs = fr_suffix_match_start;
 	ts = 0;
@@ -134,7 +132,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 
 #line 44 "gen/fr_suffix_match.rl"
    
-#line 138 "gen/fr_suffix_match.ic"
+#line 136 "gen/fr_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -150,7 +148,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 154 "gen/fr_suffix_match.ic"
+#line 152 "gen/fr_suffix_match.ic"
 	}
 
 	_keys = _fr_suffix_match_trans_keys + _fr_suffix_match_key_offsets[cs];
@@ -236,7 +234,7 @@ _eof_trans:
 #line 11 "gen/fr_suffix_match.rl"
 	{act = 1;}
 	break;
-#line 240 "gen/fr_suffix_match.ic"
+#line 238 "gen/fr_suffix_match.ic"
 	}
 
 _again:
@@ -247,7 +245,7 @@ _again:
 #line 1 "NONE"
 	{act = 0;}
 	break;
-#line 251 "gen/fr_suffix_match.ic"
+#line 249 "gen/fr_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -274,4 +272,6 @@ _again:
    (void)act;
    (void)te;
    (void)eof;
+   
+   (void)fr_suffix_match_en_main;
 }

@@ -3253,8 +3253,6 @@ static const short _sentencize_eof_trans[] = {
 };
 
 static const int sentencize_start = 1;
-static const int sentencize_first_final = 464;
-static const int sentencize_error = 0;
 
 static const int sentencize_en_find_eos = 465;
 static const int sentencize_en_main = 1;
@@ -3276,7 +3274,7 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
    *period = NULL;
 
    
-#line 3032 "gen/sentencize.ic"
+#line 3030 "gen/sentencize.ic"
 	{
 	cs = sentencize_start;
 	top = 0;
@@ -3287,7 +3285,7 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
 
 #line 132 "sentencize.rl"
    
-#line 3043 "gen/sentencize.ic"
+#line 3041 "gen/sentencize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -3303,7 +3301,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 3059 "gen/sentencize.ic"
+#line 3057 "gen/sentencize.ic"
 	}
 
 	_keys = _sentencize_trans_keys + _sentencize_key_offsets[cs];
@@ -3505,7 +3503,7 @@ _eof_trans:
 #line 108 "sentencize.rl"
 	{act = 6;}
 	break;
-#line 3261 "gen/sentencize.ic"
+#line 3259 "gen/sentencize.ic"
 	}
 
 _again:
@@ -3514,7 +3512,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 3270 "gen/sentencize.ic"
+#line 3268 "gen/sentencize.ic"
 	}
 
 	if ( cs == 0 )
@@ -3548,6 +3546,8 @@ found:
    return start;
    
    (void)stack;
+   (void)sentencize_en_main;
+   (void)sentencize_en_find_eos;
 }
 #line 4 "sentencize.c"
 
@@ -3723,8 +3723,6 @@ static const char _en_suffix_match_from_state_actions[] = {
 };
 
 static const int en_suffix_match_start = 13;
-static const int en_suffix_match_first_final = 13;
-static const int en_suffix_match_error = 0;
 
 static const int en_suffix_match_en_main = 13;
 
@@ -3757,7 +3755,7 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 104 "gen/en_suffix_match.ic"
+#line 102 "gen/en_suffix_match.ic"
 	{
 	cs = en_suffix_match_start;
 	ts = 0;
@@ -3767,7 +3765,7 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 
 #line 44 "gen/en_suffix_match.rl"
    
-#line 114 "gen/en_suffix_match.ic"
+#line 112 "gen/en_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -3783,7 +3781,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 130 "gen/en_suffix_match.ic"
+#line 128 "gen/en_suffix_match.ic"
 	}
 
 	_keys = _en_suffix_match_trans_keys + _en_suffix_match_key_offsets[cs];
@@ -3846,7 +3844,7 @@ _match:
 #line 11 "gen/en_suffix_match.rl"
 	{te = p-1;{ return ts + 1 - p; }}
 	break;
-#line 193 "gen/en_suffix_match.ic"
+#line 191 "gen/en_suffix_match.ic"
 	}
 
 _again:
@@ -3855,7 +3853,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 202 "gen/en_suffix_match.ic"
+#line 200 "gen/en_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -3874,6 +3872,8 @@ _again:
    (void)act;
    (void)te;
    (void)eof;
+   
+   (void)en_suffix_match_en_main;
 }
 #line 5 "en_tokenize.ic"
 
@@ -7831,8 +7831,6 @@ static const short _tokenize_en_eof_trans[] = {
 };
 
 static const int tokenize_en_start = 895;
-static const int tokenize_en_first_final = 895;
-static const int tokenize_en_error = 0;
 
 static const int tokenize_en_en_main = 895;
 
@@ -7842,7 +7840,7 @@ static const int tokenize_en_en_main = 895;
 static void en_init(struct mr_tokenizer *tkr)
 {
    
-#line 3972 "gen/en_tokenize.ic"
+#line 3970 "gen/en_tokenize.ic"
 	{
 	 tkr->cs = tokenize_en_start;
 	 tkr->ts = 0;
@@ -7856,7 +7854,7 @@ static void en_init(struct mr_tokenizer *tkr)
 static void en_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    
-#line 3986 "gen/en_tokenize.ic"
+#line 3984 "gen/en_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -7872,7 +7870,7 @@ _resume:
 #line 1 "NONE"
 	{ tkr->ts = ( tkr->p);}
 	break;
-#line 4002 "gen/en_tokenize.ic"
+#line 4000 "gen/en_tokenize.ic"
 	}
 
 	_keys = _tokenize_en_trans_keys + _tokenize_en_key_offsets[ tkr->cs];
@@ -8158,7 +8156,7 @@ _eof_trans:
 #line 73 "gen/en_tokenize.rl"
 	{ tkr->act = 12;}
 	break;
-#line 4288 "gen/en_tokenize.ic"
+#line 4286 "gen/en_tokenize.ic"
 	}
 
 _again:
@@ -8169,7 +8167,7 @@ _again:
 #line 1 "NONE"
 	{ tkr->act = 0;}
 	break;
-#line 4299 "gen/en_tokenize.ic"
+#line 4297 "gen/en_tokenize.ic"
 	}
 
 	if (  tkr->cs == 0 )
@@ -8189,6 +8187,8 @@ _again:
 	}
 
 #line 102 "gen/en_tokenize.rl"
+   
+   (void)tokenize_en_en_main;
 }
 #line 4 "tokenize.c"
 #line 1 "fr_tokenize.ic"
@@ -8288,8 +8288,6 @@ static const char _fr_suffix_match_eof_trans[] = {
 };
 
 static const int fr_suffix_match_start = 19;
-static const int fr_suffix_match_first_final = 19;
-static const int fr_suffix_match_error = 0;
 
 static const int fr_suffix_match_en_main = 19;
 
@@ -8322,7 +8320,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 128 "gen/fr_suffix_match.ic"
+#line 126 "gen/fr_suffix_match.ic"
 	{
 	cs = fr_suffix_match_start;
 	ts = 0;
@@ -8332,7 +8330,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 
 #line 44 "gen/fr_suffix_match.rl"
    
-#line 138 "gen/fr_suffix_match.ic"
+#line 136 "gen/fr_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -8348,7 +8346,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 154 "gen/fr_suffix_match.ic"
+#line 152 "gen/fr_suffix_match.ic"
 	}
 
 	_keys = _fr_suffix_match_trans_keys + _fr_suffix_match_key_offsets[cs];
@@ -8434,7 +8432,7 @@ _eof_trans:
 #line 11 "gen/fr_suffix_match.rl"
 	{act = 1;}
 	break;
-#line 240 "gen/fr_suffix_match.ic"
+#line 238 "gen/fr_suffix_match.ic"
 	}
 
 _again:
@@ -8445,7 +8443,7 @@ _again:
 #line 1 "NONE"
 	{act = 0;}
 	break;
-#line 251 "gen/fr_suffix_match.ic"
+#line 249 "gen/fr_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -8472,6 +8470,8 @@ _again:
    (void)act;
    (void)te;
    (void)eof;
+   
+   (void)fr_suffix_match_en_main;
 }
 #line 5 "fr_tokenize.ic"
 
@@ -12883,8 +12883,6 @@ static const short _tokenize_fr_eof_trans[] = {
 };
 
 static const int tokenize_fr_start = 918;
-static const int tokenize_fr_first_final = 918;
-static const int tokenize_fr_error = 0;
 
 static const int tokenize_fr_en_main = 918;
 
@@ -12894,7 +12892,7 @@ static const int tokenize_fr_en_main = 918;
 static void fr_init(struct mr_tokenizer *tkr)
 {
    
-#line 4426 "gen/fr_tokenize.ic"
+#line 4424 "gen/fr_tokenize.ic"
 	{
 	 tkr->cs = tokenize_fr_start;
 	 tkr->ts = 0;
@@ -12908,7 +12906,7 @@ static void fr_init(struct mr_tokenizer *tkr)
 static void fr_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    
-#line 4440 "gen/fr_tokenize.ic"
+#line 4438 "gen/fr_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -12924,7 +12922,7 @@ _resume:
 #line 1 "NONE"
 	{ tkr->ts = ( tkr->p);}
 	break;
-#line 4456 "gen/fr_tokenize.ic"
+#line 4454 "gen/fr_tokenize.ic"
 	}
 
 	_keys = _tokenize_fr_trans_keys + _tokenize_fr_key_offsets[ tkr->cs];
@@ -13203,7 +13201,7 @@ _eof_trans:
 #line 69 "gen/fr_tokenize.rl"
 	{ tkr->act = 10;}
 	break;
-#line 4735 "gen/fr_tokenize.ic"
+#line 4733 "gen/fr_tokenize.ic"
 	}
 
 _again:
@@ -13214,7 +13212,7 @@ _again:
 #line 1 "NONE"
 	{ tkr->act = 0;}
 	break;
-#line 4746 "gen/fr_tokenize.ic"
+#line 4744 "gen/fr_tokenize.ic"
 	}
 
 	if (  tkr->cs == 0 )
@@ -13234,6 +13232,8 @@ _again:
 	}
 
 #line 102 "gen/fr_tokenize.rl"
+   
+   (void)tokenize_fr_en_main;
 }
 #line 5 "tokenize.c"
 

@@ -4411,8 +4411,6 @@ static const short _tokenize_fr_eof_trans[] = {
 };
 
 static const int tokenize_fr_start = 918;
-static const int tokenize_fr_first_final = 918;
-static const int tokenize_fr_error = 0;
 
 static const int tokenize_fr_en_main = 918;
 
@@ -4422,7 +4420,7 @@ static const int tokenize_fr_en_main = 918;
 static void fr_init(struct mr_tokenizer *tkr)
 {
    
-#line 4426 "gen/fr_tokenize.ic"
+#line 4424 "gen/fr_tokenize.ic"
 	{
 	 tkr->cs = tokenize_fr_start;
 	 tkr->ts = 0;
@@ -4436,7 +4434,7 @@ static void fr_init(struct mr_tokenizer *tkr)
 static void fr_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    
-#line 4440 "gen/fr_tokenize.ic"
+#line 4438 "gen/fr_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -4452,7 +4450,7 @@ _resume:
 #line 1 "NONE"
 	{ tkr->ts = ( tkr->p);}
 	break;
-#line 4456 "gen/fr_tokenize.ic"
+#line 4454 "gen/fr_tokenize.ic"
 	}
 
 	_keys = _tokenize_fr_trans_keys + _tokenize_fr_key_offsets[ tkr->cs];
@@ -4731,7 +4729,7 @@ _eof_trans:
 #line 69 "gen/fr_tokenize.rl"
 	{ tkr->act = 10;}
 	break;
-#line 4735 "gen/fr_tokenize.ic"
+#line 4733 "gen/fr_tokenize.ic"
 	}
 
 _again:
@@ -4742,7 +4740,7 @@ _again:
 #line 1 "NONE"
 	{ tkr->act = 0;}
 	break;
-#line 4746 "gen/fr_tokenize.ic"
+#line 4744 "gen/fr_tokenize.ic"
 	}
 
 	if (  tkr->cs == 0 )
@@ -4762,4 +4760,6 @@ _again:
 	}
 
 #line 102 "gen/fr_tokenize.rl"
+   
+   (void)tokenize_fr_en_main;
 }

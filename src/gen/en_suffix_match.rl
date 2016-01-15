@@ -13,7 +13,7 @@ main := |*
 
 }%%
 
-%% write data;
+%% write data noerror nofinal;
 
 /* Finds the longest known suffix of a string.
  * "p" must point to the last byte in the string to examine.
@@ -49,4 +49,6 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
    (void)act;
    (void)te;
    (void)eof;
+   
+   (void)en_suffix_match_en_main;
 }

@@ -3957,8 +3957,6 @@ static const short _tokenize_en_eof_trans[] = {
 };
 
 static const int tokenize_en_start = 895;
-static const int tokenize_en_first_final = 895;
-static const int tokenize_en_error = 0;
 
 static const int tokenize_en_en_main = 895;
 
@@ -3968,7 +3966,7 @@ static const int tokenize_en_en_main = 895;
 static void en_init(struct mr_tokenizer *tkr)
 {
    
-#line 3972 "gen/en_tokenize.ic"
+#line 3970 "gen/en_tokenize.ic"
 	{
 	 tkr->cs = tokenize_en_start;
 	 tkr->ts = 0;
@@ -3982,7 +3980,7 @@ static void en_init(struct mr_tokenizer *tkr)
 static void en_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    
-#line 3986 "gen/en_tokenize.ic"
+#line 3984 "gen/en_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -3998,7 +3996,7 @@ _resume:
 #line 1 "NONE"
 	{ tkr->ts = ( tkr->p);}
 	break;
-#line 4002 "gen/en_tokenize.ic"
+#line 4000 "gen/en_tokenize.ic"
 	}
 
 	_keys = _tokenize_en_trans_keys + _tokenize_en_key_offsets[ tkr->cs];
@@ -4284,7 +4282,7 @@ _eof_trans:
 #line 73 "gen/en_tokenize.rl"
 	{ tkr->act = 12;}
 	break;
-#line 4288 "gen/en_tokenize.ic"
+#line 4286 "gen/en_tokenize.ic"
 	}
 
 _again:
@@ -4295,7 +4293,7 @@ _again:
 #line 1 "NONE"
 	{ tkr->act = 0;}
 	break;
-#line 4299 "gen/en_tokenize.ic"
+#line 4297 "gen/en_tokenize.ic"
 	}
 
 	if (  tkr->cs == 0 )
@@ -4315,4 +4313,6 @@ _again:
 	}
 
 #line 102 "gen/en_tokenize.rl"
+   
+   (void)tokenize_en_en_main;
 }

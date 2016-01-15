@@ -66,8 +66,6 @@ static const char _en_suffix_match_from_state_actions[] = {
 };
 
 static const int en_suffix_match_start = 13;
-static const int en_suffix_match_first_final = 13;
-static const int en_suffix_match_error = 0;
 
 static const int en_suffix_match_en_main = 13;
 
@@ -100,7 +98,7 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 104 "gen/en_suffix_match.ic"
+#line 102 "gen/en_suffix_match.ic"
 	{
 	cs = en_suffix_match_start;
 	ts = 0;
@@ -110,7 +108,7 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 
 #line 44 "gen/en_suffix_match.rl"
    
-#line 114 "gen/en_suffix_match.ic"
+#line 112 "gen/en_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -126,7 +124,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 130 "gen/en_suffix_match.ic"
+#line 128 "gen/en_suffix_match.ic"
 	}
 
 	_keys = _en_suffix_match_trans_keys + _en_suffix_match_key_offsets[cs];
@@ -189,7 +187,7 @@ _match:
 #line 11 "gen/en_suffix_match.rl"
 	{te = p-1;{ return ts + 1 - p; }}
 	break;
-#line 193 "gen/en_suffix_match.ic"
+#line 191 "gen/en_suffix_match.ic"
 	}
 
 _again:
@@ -198,7 +196,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 202 "gen/en_suffix_match.ic"
+#line 200 "gen/en_suffix_match.ic"
 	}
 
 	if ( cs == 0 )
@@ -217,4 +215,6 @@ _again:
    (void)act;
    (void)te;
    (void)eof;
+   
+   (void)en_suffix_match_en_main;
 }

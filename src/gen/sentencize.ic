@@ -3005,8 +3005,6 @@ static const short _sentencize_eof_trans[] = {
 };
 
 static const int sentencize_start = 1;
-static const int sentencize_first_final = 464;
-static const int sentencize_error = 0;
 
 static const int sentencize_en_find_eos = 465;
 static const int sentencize_en_main = 1;
@@ -3028,7 +3026,7 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
    *period = NULL;
 
    
-#line 3032 "gen/sentencize.ic"
+#line 3030 "gen/sentencize.ic"
 	{
 	cs = sentencize_start;
 	top = 0;
@@ -3039,7 +3037,7 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
 
 #line 132 "sentencize.rl"
    
-#line 3043 "gen/sentencize.ic"
+#line 3041 "gen/sentencize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -3055,7 +3053,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 3059 "gen/sentencize.ic"
+#line 3057 "gen/sentencize.ic"
 	}
 
 	_keys = _sentencize_trans_keys + _sentencize_key_offsets[cs];
@@ -3257,7 +3255,7 @@ _eof_trans:
 #line 108 "sentencize.rl"
 	{act = 6;}
 	break;
-#line 3261 "gen/sentencize.ic"
+#line 3259 "gen/sentencize.ic"
 	}
 
 _again:
@@ -3266,7 +3264,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 3270 "gen/sentencize.ic"
+#line 3268 "gen/sentencize.ic"
 	}
 
 	if ( cs == 0 )
@@ -3300,4 +3298,6 @@ found:
    return start;
    
    (void)stack;
+   (void)sentencize_en_main;
+   (void)sentencize_en_find_eos;
 }
