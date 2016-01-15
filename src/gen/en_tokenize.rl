@@ -7,10 +7,10 @@ machine tokenize_en;
 
 alphtype unsigned char;
 
-access mr->;
-variable p mr->p;
-variable pe mr->pe;
-variable eof mr->eof;
+access tkr->;
+variable p tkr->p;
+variable pe tkr->pe;
+variable eof tkr->eof;
 
 include symbol "symbol.rl";
 include whitespace "whitespace.rl";
@@ -48,9 +48,9 @@ main := |*
    #    l'"ouverture"
    elision (latin_letter | double_quote) => {
       /* Drop one code point. */
-      do mr->te--;
-      while ((*mr->te & 0xc0) == 0x80);
-      fexec mr->te;
+      do tkr->te--;
+      while ((*tkr->te & 0xc0) == 0x80);
+      fexec tkr->te;
       SAVE(MR_ELISION);
       fbreak;
    };
@@ -60,27 +60,21 @@ main := |*
    # that directly in the machine.
    word => {
       SAVE(MR_LATIN);
-      mr->suffix_len = en_suffix(mr->te - 1, mr->ts);
-      tk->len -= mr->suffix_len;
+      tkr->suffix_len = en_suffix(tkr->te - 1, tkr->ts);
+      tk->len -= tkr->suffix_len;
       fbreak;
    };
    
    email           => { SAVE(MR_EMAIL); fbreak; };
    unknown         => { SAVE(MR_UNK); fbreak; };
-   paragraph_break => {
-      if (emit_para) {
-         SAVE(MR_PARA_BREAK);
-         fbreak;
-      }
-   };
    whitespace+;
    
    # Split assimilations: 'twas -> 't, was. Only done for English.
    en_assimilation => {
-      mr->te = mr->ts + 2;
-      while (mr->te[-1] != 't' && mr->te[-1] != 'T')
-         mr->te++;
-      fexec mr->te;
+      tkr->te = tkr->ts + 2;
+      while (tkr->te[-1] != 't' && tkr->te[-1] != 'T')
+         tkr->te++;
+      fexec tkr->te;
       SAVE(MR_LATIN);
       fbreak;
    };
@@ -90,19 +84,19 @@ main := |*
 
 #define SAVE(t) do {                                                           \
    tk->type = (t);                                                             \
-   tk->str = (const char *)mr->ts;                                             \
-   tk->offset = mr->ts - mr->str;                                              \
-   tk->len = mr->te - mr->ts;                                                  \
+   tk->str = (const char *)tkr->ts;                                            \
+   tk->offset = tkr->ts - tkr->str + tkr->offset_incr;                         \
+   tk->len = tkr->te - tkr->ts;                                                \
 } while (0)
 
 %% write data;
 
-static void en_init(struct mascara *mr)
+static void en_init(struct mr_tokenizer *tkr)
 {
    %% write init;
 }
 
-static void en_exec(struct mascara *mr, struct mr_token *tk, int emit_para)
+static void en_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
 }

@@ -106,22 +106,22 @@ noreturn static void version(void)
 static void tokenize_with_eos(struct mascara *mr,
                               const char *fmt, const char *eos)
 {
-   struct mr_sentence st = MR_SENTENCE_INIT;
+   struct mr_token *tks;
+   size_t len;
 
-   while (mr_next_sentence(mr, &st)) {
-      for (size_t i = 0; i < st.len; i++)
-         print_token(fmt, &st.tokens[i]);
+   while ((len = mr_next(mr, &tks))) {
+      for (size_t i = 0; i < len; i++)
+         print_token(fmt, &tks[i]);
       print_eos(eos);
    }
-   mr_sentence_fini(&st);
 }
 
 static void tokenize_without_eos(struct mascara *mr, const char *fmt)
 {
-   struct mr_token tk;
+   struct mr_token *tk;
    
-   while (mr_next_token(mr, &tk))
-      print_token(fmt, &tk);
+   while (mr_next(mr, &tk))
+      print_token(fmt, tk);
 }
 
 int main(int argc, char **argv)
@@ -155,16 +155,16 @@ int main(int argc, char **argv)
    if (fp != stdin)
       fclose(fp);
 
-   struct mascara *mr = mr_alloc(lang);
+   enum mr_mode mode = *eos ? MR_SENTENCE : MR_TOKEN;
+   struct mascara *mr = mr_alloc(lang, mode);
    if (!mr)
       die("unknown tokenizer: '%s'", lang);
 
    mr_set_text(mr, str, len);
-   /* Only bother to tokenize sentences if we are asked to. */
-   if (*eos)
-      tokenize_with_eos(mr, fmt, eos);
-   else
+   if (mode == MR_TOKEN)
       tokenize_without_eos(mr, fmt);
+   else
+      tokenize_with_eos(mr, fmt, eos);
    
    free(str);
    mr_dealloc(mr);

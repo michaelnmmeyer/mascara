@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.3"
+#define MR_VERSION "0.4"
 
 #include <stddef.h>
 
@@ -23,12 +23,22 @@ const char *mr_token_type_name(enum mr_token_type);
 
 struct mascara;
 
+enum mr_mode {
+   MR_TOKEN,
+   MR_SENTENCE,
+};
+
 /* Allocates a new tokenizer.
  * If there is no implementation for the provided language name, returns NULL.
  * Available languages are "en" and "fr".
  */
-struct mascara *mr_alloc(const char *lang);
+struct mascara *mr_alloc(const char *lang, enum mr_mode);
+
+/* Destructor. */
 void mr_dealloc(struct mascara *);
+
+/* Returns the chosen tokenization mode. */
+enum mr_mode mr_mode(const struct mascara *);
 
 /* Sets the text to tokenize.
  * The input string must be valid UTF-8 and normalized to NFC. No internal check
@@ -39,31 +49,24 @@ void mr_dealloc(struct mascara *);
 void mr_set_text(struct mascara *, const char *str, size_t len);
 
 struct mr_token {
-   const char *str;
+   const char *str;           /* Not nul-terminated! */
    size_t len;                /* Length, in bytes. */
    size_t offset;             /* Offset from the start of the text, in bytes. */
    enum mr_token_type type;
 };
 
-/* Fetch the next token.
+/* Fetch the next token or sentence.
  * Must be called after mr_set_text().
- * If there is a next token, fills the provided token structure with
- * informations about it, and returns 1. Otherwise, returns 0. In this case, the
- * token structure contents is undefined.
+ * The behaviour of this function depends on the chosen tokenization mode:
+ * - If it is MR_TOKEN, looks for the next token in the input text. If there is
+ *   one, makes the provided token pointer point to a structure filled with
+ *   informations about it, and returns 1.
+ * - If it is MR_SENTENCE, looks for the next sentence in the input text. If
+ *   there is one, makes the provided token pointer point to an array of token
+ *   structures, and returns the number of tokens in the sentence.
+ * If at the end of the text, makes the provided token pointer point to NULL,
+ * and returns 0.
  */
-int mr_next_token(struct mascara *, struct mr_token *);
-
-struct mr_sentence {
-   struct mr_token *tokens;
-   size_t len;
-   size_t alloc;
-};
-
-/* Initializer and destructor. */
-#define MR_SENTENCE_INIT {.tokens = 0}
-void mr_sentence_fini(struct mr_sentence *);
-
-/* Fetch the next sentence. */
-int mr_next_sentence(struct mascara *, struct mr_sentence *);
+size_t mr_next(struct mascara *, struct mr_token **);
 
 #endif

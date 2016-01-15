@@ -8,25 +8,3 @@ check{
       "C'", "est", "he", "'s", "C'", "s", 
    }
 }
-
--- Ensure that we recognize paragraph breaks when appropriate.
-check{
-   input = "foo\nbar",
-   output = {"LATIN", "LATIN"},
-   format = "type",
-}
-check{
-   input = "foo\n\nbar",
-   output = {"LATIN", "PARA", "LATIN"},
-   format = "type",
-}
-check{
-   input = "foo\r\nbar",
-   output = {"LATIN", "LATIN"},
-   format = "type",
-}
-check{
-   input = "foo\r\n\nbar",
-   output = {"LATIN", "PARA", "LATIN"},
-   format = "type",
-}
