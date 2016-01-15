@@ -23,9 +23,12 @@ const char *mr_token_type_name(enum mr_token_type);
 
 struct mascara;
 
+/* Tokenization mode. */
 enum mr_mode {
-   MR_TOKEN,
-   MR_SENTENCE,
+   MR_TOKEN,      /* Iterate over tokens. */
+   MR_SENTENCE,   /* Iterate over sentences (themselves made of a sequence of
+                   * tokens).
+                   */
 };
 
 /* Allocates a new tokenizer.

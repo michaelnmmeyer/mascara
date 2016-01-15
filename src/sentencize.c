@@ -3,8 +3,8 @@
 #include "gen/sentencize.ic"
 
 static void mr_sentencizer_set_text(struct mascara *,
-                             const unsigned char *str, size_t len,
-                             size_t offset_incr);
+                                    const unsigned char *str, size_t len,
+                                    size_t offset_incr);
 
 static size_t mr_sentencizer_next(struct mascara *, struct mr_token **);
 

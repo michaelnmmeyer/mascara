@@ -4,7 +4,7 @@ A tokenizer for English and French.
 
 ## Purpose
 
-Penn Treebank-style tokenization for English and French.
+Treebank-style tokenization for English and French.
 
 ## Building
 
@@ -20,10 +20,32 @@ A command-line tool `mascara` is included. To compile and install it:
 
 ## Usage
 
-The API is described in `mascara.h`. There is a concrete example in
-`example.c`. Compile this file with `make`, and use the output binary like so:
+There is a concrete usage example in `example.c`. Compile this file with `make`,
+and use the output binary like so:
 
     $ ./example "And now, Laertes, what's the news with you?"
+
+The library API is described in `mascara.h`. The following are auxiliary notes.
+
+
+## Tokenization mode
+
+Before allocating a tokenizer, you must choose whether you want to iterate over
+tokens or over sentences. Segmentation is slightly different depending on which
+mode you choose:
+
+* When iterating over tokens, periods that immediately follow a word are always
+  separated from it, even if the token is an abbreviation:
+
+      Mr . and Mrs . Smith have two children .
+
+* When iterating over sentences, all but the last period of the sentence are
+  left attached to the token that precedes them, provided it is a word:
+  
+      Mr. and Mrs. Smith have two children .
+
+
+## Token types
 
 During tokenization, each token is annotated with a type. This information is
 sometimes useful for its own sake, but it is intended to be used as feature for

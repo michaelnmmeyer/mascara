@@ -28,9 +28,12 @@ const char *mr_token_type_name(enum mr_token_type);
 
 struct mascara;
 
+/* Tokenization mode. */
 enum mr_mode {
-   MR_TOKEN,
-   MR_SENTENCE,
+   MR_TOKEN,      /* Iterate over tokens. */
+   MR_SENTENCE,   /* Iterate over sentences (themselves made of a sequence of
+                   * tokens).
+                   */
 };
 
 /* Allocates a new tokenizer.
@@ -3549,8 +3552,8 @@ found:
 #line 4 "sentencize.c"
 
 static void mr_sentencizer_set_text(struct mascara *,
-                             const unsigned char *str, size_t len,
-                             size_t offset_incr);
+                                    const unsigned char *str, size_t len,
+                                    size_t offset_incr);
 
 static size_t mr_sentencizer_next(struct mascara *, struct mr_token **);
 
