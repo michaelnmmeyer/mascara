@@ -4,7 +4,7 @@
 machine en_lexicon;
 
 en_lexicon =
-empty
+((apostrophe)("T"|"t")("I"|"i")("L"|"l"))
 ;
 
 }%%

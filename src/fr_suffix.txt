@@ -9,7 +9,7 @@
 -le				# dis-le
 -la            # récite-la
 -les				# regarde-les
--là				# celui-là
+-là				# ce jour-là
 
 -moi				# dis-moi
 -toi				# dis-toi

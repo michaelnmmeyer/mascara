@@ -10,5 +10,6 @@ c'est-à-dire
 par-ci
 par-là
 rendez-vous    # Ambiguous, but acceptable.
+jusque-là
 
-# d'ailleurs   # Too ambiguous.
+# d'ailleurs   # Too ambiguous: "D'ailleurs, bla bla" vs "Il vient d'ailleurs"

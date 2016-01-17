@@ -35,3 +35,55 @@ check{
    input = "foo\r\n\nbar",
    output = {{"foo"}, {"bar"}},
 }
+
+-- Don't split on URLs.
+check{
+   input = "To donate, please visit: http://pglaf.org/donate Section 5. Foobar",
+   output = {
+      {"To", "donate", ",", "please", "visit", ":", "http://pglaf.org/donate", "Section", "5", "."},
+      {"Foobar"}
+   }
+}
+
+-- Don't split on initials.
+check{
+   input = "Professor Michael S. Hart is the originator of the Project Gutenberg. Foobar",
+   output = {
+      {"Professor", "Michael", "S.", "Hart", "is", "the", "originator", "of", "the", "Project", "Gutenberg", "."},
+      {"Foobar"}
+   }
+}
+
+-- Don't split on email addresses.
+check{
+   input = "Gregory B. Newby Chief Executive and Director gbnewby@pglaf.org Section 4. Foobar",
+   output = {
+      {"Gregory", "B.", "Newby", "Chief", "Executive", "and", "Director", "gbnewby@pglaf.org", "Section", "4", "."}, 
+      {"Foobar"}
+   }
+}
+
+-- Include trailing quotes at the end of a sentence in the sentence itself.
+check{
+   input = [[
+      «C'est vrai, répondait mon amour, il n'y a plus rien à faire de cette
+      amitié-là, elle ne changera pas.»
+   ]],
+   output = {
+      {"«", "C'est", "vrai", ",", "répondait", "mon", "amour", ",", "il", "n'y",
+       "a", "plus", "rien", "à", "faire", "de", "cette", "amitié-là", ",",
+       "elle", "ne", "changera", "pas", ".", "»"}, 
+   }
+}
+
+-- Don't split on abbreviations.
+check{
+   input = "U.S. laws alone swamp our small staff.",
+   output = {{"U.S.", "laws", "alone", "swamp", "our", "small", "staff", "."}} 
+}
+
+-- Don't split on p. 1234.
+check{
+   input = "See p. 5 for more informations.",
+   output = {{"See", "p.", "5", "for", "more", "informations", "."}}
+}
