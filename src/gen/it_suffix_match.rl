@@ -1,14 +1,14 @@
 /* Generated file, don't edit! */
 %%{
 
-machine fr_suffix_match;
+machine it_suffix_match;
 
-include fr_suffix "fr_suffix.rl";
+include it_suffix "it_suffix.rl";
 
 alphtype unsigned char;
 
 main := |*
-   fr_suffix => { return ts + 1 - p; };
+   it_suffix => { return ts + 1 - p; };
 *|;
 
 }%%
@@ -34,7 +34,7 @@ main := |*
  *
  * If a suffix is found, returns its length, otherwise zero.
  */
-static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
+static size_t it_suffix(const unsigned char *p, const unsigned char *pe)
 {
    int cs, act;
    const unsigned char *ts, *te;
@@ -49,6 +49,6 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
    (void)act;
    (void)te;
    (void)eof;
-   (void)fr_suffix_match_en_main;
-   (void)_fr_suffix_match_trans_actions;
+   (void)it_suffix_match_en_main;
+   (void)_it_suffix_match_trans_actions;
 }

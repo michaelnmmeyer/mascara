@@ -1,10 +1,11 @@
 # mascara
 
-A tokenizer for English and French.
+A tokenizer for English, French and Italian.
 
 ## Purpose
 
-Treebank-style tokenization for English and French.
+This is a C library for performing Treebank-style tokenization.
+
 
 ## Building
 
@@ -59,11 +60,12 @@ later processing. Existing token types are:
         AT&T
         tris(dimethylamino)bromophosphonium
 
-* `ELISION`. An elision at the beginning of a text segment:
+* `PREFIX`. A token at the beginning of a text segment:
 
-        y'  => y'know
-        d'  => d'entrée de jeu
-        qu' => qu'on se le dise
+        y'    => y'know
+        d'    => d'entrée de jeu
+        qu'   => qu'on se le dise
+        dell' => dell'altro
 
 * `SUFFIX`. A token at the end of a text segment:
 

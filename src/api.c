@@ -6,12 +6,39 @@
 #include "tokenize.h"
 #include "sentencize.h"
 
+#include "gen/en_tokenize.ic"
+#include "gen/fr_tokenize.ic"
+#include "gen/it_tokenize.ic"
+
+static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
+{
+   static const struct mr_tokenizer_vtab tbl[] = {
+   #define _(name) {#name, name##_init, name##_exec},
+      _(en)
+      _(fr)
+      _(it)
+   #undef _
+      {NULL, 0, 0}
+   };
+   
+   for (const struct mr_tokenizer_vtab *tk = tbl; tk->name; tk++)
+      if (!strcmp(tk->name, name))
+         return tk;
+   return NULL;
+}
+
+const char *const *mr_langs(void)
+{
+   static const char *const lst[] = {"en", "fr", "it", NULL};
+   return lst;
+}
+
 const char *mr_token_type_name(enum mr_token_type t)
 {
    static const char *const tbl[] = {
       [MR_UNK] = "UNK",
       [MR_LATIN] = "LATIN",
-      [MR_ELISION] = "ELISION",
+      [MR_PREFIX] = "PREFIX",
       [MR_SUFFIX] = "SUFFIX",
       [MR_SYM] = "SYM",
       [MR_NUM] = "NUM",

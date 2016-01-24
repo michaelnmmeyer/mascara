@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.4"
+#define MR_VERSION "0.5"
 
 #include <stddef.h>
 
@@ -15,7 +15,7 @@
 enum mr_token_type {
    MR_UNK,
    MR_LATIN,
-   MR_ELISION,
+   MR_PREFIX,
    MR_SUFFIX,
    MR_SYM,
    MR_NUM,
@@ -33,14 +33,18 @@ struct mascara;
 /* Tokenization mode. */
 enum mr_mode {
    MR_TOKEN,      /* Iterate over tokens. */
-   MR_SENTENCE,   /* Iterate over sentences (themselves made of a sequence of
-                   * tokens).
-                   */
+   MR_SENTENCE,   /* Iterate over sentences, where an sentence is an array of
+                   * tokens. */
 };
+
+/* Returns an array containing the names of the supported languages.
+ * The array is NULL-terminated.
+ */
+const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
  * If there is no implementation for the provided language name, returns NULL.
- * Available languages are "en" and "fr".
+ * Available languages are "en", "fr", and "it".
  */
 struct mascara *mr_alloc(const char *lang, enum mr_mode);
 

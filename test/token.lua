@@ -38,9 +38,9 @@ check{
    lang = "fr",
    format = {"str", "type"},
    output = {
-      {"l'", "ELISION"}, {"écart", "LATIN"},
-      {"l'", "ELISION"}, {'"', "SYM"}, {"écart", "LATIN"}, {'"', "SYM"},
-      {"l’", "ELISION"}, {"écart", "LATIN"},
+      {"l'", "PREFIX"}, {"écart", "LATIN"},
+      {"l'", "PREFIX"}, {'"', "SYM"}, {"écart", "LATIN"}, {'"', "SYM"},
+      {"l’", "PREFIX"}, {"écart", "LATIN"},
       {"'", "SYM"}, {"l", "LATIN"}, {"'", "SYM"},
    }
 }

@@ -79,8 +79,14 @@ static void print_eos(const char *s)
 
 #define MAX_FILE_SIZE (50 * 1024 * 1024)
 
-static char *read_file(FILE *fp, size_t *sizep)
+static char *read_file(const char *path, size_t *sizep)
 {
+   FILE *fp = stdin;
+   if (path) {
+      fp = fopen(path, "r");
+      if (!fp)
+         die("cannot open '%s':", path);
+   }
    char *data = malloc(MAX_FILE_SIZE); // FIXME later
    size_t size = fread(data, 1, MAX_FILE_SIZE, fp);
 
@@ -88,6 +94,9 @@ static char *read_file(FILE *fp, size_t *sizep)
       die("IO error:");
    if (size == MAX_FILE_SIZE && !feof(fp))
       die("input file too large (limit is %d)", MAX_FILE_SIZE);
+
+   if (fp != stdin)
+      fclose(fp);
 
    *sizep = size;
    return data;
@@ -124,14 +133,45 @@ static void tokenize_without_eos(struct mascara *mr, const char *fmt)
       print_token(fmt, tk);
 }
 
+static void tokenize(const char *path, const char *lang,
+                     const char *fmt, const char *eos)
+{
+   enum mr_mode mode = *eos ? MR_SENTENCE : MR_TOKEN;
+   struct mascara *mr = mr_alloc(lang, mode);
+   if (!mr)
+      die("unknown tokenizer: '%s'", lang);
+
+   size_t len;
+   char *str = read_file(path, &len);
+
+   mr_set_text(mr, str, len);
+   if (mode == MR_TOKEN)
+      tokenize_without_eos(mr, fmt);
+   else
+      tokenize_with_eos(mr, fmt, eos);
+
+   free(str);
+   mr_dealloc(mr);
+}
+
+static void display_langs(void)
+{
+   const char *const *langs = mr_langs();
+   while (*langs)
+      puts(*langs++);
+}
+
 int main(int argc, char **argv)
 {
    const char *fmt = "%s\n";
    const char *lang = "en";
    const char *eos = "\n";
+   bool list = false;
+   
    struct option opts[] = {
       {'f', "format", OPT_STR(fmt)},
       {'l', "lang", OPT_STR(lang)},
+      {'L', "list", OPT_BOOL(list)},
       {'e', "eos", OPT_STR(eos)},
       {'\0', "version", OPT_FUNC(version)},
       {0},
@@ -144,28 +184,8 @@ int main(int argc, char **argv)
    if (argc > 1)
       die("excess arguments");
 
-   FILE *fp = stdin;
-   if (argc == 1) {
-      fp = fopen(*argv, "r");
-      if (!fp)
-         die("cannot open '%s':", *argv);
-   }
-   size_t len;
-   char *str = read_file(fp, &len);
-   if (fp != stdin)
-      fclose(fp);
-
-   enum mr_mode mode = *eos ? MR_SENTENCE : MR_TOKEN;
-   struct mascara *mr = mr_alloc(lang, mode);
-   if (!mr)
-      die("unknown tokenizer: '%s'", lang);
-
-   mr_set_text(mr, str, len);
-   if (mode == MR_TOKEN)
-      tokenize_without_eos(mr, fmt);
+   if (list)
+      display_langs();
    else
-      tokenize_with_eos(mr, fmt, eos);
-   
-   free(str);
-   mr_dealloc(mr);
+      tokenize(*argv, lang, fmt, eos);
 }

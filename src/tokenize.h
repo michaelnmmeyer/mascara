@@ -31,8 +31,6 @@ struct mr_tokenizer {
 
 extern const struct mr_imp mr_tokenizer_imp;
 
-const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name);
-
 void mr_tokenizer_init(struct mr_tokenizer *,
                        const struct mr_tokenizer_vtab *);
 

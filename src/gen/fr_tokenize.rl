@@ -51,7 +51,7 @@ main := |*
       do tkr->te--;
       while ((*tkr->te & 0xc0) == 0x80);
       fexec tkr->te;
-      SAVE(MR_ELISION);
+      SAVE(MR_PREFIX);
       fbreak;
    };
 

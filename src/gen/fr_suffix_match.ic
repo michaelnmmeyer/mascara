@@ -268,10 +268,10 @@ _again:
 
    return 0;
 
-   /* Unused variables. */
+   /* Possibly unused variables. */
    (void)act;
    (void)te;
    (void)eof;
-   
    (void)fr_suffix_match_en_main;
+   (void)_fr_suffix_match_trans_actions;
 }

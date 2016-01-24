@@ -6,8 +6,9 @@ Options:
    -f, --format=<string>    token format string (see below) [%%s\n]
    -e, --eos=<string>       string to append at the end of a sentence [\n]
 
-   -h, --help               display this message
-       --version            display the library version
+   -L, --list               display a list of the available languages and quit
+   -h, --help               display this message and quit
+       --version            display the library version and quit
 
 Format string syntax:
    %%s    Token string

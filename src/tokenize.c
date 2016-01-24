@@ -1,23 +1,5 @@
 #include "api.h"
 #include "tokenize.h"
-#include "gen/en_tokenize.ic"
-#include "gen/fr_tokenize.ic"
-
-const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
-{
-   static const struct mr_tokenizer_vtab tbl[] = {
-   #define _(name) {#name, name##_init, name##_exec},
-      _(en)
-      _(fr)
-   #undef _
-      {NULL, 0, 0}
-   };
-   
-   for (const struct mr_tokenizer_vtab *tk = tbl; tk->name; tk++)
-      if (!strcmp(tk->name, name))
-         return tk;
-   return NULL;
-}
 
 const struct mr_imp mr_tokenizer_imp = {
    .set_text = mr_tokenizer_set_text,

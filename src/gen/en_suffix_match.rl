@@ -45,10 +45,10 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 
    return 0;
 
-   /* Unused variables. */
+   /* Possibly unused variables. */
    (void)act;
    (void)te;
    (void)eof;
-   
    (void)en_suffix_match_en_main;
+   (void)_en_suffix_match_trans_actions;
 }
