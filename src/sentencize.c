@@ -44,7 +44,6 @@ static void mr_sentencizer_set_text(struct mascara *imp,
 
 static void add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
 {
-   /* FIXME: What to do if the sentence is too long? Truncate? */
    if (tkr->len == tkr->alloc) {
       tkr->alloc = tkr->alloc * 2 + 4;
       tkr->tokens = realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
@@ -93,10 +92,15 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);
 
    struct mr_token *tk;
-   while (mr_tokenizer_next(&tkr.base, &tk))
-      if (tk->str == (const char *)last_period || !reattach_period(szr, tk))
+   while (mr_tokenizer_next(&tkr.base, &tk)) {
+      if (tk->str == (const char *)last_period || !reattach_period(szr, tk)) {
          add_token(szr, tk);
-
+         if (szr->len == MR_MAX_SENTENCE_LEN) {
+            szr->p = (const unsigned char *)tk->str + tk->len;
+            break;
+         }
+      }
+   }
    *tks = szr->tokens;
    return szr->len;
 }

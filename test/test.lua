@@ -8,6 +8,7 @@ local function check_fail(expected, output)
    print(json.stringify(expected))
    print("== Have:")
    print(json.stringify(output))
+   print("output len = ", #output[1])
    error("Fail!")
 end
 

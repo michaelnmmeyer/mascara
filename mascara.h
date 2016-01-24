@@ -5,6 +5,13 @@
 
 #include <stddef.h>
 
+/* Maximum allowed length of a sentence, in tokens. Sentences that would grow
+ * larger than that are split in chunks. This is done to avoid pathological
+ * cases.
+ */
+#define MR_MAX_SENTENCE_LEN 1000
+
+/* See the readme file for informations about these. */
 enum mr_token_type {
    MR_UNK,
    MR_LATIN,

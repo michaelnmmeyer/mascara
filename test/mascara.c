@@ -113,6 +113,8 @@ int luaopen_mascara(lua_State *lua)
    };
    luaL_newlib(lua, lib);
    lua_pushstring(lua, MR_VERSION);
-   lua_setfield(lua, -2, "version");
+   lua_setfield(lua, -2, "VERSION");
+   lua_pushnumber(lua, MR_MAX_SENTENCE_LEN);
+   lua_setfield(lua, -2, "MAX_SENTENCE_LEN");
    return 1;
 }

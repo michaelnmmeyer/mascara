@@ -87,3 +87,15 @@ check{
    input = "See p. 5 for more informations.",
    output = {{"See", "p.", "5", "for", "more", "informations", "."}}
 }
+
+-- We should not grow sentences too much.
+local max_sent_len = require("mascara").MAX_SENTENCE_LEN
+local output = {}
+for i = 1, max_sent_len - 1 do
+   output[i] = "foo"
+end
+output[max_sent_len] = "foo"
+check{
+   input = table.concat(output, " ") .. " foo",
+   output = {output, {"foo"}},
+}
