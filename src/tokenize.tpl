@@ -98,6 +98,5 @@ static void $LANG_init(struct mr_tokenizer *tkr)
 static void $LANG_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
-   
    (void)tokenize_$LANG_en_main;
 }

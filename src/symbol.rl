@@ -27,20 +27,42 @@ apostrophe =
 | "’"
 ;
 
-double_quote =
+opening_single_quote =
+  "'"
+| "‘"
+;
+
+closing_single_quote =
+  "'"
+| "’"
+;
+
+single_quote =
+  opening_single_quote
+| closing_single_quote
+| "‚"    # U+201A, not a comma!
+;
+
+opening_double_quote =
   '"'
-| "“"
-| "”"
+| '“'
 | "„"
 | "«"
-| "»"
 | "‹"
+| "``"      # Latex-style.
+| "<<"      # Some people use this instead of real guillemets.
+;
+
+closing_double_quote =
+  '"'
+| "”"
+| "»"
 | "›"
-| "``"   # Latex-style
 | "''"
-| "<<"   # Some people use this instead of real guillemets.
 | ">>"
 ;
+
+double_quote = opening_double_quote | closing_double_quote;
 
 dash =
   "-"
@@ -65,10 +87,7 @@ symbol =
 | "?"+
 | "!"+
 
-# Single quote.
-| apostrophe
-| "‚"    # U+201A, not a comma!
-
+| single_quote
 | double_quote
 
 # Brackets.

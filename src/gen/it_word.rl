@@ -84,8 +84,21 @@ word_bracket = "(" latin_letter latin* ")" "-"? latin+ word_tail
              | latin+ word_chunk* "-"? "(" latin_letter latin* ")" ("-"? latin+ word_tail)?
              ;
 
+# Word containing double quotes. Mostly used in German:
+#
+#    "New-Age"-Ideologie
+#    "KwaMadala"-Hostels
+#    "Pferde"-Kavallerie
+
+word_double_quote = opening_double_quote
+                    latin+ word_chunk*
+                    closing_double_quote
+                    "-" latin+ word_chunk*;
+
 # Substraction needed below for correct tokenization of elisions.
 
-word = (word_normal | word_bracket) - (elision word_normal) - (elision word_bracket);
+word = (word_normal | word_bracket | word_double_quote)
+     - (elision word_normal) - (elision word_bracket) - (elision word_double_quote)
+     ;
 
 }%%

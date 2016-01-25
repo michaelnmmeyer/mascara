@@ -27,7 +27,7 @@ check{
       }
 }
 
--- Handle elisions correctly.
+-- Handle prefixes correctly.
 check{
    input = [[
       l'écart
@@ -86,6 +86,18 @@ check{
    output = {"'", "twas"}
 }
 
+-- Shouldn't split chunks single quotes.
+check{
+   input = "Rock'n'Roll Tian'anmen",
+   output = {"Rock'n'Roll", "Tian'anmen"}
+}
+
+-- Special case. Most common in German.
+check{
+   input = [["New-Age"-Ideologie "Wings"-Betriebssystem "N"-methylamino]],
+   output = {'"New-Age"-Ideologie', '"Wings"-Betriebssystem', '"N"-methylamino'}
+}
+
 -- Text chunks must be split on EM DASH, EN DASH, and --, at least when
 -- tokenizing English text. But not if they look like years span.
 check{
@@ -103,6 +115,12 @@ check{
 check{
    input = "1758–60",
    output = {"1758–60"},
+}
+
+-- Words can start with numbers, too.
+check{
+   input = "eine 100tägige Frist",
+   output = {"eine", "100tägige", "Frist"},
 }
 
 -- Token with internal brackets.
@@ -135,6 +153,11 @@ check{
       {"/usr/foobar/", "PATH"},
       {"~/foo/bar", "PATH"},
    }
+}
+-- But otherwise don't split on '/'.
+check{
+   input = "SARAJEWO/HELSINKI",
+   output = {"SARAJEWO", "/", "HELSINKI"},
 }
 
 -- Numbers.

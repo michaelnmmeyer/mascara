@@ -99,6 +99,5 @@ static void fr_init(struct mr_tokenizer *tkr)
 static void fr_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
-   
    (void)tokenize_fr_en_main;
 }

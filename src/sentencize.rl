@@ -17,20 +17,6 @@ eos_marker = "." | "?" | "!";
 
 closing_bracket = ")" | "]" | "}";
 
-closing_single_quote =
-  "'"
-| "’"
-;
-
-closing_double_quote =
-  '"'
-| "”"
-| "»"
-| "›"
-| "''"
-| ">>"
-;
-
 closing_quote = closing_single_quote | closing_double_quote;
 
 
