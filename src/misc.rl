@@ -14,8 +14,8 @@ include symbol "symbol.rl";
 # Note that this pattern overlaps with the Latin word pattern; it must be placed
 # above it in the scanner definition to take precedence.
 #
-# Also note that we don't try to match a terminal period, because periods are
-# ambiguous. Disambiguation must be done afterwards, in the SBD module.
+# Also note that we don't include the terminal period in this pattern, since
+# the role of periods is ambiguous.
 
 abbreviation = latin_letter ("." latin_letter)+;
 

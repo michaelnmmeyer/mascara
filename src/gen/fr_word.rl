@@ -6,6 +6,12 @@ machine word;
 include latin "latin.rl";
 include fr_prefix "fr_prefix.rl";
 
+# Elisions:
+#
+#     d', l', qu', y', etc.
+
+prefix = fr_prefix apostrophe;
+
 # We don't consider "_" to be a word character. Never used like that in natural
 # language.
 #
@@ -25,16 +31,9 @@ include fr_prefix "fr_prefix.rl";
 # Besides, there is no good reason to separate these characters from a word
 # if they follow it immediately.
 #
-# This pattern also matches abbreviations:
-#
-#    A.B.C.
-#
-# I don't know if it would be beneficial to use a separate pattern for them.
-# Which words other than abbreviation have internal periods? Websites?
-#
-# If the word is an abbreviation, we detach the terminal period temporarily. It
-# is the job of the sentence boundary detection module to decide what to do with
-# a trailing period.
+# The word pattern overlaps with the abbreviation pattern, and must then be
+# placed below it in the scanner definition or abbreviations would not be
+# recognized as such.
 #
 # The & is there to match words like:
 #
@@ -59,12 +58,6 @@ include fr_prefix "fr_prefix.rl";
 # separate discrete words. Sometimes it isn't, but this usage is wrong anyway:
 #
 #    restaurateur/trice
-
-# Elisions:
-#
-#     d', l', qu', y', etc.
-
-elision = fr_prefix apostrophe;
 
 word_chunk = (apostrophe | "-" | "." | "&") latin+;
 
@@ -95,10 +88,10 @@ word_double_quote = opening_double_quote
                     closing_double_quote
                     "-" latin+ word_chunk*;
 
-# Substraction needed below for correct tokenization of elisions.
+# Substraction needed below for correct tokenization of prefixes.
 
 word = (word_normal | word_bracket | word_double_quote)
-     - (elision word_normal) - (elision word_bracket) - (elision word_double_quote)
+     - (prefix word_normal) - (prefix word_bracket) - (prefix word_double_quote)
      ;
 
 }%%

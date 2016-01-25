@@ -88,7 +88,7 @@ check{
    output = {{"See", "p.", "5", "for", "more", "informations", "."}}
 }
 
--- We should not grow sentences too much.
+-- Split sentences that would grow too much.
 local max_sent_len = require("mascara").MAX_SENTENCE_LEN
 local output = {}
 for i = 1, max_sent_len - 1 do

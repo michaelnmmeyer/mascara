@@ -62,9 +62,6 @@ hexadecimal = "0x"i (digit | [a-f] | [A-F])+;
 
 number_other = digit+ (":" | dash) digit+;
 
-# Finally, all of the above except generic_number and roman_number, which
-# require a special treatment for normalization.
-
 numeric = generic_number | decade | phone_number | hexadecimal | number_other;
 
 }%%

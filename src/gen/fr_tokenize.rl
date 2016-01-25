@@ -32,21 +32,21 @@ main := |*
    numeric        => { SAVE(MR_NUM); fbreak; };
    fr_lexicon  => { SAVE(MR_LATIN); fbreak; };
 
-   # A one-code-point lookahead is needed for elisions, to avoid tokenizing
+   # A one-code-point lookahead is needed for prefixes, to avoid tokenizing
    # strings like:
    #    la lettre 'c'
    # as:
    #    la, lettre, ', c'
    # where we should have:
    #    la, lettre, ', c, '
-   # Sometimes people insert a whitespace after an elision:
+   # Sometimes people insert a whitespace after a prefix:
    #    c' est vrai
    # We choose not to deal with that.
    #
    # Examples:
    #    c'est
    #    l'"ouverture"
-   elision (latin_letter | double_quote) => {
+   prefix (latin_letter | double_quote) => {
       /* Drop one code point. */
       do tkr->te--;
       while ((*tkr->te & 0xc0) == 0x80);
