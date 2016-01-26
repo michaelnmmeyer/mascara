@@ -51,9 +51,11 @@ name_initial = latin_uppercase "." whitespace latin_uppercase;
 #    See p. 5 for more informations.
 page_number = "p." whitespace digit;
 
+consonant = [BCDFGHJKLMNPQRSTVWXZ] | [bcdfghjklmnpqrstvwxz];
+
 # Example:
 #    cf.
-abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ ".";
+abbreviation_consonant = consonant+ ".";
 
 # Interjection:
 #    Ah! princesse.
