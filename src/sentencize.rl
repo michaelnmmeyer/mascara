@@ -41,8 +41,9 @@ eos = eos_marker+ eos_trail;
 # Alphanumeric containing internal periods: Ph.D., 1.2.c, e.g., i.e.
 thing_with_periods = latin+ ("." latin+)+ "."?;
 
-# A token followed by a period followed by a comma is an abbreviation.
-period_comma = latin+ "." eos_trail ",";
+# A token followed by a period followed by a one of these characters is a
+# likely abbreviation.
+period_punct = latin+ "." eos_trail ("," | ";" | ":");
 
 # John J. Doe.
 name_initial = latin_uppercase "." whitespace latin_uppercase;
@@ -55,20 +56,25 @@ consonant = [BCDFGHJKLMNPQRSTVWXZ] | [bcdfghjklmnpqrstvwxz];
 
 # Example:
 #    cf.
+
 abbreviation_consonant = consonant+ ".";
 
-# Interjection:
+# Exclamation:
+#
 #    Ah! princesse.
 #    "Good gracious!" cried Mrs. Bennet.
+#     "Why?" said Albert
+#
 # Note that (latin - latin_uppercase) doesn't necessarily match lowercase
 # letters.
-interjection = latin+ "!" closing_quote? whitespace (latin - latin_uppercase);
+
+exclamation = latin+ whitespace? ("!" | "?") closing_quote? whitespace (latin - latin_uppercase);
 
 not_eos = thing_with_periods
-        | period_comma
+        | period_punct
         | name_initial
         | page_number
-        | interjection
+        | exclamation
         | abbr_lexicon
         | abbreviation_consonant
         | email | uri

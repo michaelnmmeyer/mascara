@@ -36,6 +36,20 @@ check{
    output = {{"foo"}, {"bar"}},
 }
 
+-- Special case: '!' + lowercase.
+check{
+   input = [[
+      Ah! princesse.
+      "Good gracious!" cried Mrs. Bennet.
+      "Why?" said Albert.
+   ]],
+   output = {
+      {"Ah", "!", "princesse", "."},
+      {'"', "Good", "gracious", "!", '"', "cried", "Mrs.", "Bennet", "."},
+      {'"', "Why", "?", '"', "said", "Albert", "."},
+   }
+}
+
 -- Don't split on URLs.
 check{
    input = "To donate, please visit: http://pglaf.org/donate Section 5. Foobar",
