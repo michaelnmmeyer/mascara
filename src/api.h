@@ -43,8 +43,8 @@ enum mr_mode {
 const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
- * If there is no implementation for the provided language name, returns NULL.
- * Available languages are "en", "fr", and "it".
+ * If there is no specific support for the provided language name, chooses a
+ * generic tokenizer. Available languages are "en", "fr", and "it".
  */
 struct mascara *mr_alloc(const char *lang, enum mr_mode);
 

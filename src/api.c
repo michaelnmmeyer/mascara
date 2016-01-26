@@ -9,6 +9,7 @@
 #include "gen/en_tokenize.ic"
 #include "gen/fr_tokenize.ic"
 #include "gen/it_tokenize.ic"
+#include "gen/generic_tokenize.ic"
 
 static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
 {
@@ -17,19 +18,21 @@ static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
       _(en)
       _(fr)
       _(it)
+      _(generic)
    #undef _
-      {NULL, 0, 0}
    };
    
-   for (const struct mr_tokenizer_vtab *tk = tbl; tk->name; tk++)
-      if (!strcmp(tk->name, name))
-         return tk;
-   return NULL;
+   const size_t size = sizeof tbl / sizeof *tbl;
+   for (size_t i = 0; i < size; i++)
+      if (!strcmp(tbl[i].name, name))
+         return &tbl[i];
+
+   return &tbl[size - 1];
 }
 
 const char *const *mr_langs(void)
 {
-   static const char *const lst[] = {"en", "fr", "it", NULL};
+   static const char *const lst[] = {"en", "fr", "it", "generic", NULL};
    return lst;
 }
 
@@ -56,8 +59,6 @@ const char *mr_token_type_name(enum mr_token_type t)
 struct mascara *mr_alloc(const char *lang, enum mr_mode mode)
 {
    const struct mr_tokenizer_vtab *tk = mr_find_tokenizer(lang);
-   if (!tk)
-      return NULL;
 
    switch (mode) {
    case MR_TOKEN: {
