@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Generates a Ragel machine matching a list of abbreviations. Abbreviations should
-end with a period. We don't generate case variants (this is probably not a good
-idea).
+Generates a Ragel machine matching a list of abbreviations. Only abbreviations
+that end with a period must be used. We don't generate case variants (this is
+probably not a good idea).
 """
 
 import sys

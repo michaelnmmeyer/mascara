@@ -15,10 +15,6 @@ DATA
 }%%
 """
 
-def full_path(path):
-   this_dir = os.path.dirname(__file__)
-   return os.path.join(this_dir, path)
-
 def mkregex(word):
    buf = []
    for c in word:
@@ -105,8 +101,8 @@ def load_words(fp):
          words.append(word)
    return words
 
-name = sys.argv[1]
-path = full_path(name) + ".txt"
+path = sys.argv[1]
+name = os.path.splitext(os.path.basename(path))[0]
 with open(path, encoding="UTF-8") as fp:
    tks = load_words(fp)
 

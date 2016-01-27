@@ -37,7 +37,7 @@ mascara.h: src/api.h
 	cp $< $@
 
 mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
-	src/mkamalg.py src/*.c > $@
+	src/scripts/mkamalg.py src/*.c > $@
 
 mascara: $(AMALG) cmd/mascara.ih cmd/mascara.c cmd/cmd.c
 	$(CC) $(CFLAGS) mascara.c cmd/mascara.c cmd/cmd.c -o $@

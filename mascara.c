@@ -20202,9 +20202,9 @@ void mr_dealloc(struct mascara *mr)
 #line 1 "sentencize.c"
 #line 1 "sentencize.ic"
 
-#line 1 "sentencize.rl"
+#line 1 "fsm/sentencize.rl"
 
-#line 108 "sentencize.rl"
+#line 108 "fsm/sentencize.rl"
 
 
 
@@ -23336,7 +23336,7 @@ static const int sentencize_en_find_eos = 478;
 static const int sentencize_en_main = 1;
 
 
-#line 111 "sentencize.rl"
+#line 111 "fsm/sentencize.rl"
 
 static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
                                           size_t *len,
@@ -23361,7 +23361,7 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
 	act = 0;
 	}
 
-#line 126 "sentencize.rl"
+#line 126 "fsm/sentencize.rl"
    
 #line 3164 "gen/sentencize.ic"
 	{
@@ -23440,11 +23440,11 @@ _eof_trans:
 
 	switch ( _sentencize_trans_actions[_trans] ) {
 	case 3:
-#line 105 "sentencize.rl"
+#line 105 "fsm/sentencize.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 106 "sentencize.rl"
+#line 106 "fsm/sentencize.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 478; goto _again;} }
 	break;
 	case 9:
@@ -23452,28 +23452,28 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 20:
-#line 100 "sentencize.rl"
+#line 100 "fsm/sentencize.rl"
 	{te = p+1;}
 	break;
 	case 15:
-#line 102 "sentencize.rl"
+#line 102 "fsm/sentencize.rl"
 	{te = p+1;}
 	break;
 	case 25:
-#line 88 "sentencize.rl"
+#line 88 "fsm/sentencize.rl"
 	{te = p;p--;{
       *period = ts;
       goto found;
    }}
 	break;
 	case 24:
-#line 92 "sentencize.rl"
+#line 92 "fsm/sentencize.rl"
 	{te = p;p--;{
       goto found;
    }}
 	break;
 	case 23:
-#line 95 "sentencize.rl"
+#line 95 "fsm/sentencize.rl"
 	{te = p;p--;{
       /* Don't include the paragraph break itself in the sentence. */
       te = ts;
@@ -23481,32 +23481,32 @@ _eof_trans:
    }}
 	break;
 	case 22:
-#line 100 "sentencize.rl"
+#line 100 "fsm/sentencize.rl"
 	{te = p;p--;}
 	break;
 	case 26:
-#line 101 "sentencize.rl"
+#line 101 "fsm/sentencize.rl"
 	{te = p;p--;}
 	break;
 	case 21:
-#line 102 "sentencize.rl"
+#line 102 "fsm/sentencize.rl"
 	{te = p;p--;}
 	break;
 	case 13:
-#line 88 "sentencize.rl"
+#line 88 "fsm/sentencize.rl"
 	{{p = ((te))-1;}{
       *period = ts;
       goto found;
    }}
 	break;
 	case 11:
-#line 92 "sentencize.rl"
+#line 92 "fsm/sentencize.rl"
 	{{p = ((te))-1;}{
       goto found;
    }}
 	break;
 	case 10:
-#line 95 "sentencize.rl"
+#line 95 "fsm/sentencize.rl"
 	{{p = ((te))-1;}{
       /* Don't include the paragraph break itself in the sentence. */
       te = ts;
@@ -23514,15 +23514,15 @@ _eof_trans:
    }}
 	break;
 	case 8:
-#line 100 "sentencize.rl"
+#line 100 "fsm/sentencize.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 17:
-#line 101 "sentencize.rl"
+#line 101 "fsm/sentencize.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 7:
-#line 102 "sentencize.rl"
+#line 102 "fsm/sentencize.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -23546,39 +23546,39 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 105 "sentencize.rl"
+#line 105 "fsm/sentencize.rl"
 	{ start = p; }
-#line 106 "sentencize.rl"
+#line 106 "fsm/sentencize.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 478; goto _again;} }
 	break;
 	case 14:
 #line 1 "NONE"
 	{te = p+1;}
-#line 88 "sentencize.rl"
+#line 88 "fsm/sentencize.rl"
 	{act = 1;}
 	break;
 	case 12:
 #line 1 "NONE"
 	{te = p+1;}
-#line 92 "sentencize.rl"
+#line 92 "fsm/sentencize.rl"
 	{act = 2;}
 	break;
 	case 19:
 #line 1 "NONE"
 	{te = p+1;}
-#line 100 "sentencize.rl"
+#line 100 "fsm/sentencize.rl"
 	{act = 4;}
 	break;
 	case 16:
 #line 1 "NONE"
 	{te = p+1;}
-#line 101 "sentencize.rl"
+#line 101 "fsm/sentencize.rl"
 	{act = 5;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 102 "sentencize.rl"
+#line 102 "fsm/sentencize.rl"
 	{act = 6;}
 	break;
 #line 3382 "gen/sentencize.ic"
@@ -23609,7 +23609,7 @@ _again:
 	_out: {}
 	}
 
-#line 127 "sentencize.rl"
+#line 127 "fsm/sentencize.rl"
 
    /* Last sentence. Don't know how to trim whitespace on the right. */
    if (start) {

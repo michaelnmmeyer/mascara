@@ -1,4 +1,4 @@
-RAGEL_CFLAGS = -I. -I./gen -e -T1
+RAGEL_CFLAGS = -I./fsm -I./gen -e -T1
 
 UNI  = gen/combining_diacritic.rl gen/raw_latin_letter.rl \
        gen/raw_latin_uppercase.rl
@@ -28,29 +28,29 @@ gen/%_tokenize.ic: gen/%_tokenize.rl $(UNI) $(REST) gen/%_prefix.rl \
                    gen/%_suffix.rl gen/%_lexicon.rl gen/%_word.rl
 	ragel $(RAGEL_CFLAGS) $< -o $@
 
-gen/%_suffix_match.ic: gen/%_suffix_match.rl
+gen/%_suffix_match.ic: gen/%_suffix_match.rl scripts/reverse_machine.py
 	ragel $(RAGEL_CFLAGS) $< -o $@
-	./reverse_machine.py $@
+	scripts/reverse_machine.py $@
 
-gen/sentencize.ic: sentencize.rl $(UNI) $(REST)
+gen/sentencize.ic: fsm/sentencize.rl $(UNI) $(REST)
 	ragel $(RAGEL_CFLAGS) $< -o $@
 
-$(UNI): mkunicode.py
-	./$< $(notdir $(basename $@)) > $@
+$(UNI): scripts/mkunicode.py
+	$< $(notdir $(basename $@)) > $@
 
-$(ABR): mkabbrs.py
-	./$< < $(notdir $(basename $@)).txt > $@
+$(ABR): data/abbr_lexicon.txt scripts/mkabbrs.py
+	scripts/mkabbrs.py < $^ > $@
 
-gen/%_tokenize.rl: mktpl.py tokenize.tpl
-	./$< $(notdir $(basename $@)) > $@
+gen/%_tokenize.rl: scripts/mktpl.py fsm/tokenize.tpl
+	$< $(notdir $(basename $@)) > $@
 
-gen/%_suffix_match.rl: mktpl.py suffix_match.tpl
-	./$< $(notdir $(basename $@)) > $@
+gen/%_suffix_match.rl: scripts/mktpl.py fsm/suffix_match.tpl
+	$< $(notdir $(basename $@)) > $@
 
-gen/%_word.rl: mktpl.py word.tpl
-	./$< $(notdir $(basename $@)) > $@
+gen/%_word.rl: scripts/mktpl.py fsm/word.tpl
+	$< $(notdir $(basename $@)) > $@
 
-gen/%.rl: mklang.py %.txt
-	./$< $(notdir $(basename $@)) > $@
+gen/%.rl: data/%.txt
+	scripts/mklang.py $^ > $@
 
 .PHONY: all clean
