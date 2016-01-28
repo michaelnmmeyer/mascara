@@ -1,7 +1,7 @@
 RAGEL_CFLAGS = -I./fsm -I./gen -e -T1
 
 UNI  = gen/combining_diacritic.rl gen/raw_latin_letter.rl \
-       gen/raw_latin_uppercase.rl
+       gen/raw_latin_uppercase.rl gen/raw_latin_lowercase.rl
 LANG = gen/en_prefix.rl gen/en_suffix.rl gen/en_lexicon.rl \
        gen/fr_prefix.rl gen/fr_suffix.rl gen/fr_lexicon.rl \
        gen/it_prefix.rl gen/it_suffix.rl gen/it_lexicon.rl \

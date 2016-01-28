@@ -54,7 +54,7 @@ def iter_property_code_points(property, file):
 
 def latin_letter():
    alpha = iter_property_code_points("Alphabetic", DERIVED_PROPS)
-   latin = iter_property_code_points("Latin",  SCRIPT_PROPS)
+   latin = iter_property_code_points("Latin", SCRIPT_PROPS)
    return set(alpha) & set(latin)
 
 def combining_diacritic():
@@ -63,8 +63,13 @@ def combining_diacritic():
 
 def latin_uppercase():
    upper = iter_property_code_points("Uppercase", DERIVED_PROPS)
-   latin = iter_property_code_points("Latin",  SCRIPT_PROPS)
+   latin = iter_property_code_points("Latin", SCRIPT_PROPS)
    return set(upper) & set(latin)
+
+def latin_lowercase():
+   lower = iter_property_code_points("Lowercase", DERIVED_PROPS)
+   latin = iter_property_code_points("Latin", SCRIPT_PROPS)
+   return set(lower) & set(latin)
 
 tpl_head = """\
 /* Generated file, don't edit! */
@@ -91,6 +96,7 @@ def mkmachine(name, code_points):
 MACHINES = {
    "raw_latin_letter": latin_letter,
    "raw_latin_uppercase": latin_uppercase,
+   "raw_latin_lowercase": latin_lowercase,
    "combining_diacritic": combining_diacritic,
 }
 

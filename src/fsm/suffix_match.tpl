@@ -46,6 +46,7 @@ static size_t $LANG_suffix(const unsigned char *p, const unsigned char *pe)
 
    /* Possibly unused variables. */
    (void)act;
+   (void)ts;
    (void)te;
    (void)eof;
    (void)$LANG_suffix_match_en_main;

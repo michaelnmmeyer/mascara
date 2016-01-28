@@ -64,6 +64,11 @@ closing_double_quote =
 
 double_quote = opening_double_quote | closing_double_quote;
 
+opening_bracket = "(" | "[" | "{";
+closing_bracket = ")" | "]" | "}";
+
+bracket = opening_bracket | closing_bracket;
+
 dash =
   "-"
 | "–"     # EN DASH
@@ -89,14 +94,7 @@ symbol =
 
 | single_quote
 | double_quote
-
-# Brackets.
-| "("
-| ")"
-| "["
-| "]"
-| "{"
-| "}"
+| bracket
 
 # Currency.
 | "$"

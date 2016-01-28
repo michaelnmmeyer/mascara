@@ -33,7 +33,7 @@ struct mascara;
 /* Tokenization mode. */
 enum mr_mode {
    MR_TOKEN,      /* Iterate over tokens. */
-   MR_SENTENCE,   /* Iterate over sentences, where an sentence is an array of
+   MR_SENTENCE,   /* Iterate over sentences, where a sentence is an array of
                    * tokens. */
 };
 

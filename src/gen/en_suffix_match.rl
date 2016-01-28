@@ -47,6 +47,7 @@ static size_t en_suffix(const unsigned char *p, const unsigned char *pe)
 
    /* Possibly unused variables. */
    (void)act;
+   (void)ts;
    (void)te;
    (void)eof;
    (void)en_suffix_match_en_main;

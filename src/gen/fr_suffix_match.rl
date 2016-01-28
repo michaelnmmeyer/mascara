@@ -47,6 +47,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 
    /* Possibly unused variables. */
    (void)act;
+   (void)ts;
    (void)te;
    (void)eof;
    (void)fr_suffix_match_en_main;

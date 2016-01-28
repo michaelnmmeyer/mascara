@@ -7,6 +7,7 @@ alphtype unsigned char;
 include whitespace "whitespace.rl";
 include misc "misc.rl";
 include abbr_lexicon "abbr_lexicon.rl";
+include symbol "symbol.rl";
 
 
 #-------------------------------------------------------------------------------
@@ -14,8 +15,6 @@ include abbr_lexicon "abbr_lexicon.rl";
 #-------------------------------------------------------------------------------
 
 eos_marker = "." | "?" | "!";
-
-closing_bracket = ")" | "]" | "}";
 
 closing_quote = closing_single_quote | closing_double_quote;
 
@@ -56,6 +55,9 @@ consonant = [BCDFGHJKLMNPQRSTVWXZ] | [bcdfghjklmnpqrstvwxz];
 
 # Example:
 #    cf.
+#    bzw.
+# We could add consonants containing diacritics, but this is unlikely to be
+# helpful.
 
 abbreviation_consonant = consonant+ ".";
 
@@ -65,10 +67,8 @@ abbreviation_consonant = consonant+ ".";
 #    "Good gracious!" cried Mrs. Bennet.
 #     "Why?" said Albert
 #
-# Note that (latin - latin_uppercase) doesn't necessarily match lowercase
-# letters.
 
-exclamation = latin+ whitespace? ("!" | "?") closing_quote? whitespace (latin - latin_uppercase);
+exclamation = latin+ whitespace? ("!" | "?") closing_quote? whitespace latin_lowercase;
 
 not_eos = thing_with_periods
         | period_punct

@@ -178,6 +178,7 @@ _match:
 
    /* Possibly unused variables. */
    (void)act;
+   (void)ts;
    (void)te;
    (void)eof;
    (void)generic_suffix_match_en_main;
