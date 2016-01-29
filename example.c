@@ -9,7 +9,7 @@
 int main(int argc, char **argv)
 {
    struct mascara *mr = mr_alloc("en", MR_SENTENCE);
-   
+
    while (*++argv) {
       struct mr_token *sent;
       size_t len;
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
          putchar('\n');
       }
    }
-   
+
    mr_dealloc(mr);
    return 0;
 }

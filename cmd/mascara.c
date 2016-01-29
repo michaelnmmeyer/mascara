@@ -128,7 +128,7 @@ static void tokenize_with_eos(struct mascara *mr,
 static void tokenize_without_eos(struct mascara *mr, const char *fmt)
 {
    struct mr_token *tk;
-   
+
    while (mr_next(mr, &tk))
       print_token(fmt, tk);
 }
@@ -167,7 +167,7 @@ int main(int argc, char **argv)
    const char *lang = "en";
    const char *eos = "\n";
    bool list = false;
-   
+
    struct option opts[] = {
       {'f', "format", OPT_STR(fmt)},
       {'l', "lang", OPT_STR(lang)},

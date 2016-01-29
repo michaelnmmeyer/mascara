@@ -64,11 +64,11 @@ main := |*
       tk->len -= tkr->suffix_len;
       fbreak;
    };
-   
+
    email           => { SAVE(MR_EMAIL); fbreak; };
    unknown         => { SAVE(MR_UNK); fbreak; };
    whitespace+;
-   
+
    # Split assimilations: 'twas -> 't, was. Only done for English.
    void => {
       tkr->te = tkr->ts + 2;

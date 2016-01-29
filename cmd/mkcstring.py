@@ -8,14 +8,14 @@ into a C source file.
 import sys
 
 replacements = {
-	"\n": "n",
-	"\t": "t",
-	"\\": "\\",
-	"\"": '"',
+   "\n": "n",
+   "\t": "t",
+   "\\": "\\",
+   "\"": '"',
 }
 
 for key, value in replacements.copy().items():
-	replacements[key] = "\\" + value
+   replacements[key] = "\\" + value
 
 for line in sys.stdin:
-	print('"%s"' % "".join(replacements.get(c, c) for c in line))
+   print('"%s"' % "".join(replacements.get(c, c) for c in line))

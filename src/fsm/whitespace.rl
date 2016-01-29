@@ -68,7 +68,7 @@ whitespace =
 | new_line
 ;
 
-# Paragraph end. 
+# Paragraph end.
 # We consider that a sequence of at least two line breaks with nothing
 # in-between but whitespace indicates the end of a paragraph. While matching
 # a paragraph break, we try to eat as much whitespace as possible.
@@ -78,7 +78,7 @@ paragraph_break =
 # Explicit unicode paragraph separator.
 
   (whitespace+ -- PARAGRAPH_SEPARATOR)* PARAGRAPH_SEPARATOR whitespace*
-  
+
 # Below, "\r\n" is substracted from the main expression because we have
 # included "\r" as a newline marker, so "\r\n" would indicate two lines.
 # But we don't want that to happen. A solution would be to remove "\r" from

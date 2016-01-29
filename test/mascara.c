@@ -14,7 +14,7 @@ static int mr_lua_new(lua_State *lua)
    const char *lang = luaL_checkstring(lua, 1);
    const char *const modes[] = {"token", "sentence", NULL};
    enum mr_mode mode = luaL_checkoption(lua, 2, "token", modes);
-   
+
    struct mr_lua *mr = lua_newuserdata(lua, sizeof *mr);
 
    mr->mr = mr_alloc(lang, mode);
@@ -39,7 +39,7 @@ static int mr_lua_set_text(lua_State *lua)
    luaL_unref(lua, LUA_REGISTRYINDEX, mr->str_ref);
    lua_pushvalue(lua, 2);
    mr->str_ref = luaL_ref(lua, LUA_REGISTRYINDEX);
-   
+
    return 0;
 }
 
@@ -59,7 +59,7 @@ static void mr_lua_put_sentence(lua_State *lua, const struct mr_token *tks,
                                 size_t len)
 {
    lua_createtable(lua, len, 0);
-   
+
    for (size_t i = 0; i < len; i++) {
       mr_lua_put_token(lua, &tks[i]);
       lua_rawseti(lua, -2, i + 1);
@@ -69,10 +69,10 @@ static void mr_lua_put_sentence(lua_State *lua, const struct mr_token *tks,
 static int mr_lua_next(lua_State *lua)
 {
    struct mr_lua *mr = luaL_checkudata(lua, 1, MR_MT);
-   
+
    if (mr->str_ref == LUA_NOREF)
       return luaL_error(lua, "no text set");
-   
+
    struct mr_token *tks;
    size_t len = mr_next(mr->mr, &tks);
    if (len) {

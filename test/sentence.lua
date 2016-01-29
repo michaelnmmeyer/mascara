@@ -72,7 +72,7 @@ check{
 check{
    input = "Gregory B. Newby Chief Executive and Director gbnewby@pglaf.org Section 4. Foobar",
    output = {
-      {"Gregory", "B.", "Newby", "Chief", "Executive", "and", "Director", "gbnewby@pglaf.org", "Section", "4", "."}, 
+      {"Gregory", "B.", "Newby", "Chief", "Executive", "and", "Director", "gbnewby@pglaf.org", "Section", "4", "."},
       {"Foobar"}
    }
 }
@@ -86,14 +86,14 @@ check{
    output = {
       {"«", "C'est", "vrai", ",", "répondait", "mon", "amour", ",", "il", "n'y",
        "a", "plus", "rien", "à", "faire", "de", "cette", "amitié-là", ",",
-       "elle", "ne", "changera", "pas", ".", "»"}, 
+       "elle", "ne", "changera", "pas", ".", "»"},
    }
 }
 
 -- Don't split on abbreviations.
 check{
    input = "U.S. laws alone swamp our small staff.",
-   output = {{"U.S.", "laws", "alone", "swamp", "our", "small", "staff", "."}} 
+   output = {{"U.S.", "laws", "alone", "swamp", "our", "small", "staff", "."}}
 }
 
 -- Don't split on p. 1234.

@@ -21,7 +21,7 @@ static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
       _(generic)
    #undef _
    };
-   
+
    const size_t size = sizeof tbl / sizeof *tbl;
    for (size_t i = 0; i < size; i++)
       if (!strcmp(tbl[i].name, name))
@@ -34,6 +34,22 @@ const char *const *mr_langs(void)
 {
    static const char *const lst[] = {"en", "fr", "it", "generic", NULL};
    return lst;
+}
+
+const char *mr_strerror(int err)
+{
+   static const char *const tbl[] = {
+      [MR_OK] = "no error",
+      [MR_EOPEN] = "cannot open model file",
+      [MR_EMAGIC] = "model file signature mismatch",
+      [MR_EMODEL] = "model file is corrupt",
+      [MR_EIO] = "I/O error while reading model file",
+      [MR_ENOMEM] = "out of memory",
+   };
+
+   if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
+      return tbl[err];
+   return "unknown error code";
 }
 
 const char *mr_token_type_name(enum mr_token_type t)

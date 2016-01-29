@@ -5,6 +5,18 @@
 
 #include <stddef.h>
 
+enum {
+   MR_OK,      /* No error. */
+   MR_EOPEN,   /* Cannot open SBD model file. */
+   MR_EMAGIC,  /* SBD model file signature mismatch. */
+   MR_EMODEL,  /* SBD model file seems corrupt. */
+   MR_EIO,     /* I/O error while reading model file. */
+   MR_ENOMEM,  /* Out of memory. */
+};
+
+/* Returns a string describing an error code. */
+const char *mr_strerror(int err);
+
 /* Maximum allowed length of a sentence, in tokens. Sentences that would grow
  * larger than that are split in chunks. This is done to avoid pathological
  * cases.

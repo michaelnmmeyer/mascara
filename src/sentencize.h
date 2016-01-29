@@ -14,7 +14,7 @@ struct mr_sentencizer {
 
    const unsigned char *p;
    const unsigned char *pe;
-   
+
    struct mr_token *tokens;
    size_t len, alloc;
 };

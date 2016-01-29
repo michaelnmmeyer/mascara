@@ -9,7 +9,7 @@ struct mr_imp {
    size_t (*next)(struct mascara *, struct mr_token **);
    void (*fini)(struct mascara *);  /* Can be = 0. */
 };
-   
+
 struct mascara {
    const struct mr_imp *imp;
 };

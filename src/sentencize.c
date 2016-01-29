@@ -77,7 +77,7 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    assert(szr->str && "text no set");
 
    szr->len = 0;
-   
+
    size_t len;
    const unsigned char *last_period;
    const unsigned char *str = next_sentence(szr, &len, &last_period);
@@ -86,7 +86,7 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
       return 0;
    }
    size_t offset_incr = szr->offset_incr + str - szr->str;
-   
+
    struct mr_tokenizer tkr;
    mr_tokenizer_init(&tkr, szr->vtab);
    mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);

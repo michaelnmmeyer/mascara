@@ -136,7 +136,7 @@ found:
    *len = te - start;
    tkr->p = te;
    return start;
-   
+
    (void)stack;
    (void)sentencize_en_main;
    (void)sentencize_en_find_eos;

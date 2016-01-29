@@ -25,7 +25,7 @@ struct mr_tokenizer {
    int cs, act;
 
    size_t suffix_len;
-   
+
    struct mr_token token;
 };
 
