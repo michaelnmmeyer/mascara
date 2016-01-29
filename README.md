@@ -96,6 +96,7 @@ later processing. Existing token types are:
 
         Ph.D.
         a.m.
+        J.-C.
 
 * `EMAIL`. An email address:
 

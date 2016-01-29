@@ -142,12 +142,18 @@ check{
 
 -- Both periods and hyphens inside a word.
 check{
-   input = [[J.-C. Marchianni]],
+   input = [[
+   J.-C. Marchianni
+   Präsident der E.-F.-Schumacher-Gesellschaft
+   ]],
    format = {"str", "type"},
    output = {
       {"J.-C", "ABBR"},
       {".", "SYM"},
       {"Marchianni", "LATIN"},
+      {"Präsident", "LATIN"},
+      {"der", "LATIN"},
+      {"E.-F.-Schumacher-Gesellschaft", "LATIN"},
    }
 }
 
