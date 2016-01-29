@@ -95,6 +95,14 @@ check{
    input = "U.S. laws alone swamp our small staff.",
    output = {{"U.S.", "laws", "alone", "swamp", "our", "small", "staff", "."}} 
 }
+check{
+   input = "seit M.-S. Samain",
+   output = {{"seit", "M.-S.", "Samain"}},
+}
+check{
+   input = "der H.-G.-Wells-Literaturverfilmung",
+   output = {{"der", "H.-G.-Wells-Literaturverfilmung"}},
+}
 
 -- Don't split on p. 1234.
 check{
