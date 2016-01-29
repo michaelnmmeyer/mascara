@@ -140,6 +140,17 @@ check{
    lang = "fr",
 }
 
+-- Both periods and hyphens inside a word.
+check{
+   input = [[J.-C. Marchianni]],
+   format = {"str", "type"},
+   output = {
+      {"J.-C", "ABBR"},
+      {".", "SYM"},
+      {"Marchianni", "LATIN"},
+   }
+}
+
 -- Path in the file system.
 check{
    input = [[

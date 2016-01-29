@@ -16,8 +16,15 @@ include symbol "symbol.rl";
 #
 # Also note that we don't include the terminal period in this pattern, since
 # the role of periods is ambiguous.
+#
+# Special case:
+#
+#    J.-C. Marchianni
+#    M.-S. Samain 
+#
+# Mostly concerns French.
 
-abbreviation = latin_letter ("." latin_letter)+;
+abbreviation = latin_letter ("." "-"? latin_letter)+;
 
 # Email.
 #
