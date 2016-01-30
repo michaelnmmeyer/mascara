@@ -9,7 +9,9 @@ include latin "latin.rl";
 include whitespace "whitespace.rl";
 include symbol "symbol.rl";
 
-# Abbreviation.
+# Abbreviation:
+#
+#    Ph.D.
 #
 # Note that this pattern overlaps with the Latin word pattern; it must be placed
 # above it in the scanner definition to take precedence.
@@ -24,7 +26,7 @@ include symbol "symbol.rl";
 #
 # Mostly concerns French.
 
-abbreviation = latin_letter ("." "-"? latin_letter)+;
+abbreviation = latin_letter{1,2} ("." "-"? latin_letter)+;
 
 # Email.
 #

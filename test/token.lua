@@ -157,6 +157,13 @@ check{
    }
 }
 
+-- Abbreviations.
+check{
+   input = [[Ph.D.]],
+   format = "type",
+   output = {"ABBR", "SYM"},
+}
+
 -- Path in the file system.
 check{
    input = [[

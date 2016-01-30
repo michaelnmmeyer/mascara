@@ -17,7 +17,7 @@ CODE = gen/en_tokenize.ic gen/en_suffix_match.ic \
        gen/generic_tokenize.ic gen/generic_suffix_match.ic \
        gen/sentencize.ic
 
-REST = $(wildcard *.rl)
+REST = $(wildcard fsm/*.rl)
 
 all: $(UNI) $(LANG) $(TPL) $(ABR) $(CODE)
 
