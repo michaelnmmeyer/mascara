@@ -40,7 +40,8 @@ vgcore*
 
 # Binaries
 mascara
-example
+examples/tokens
+examples/sentences
 
 # Private
 lab/

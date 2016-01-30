@@ -1,18 +1,22 @@
 # mascara
 
-A tokenizer for English, French and Italian.
+A natural language tokenizer.
 
 ## Purpose
 
-This is a C library for performing Treebank-style tokenization.
+This is a C library and command-line tool for performing Treebank-style
+tokenization of written texts. It has explicit support for English, French, and
+Italian, and also includes a generic tokenizer that can be used for, e.g.,
+German.
 
 
 ## Building
 
-The library is available in source form, as an amalgamation. Compile `mascara.c`
-together with your source code, and use the interface described in `mascara.h`.
-A C11 compiler is required for compilation, which means either GCC or CLang on
-Unix.
+The library is available in source form, as an
+[amalgamation](https://www.sqlite.org/amalgamation.html). Compile `mascara.c`
+together with your source code, and use the interface described in
+[`mascara.h`](https://github.com/michaelnmmeyer/mascara/blob/master/mascara.h).
+A C11 compiler is required, which means either GCC or CLang on Unix.
 
 A command-line tool `mascara` is included. To compile and install it:
 
@@ -21,10 +25,33 @@ A command-line tool `mascara` is included. To compile and install it:
 
 ## Usage
 
-There is a concrete usage example in `example.c`. Compile this file with `make`,
-and use the output binary like so:
+The [`example`](https://github.com/michaelnmmeyer/mascara/tree/master/test)
+directory contains concrete usage examples. Compile these files with `make`, and
+use them like so:
 
-    $ ./example "And now, Laertes, what's the news with you?"
+* Split a sentence into tokens:
+
+        $ examples/tokens "And now, Laertes, what's the news with you?"
+        And
+        now
+        ,
+        Laertes
+        ,
+        what
+        's
+        the
+        news
+        with
+        you
+        ?
+
+* Split a text into sentences:
+
+        $ examples/sentences "Pierre Vinken, 61 years old, will join the board
+        as a nonexecutive director Nov. 29. Mr. Vinken is chairman of Elsevier
+        N.V., the Dutch publishing group."  
+        Pierre Vinken , 61 years old , will join the board as a nonexecutive director Nov. 29 .  
+        Mr. Vinken is chairman of Elsevier N.V. , the Dutch publishing group .
 
 The library API is described in `mascara.h`. The following are auxiliary notes.
 

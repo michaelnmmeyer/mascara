@@ -1,10 +1,11 @@
-/* Tokenizes strings passed as arguments on the command-line.
- * Outputs one token per line, an empty line to signal the end of a sentence.
+/* Shows how to split a text into sentences.
+ * Input strings must be passed as argument on the command-line.
+ * Outputs one sentence per line, tokens being separated with whitespace.
  */
 
 #include <stdio.h>
 #include <string.h>
-#include "mascara.h"
+#include "../mascara.h"
 
 int main(int argc, char **argv)
 {
@@ -18,9 +19,8 @@ int main(int argc, char **argv)
          size_t i;
          for (i = 0; i < len; i++) {
             fwrite(sent[i].str, 1, sent[i].len, stdout);
-            putchar('\n');
+            putchar(i + 1 == len ? '\n' : ' ');
          }
-         putchar('\n');
       }
    }
    
