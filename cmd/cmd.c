@@ -9,24 +9,36 @@
 
 const char *g_progname = "program";
 
-noreturn void die(const char *msg, ...)
+static void inform(const char *msg, va_list ap)
 {
    int my_errno = errno;
 
    fprintf(stderr, "%s: ", g_progname);
-   
-   va_list ap;
-   va_start(ap, msg);
    vfprintf(stderr, msg, ap);
-   va_end(ap);
    
    size_t len = strlen(msg);
    if (len && msg[len - 1] == ':')
-      fprintf(stderr, " %s", my_errno ? strerror(my_errno) : "<unknown>");
+      fprintf(stderr, " %s", my_errno ? strerror(my_errno) : "<unknown error>");
    
    putc('\n', stderr);
-   
+}
+
+noreturn void die(const char *msg, ...)
+{
+   va_list ap;
+   va_start(ap, msg);
+   inform(msg, ap);
+   va_end(ap);
+
    exit(EXIT_FAILURE);
+}
+
+void complain(const char *msg, ...)
+{
+   va_list ap;
+   va_start(ap, msg);
+   inform(msg, ap);
+   va_end(ap);
 }
 
 static void set_progname(const char *name)

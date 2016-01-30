@@ -1,7 +1,7 @@
 #ifndef CMD_H
 #define CMD_H
 
-#define CMD_VERSION "0.2"
+#define CMD_VERSION "0.4"
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -11,6 +11,12 @@
 extern const char *g_progname;
 
 noreturn void die(const char *, ...)
+#ifdef __GNUC__
+   __attribute__((format(printf, 1, 2)))
+#endif
+;
+
+void complain(const char *, ...)
 #ifdef __GNUC__
    __attribute__((format(printf, 1, 2)))
 #endif

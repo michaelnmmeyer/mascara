@@ -16,6 +16,15 @@
  */
 #define MR_MAX_SENTENCE_LEN 1000
 
+/* Error codes. */
+enum {
+   MR_OK,      /* No error. */
+   MR_ENOMEM,  /* Out of memory. */
+};
+
+/* Returns a string describing an error code. */
+const char *mr_strerror(int err);
+
 /* See the readme file for informations about these. */
 enum mr_token_type {
    MR_UNK,
@@ -49,9 +58,11 @@ const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
  * If there is no specific support for the provided language name, chooses a
- * generic tokenizer. Available languages are "en", "fr", and "it".
+ * generic tokenizer. Available languages are "en", "fr", and "it". On success,
+ * makes the provided structure pointer point to an allocated tokenizer, and
+ * returns MR_OK. Otherwise, makes it point to NULL, and returns an error code.
  */
-struct mascara *mr_alloc(const char *lang, enum mr_mode);
+int mr_alloc(struct mascara **, const char *lang, enum mr_mode);
 
 /* Destructor. */
 void mr_dealloc(struct mascara *);
@@ -88,6 +99,14 @@ struct mr_token {
  */
 size_t mr_next(struct mascara *, struct mr_token **);
 
+/* Checks if an error happened during tokenization.
+ * MR_OK is returned if everything went fine.
+ */
+int mr_error(struct mascara *);
+
+/* Clears the error indicator of an allocated tokenizer. */
+void mr_clear_error(struct mascara *);
+
 #endif
 #line 5 "api.c"
 #line 1 "imp.h"
@@ -105,6 +124,7 @@ struct mr_imp {
    
 struct mascara {
    const struct mr_imp *imp;
+   int err;
 };
 
 #endif
@@ -20736,6 +20756,18 @@ const char *const *mr_langs(void)
    return lst;
 }
 
+const char *mr_strerror(int err)
+{
+   static const char *const tbl[] = {
+      [MR_OK] = "no error",
+      [MR_ENOMEM] = "out of memory",
+   };
+
+   if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
+      return tbl[err];
+   return "unknown error";
+}
+
 const char *mr_token_type_name(enum mr_token_type t)
 {
    static const char *const tbl[] = {
@@ -20756,23 +20788,34 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-struct mascara *mr_alloc(const char *lang, enum mr_mode mode)
+int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
 {
    const struct mr_tokenizer_vtab *tk = mr_find_tokenizer(lang);
 
    switch (mode) {
    case MR_TOKEN: {
       struct mr_tokenizer *mr = malloc(sizeof *mr);
+      if (!mr)
+         goto fail;
       mr_tokenizer_init(mr, tk);
-      return &mr->base;
+      *mrp = &mr->base;
+      break;
    }
    case MR_SENTENCE: {
       struct mr_sentencizer *mr = malloc(sizeof *mr);
+      if (!mr)
+         goto fail;
       mr_sentencizer_init(mr, tk);
-      return &mr->base;
+      *mrp = &mr->base;
+      break;
    }
    }
-   return NULL;
+   (*mrp)->err = MR_OK;
+   return MR_OK;
+
+fail:
+   *mrp = NULL;
+   return MR_ENOMEM;
 }
 
 enum mr_mode mr_mode(const struct mascara *mr)
@@ -20807,7 +20850,18 @@ void mr_dealloc(struct mascara *mr)
 
    free(mr);
 }
+
+int mr_error(struct mascara *mr)
+{
+   return mr->err;
+}
+
+void mr_clear_error(struct mascara *mr)
+{
+   mr->err = MR_OK;
+}
 #line 1 "sentencize.c"
+#include <stdbool.h>
 #line 1 "sentencize.ic"
 
 #line 1 "fsm/sentencize.rl"
@@ -24233,7 +24287,7 @@ found:
    (void)sentencize_en_main;
    (void)sentencize_en_find_eos;
 }
-#line 4 "sentencize.c"
+#line 5 "sentencize.c"
 
 static void mr_sentencizer_set_text(struct mascara *,
                                     const unsigned char *str, size_t len,
@@ -24275,16 +24329,23 @@ static void mr_sentencizer_set_text(struct mascara *imp,
    tkr->pe = &str[len];
 }
 
-static void add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
+static bool add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
-      tkr->alloc = tkr->alloc * 2 + 4;
-      tkr->tokens = realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
+      size_t new_alloc = tkr->alloc * 2 + 4;
+      void *tokens = realloc(tkr->tokens, new_alloc * sizeof *tkr->tokens);
+      if (!tokens) {
+         tkr->base.err = MR_ENOMEM;
+         return false;
+      }
+      tkr->alloc = new_alloc;
+      tkr->tokens = tokens;
    }
    tkr->tokens[tkr->len++] = *tk;
+   return true;
 }
 
-static int reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
+static bool reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
 {
    /* Conditions for reattaching a period are:
     * - There must be a single period (no ellipsis).
@@ -24298,10 +24359,10 @@ static int reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk
       if (prev->offset + prev->len == tk->offset &&
           (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
             prev->len++;
-            return 1;
+            return true;
       }
    }
-   return 0;
+   return false;
 }
 
 static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
@@ -24327,7 +24388,8 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    struct mr_token *tk;
    while (mr_tokenizer_next(&tkr.base, &tk)) {
       if (tk->str == (const char *)last_period || !reattach_period(szr, tk)) {
-         add_token(szr, tk);
+         if (!add_token(szr, tk))
+            return 0;
          if (szr->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;
