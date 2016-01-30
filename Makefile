@@ -1,15 +1,17 @@
 PREFIX = /usr/local
 
 CFLAGS = -std=c11 -g -Wall -Werror
-#CFLAGS += -O2 -DNDEBUG -march=native -mtune=native -fomit-frame-pointer -s
+CFLAGS += -O2 -DNDEBUG -march=native -mtune=native -fomit-frame-pointer -s
 
 AMALG = mascara.h mascara.c
+
+EXAMPLES = $(patsubst %.c,%,$(wildcard examples/*))
 
 #--------------------------------------
 # Abstract targets
 #--------------------------------------
 
-all: $(AMALG) mascara example
+all: $(AMALG) mascara $(EXAMPLES)
 
 clean:
 	rm -f mascara example test/mascara.so vgcore* core
@@ -33,17 +35,20 @@ uninstall:
 cmd/%.ih: cmd/%.txt
 	cmd/mkcstring.py < $< > $@
 
+cmd/%.ic: cmd/%.rl
+	ragel -e -T1 $^ -o $@
+
 mascara.h: src/api.h
 	cp $< $@
 
 mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
 	src/scripts/mkamalg.py src/*.c > $@
 
-mascara: $(AMALG) cmd/mascara.ih cmd/mascara.c cmd/cmd.c
-	$(CC) $(CFLAGS) src/lib/utf8proc.c mascara.c cmd/mascara.c cmd/cmd.c -o $@
+mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
+	$(CC) $(CFLAGS) mascara.c cmd/mascara.c cmd/cmd.c -o $@
 
-example: example.c $(AMALG)
-	$(CC) $(CFLAGS) $< src/lib/utf8proc.c mascara.c -o $@
+examples/%: examples/%.c $(AMALG)
+	$(CC) $(CFLAGS) $< mascara.c -o $@
 
 test/mascara.so: test/mascara.c $(AMALG)
-	$(CC) $(CFLAGS) -fPIC -shared $< src/lib/utf8proc.c mascara.c -o $@
+	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c -o $@

@@ -57,8 +57,16 @@ prefix = $LANG_prefix apostrophe;
 # separate discrete words. Sometimes it isn't, but this usage is wrong anyway:
 #
 #    restaurateur/trice
+#
+# Initials are sometimes used inside compounds in German:
+#
+#    Präsident der E.-F.-Schumacher-Gesellschaft
+#    in der H.-G.-Wells-Literaturverfilmung
+#
+# Initials that don't appear immediately before a full word are otherwise
+# classified as abbreviations.
 
-word_chunk = (apostrophe | "-" | "." | "&") latin+;
+word_chunk = (apostrophe | "-" | ("." "-"?) | "&") latin+;
 
 word_tail = word_chunk* ("²" | "³" | "°")?;
 
