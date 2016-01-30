@@ -5,7 +5,6 @@ machine fr_prefix;
 
 fr_prefix =
 (("C"|"c"))|
-(("Ç"|"ç"))|
 (("D"|"d"))|
 (("J"|"j"))|
 (("L"|"l"))|
