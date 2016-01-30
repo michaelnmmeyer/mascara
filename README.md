@@ -25,7 +25,7 @@ A command-line tool `mascara` is included. To compile and install it:
 
 ## Usage
 
-The [`example`](https://github.com/michaelnmmeyer/mascara/tree/master/test)
+The [`examples`](https://github.com/michaelnmmeyer/mascara/tree/master/examples)
 directory contains concrete usage examples. Compile these files with `make`, and
 use them like so:
 
