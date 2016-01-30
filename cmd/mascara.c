@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../mascara.h"
 #include "cmd.h"
+#include "print_str.ic"
 
 static void print_format(const char *fmt, const struct mr_token *tk)
 {
@@ -11,7 +12,7 @@ static void print_format(const char *fmt, const struct mr_token *tk)
       fputs(mr_token_type_name(tk->type), stdout);
       break;
    case 's':
-      fwrite(tk->str, 1, tk->len, stdout);
+      print_str((const unsigned char *)tk->str, tk->len);
       break;
    case 'l':
       printf("%zu", tk->len);

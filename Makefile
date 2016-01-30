@@ -33,13 +33,16 @@ uninstall:
 cmd/%.ih: cmd/%.txt
 	cmd/mkcstring.py < $< > $@
 
+cmd/%.ic: cmd/%.rl
+	ragel -e -T1 $^ -o $@
+
 mascara.h: src/api.h
 	cp $< $@
 
 mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
 	src/scripts/mkamalg.py src/*.c > $@
 
-mascara: $(AMALG) cmd/mascara.ih cmd/mascara.c cmd/cmd.c
+mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
 	$(CC) $(CFLAGS) mascara.c cmd/mascara.c cmd/cmd.c -o $@
 
 example: example.c $(AMALG)
