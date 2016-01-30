@@ -14,7 +14,7 @@ EXAMPLES = $(patsubst %.c,%,$(wildcard examples/*))
 all: $(AMALG) mascara $(EXAMPLES)
 
 clean:
-	rm -f mascara example test/mascara.so vgcore* core
+	rm -f mascara $(EXAMPLES) test/mascara.so vgcore* core
 
 check: test/mascara.so
 	cd test && valgrind --leak-check=full --error-exitcode=1 lua test.lua
