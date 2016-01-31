@@ -45,10 +45,10 @@ mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
 	src/scripts/mkamalg.py src/*.c > $@
 
 mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
-	$(CC) $(CFLAGS) mascara.c cmd/mascara.c cmd/cmd.c -o $@
+	$(CC) $(CFLAGS) mascara.c cmd/mascara.c src/lib/utf8proc.c cmd/cmd.c -o $@
 
 examples/%: examples/%.c $(AMALG)
-	$(CC) $(CFLAGS) $< mascara.c -o $@
+	$(CC) $(CFLAGS) $< mascara.c src/lib/utf8proc.c -o $@
 
 test/mascara.so: test/mascara.c $(AMALG)
-	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c -o $@
+	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c src/lib/utf8proc.c -o $@
