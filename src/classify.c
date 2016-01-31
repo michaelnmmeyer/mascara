@@ -154,13 +154,12 @@ void mr_classifier_init(struct mr_classifier *tkr,
 {
    *tkr = (struct mr_classifier){
       .base.imp = &mr_classifier_imp,
+      .vtab = vtab,
    };
    
    const struct mr_classifier_config *cfg = &mr_fr_sequoia_config;
    tkr->cfg = cfg;
    mr_bayes_load(&tkr->bayes, "models/fr_sequoia.mdl", &cfg->bayes_config);
-
-   mr_tokenizer_init(&tkr->tkr, vtab);
 }
 
 static void mr_classifier_fini(struct mascara *imp)
@@ -175,13 +174,99 @@ static void mr_classifier_set_text(struct mascara *imp,
                                     size_t offset_incr)
 {
    struct mr_classifier *tkr = (struct mr_classifier *)imp;
-   mr_tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
+   tkr->offset_incr = offset_incr;
+   tkr->p = str;
+   tkr->pe = &str[len];
 }
+
+bool add_token(struct mr_classifier *tkr, const struct mr_token *tk)
+{
+   if (tkr->len == tkr->alloc) {
+      size_t new_alloc = tkr->alloc * 2 + 4;
+      void *tokens = realloc(tkr->tokens, new_alloc * sizeof *tkr->tokens);
+      if (!tokens) {
+         tkr->base.err = MR_ENOMEM;
+         return false;
+      }
+      tkr->alloc = new_alloc;
+      tkr->tokens = tokens;
+   }
+   tkr->tokens[tkr->len++] = *tk;
+   return true;
+}
+
+bool reattach_period(struct mr_classifier *szr, const struct mr_token *tk)
+{
+   /* Conditions for reattaching a period are:
+    * - There must be a single period (no ellipsis).
+    * - This must not be the last period in the input text.
+    * - The previous token is a likely abbreviation (type latin or abbr), not a
+    *   symbol, etc.
+    * - The period immediately follows the previous token.
+    */
+   if (*tk->str == '.' && tk->len == 1 && szr->len) {
+      struct mr_token *prev = &szr->tokens[szr->len - 1];
+      if (prev->offset + prev->len == tk->offset &&
+          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
+            prev->len++;
+            return true;
+      }
+   }
+   return false;
+}
+
+#include "gen/sentencize2.ic"
 
 static size_t mr_classifier_next(struct mascara *imp, struct mr_token **tks)
 {
-   struct mr_classifier *szr = (struct mr_classifier *)imp;
+   struct mr_classifier *szr = (void *)imp;
+   assert(szr->str && "text no set");
 
-   (void)szr; (void)imp; (void)tks;
-   return 0;
+   szr->len = 0;
+
+   size_t len;
+   const unsigned char *last_period;
+   const unsigned char *str = sentencize2_next(szr, &len, &last_period);
+   if (!str) {
+      *tks = NULL;
+      return 0;
+   }
+   size_t offset_incr = szr->offset_incr + str - szr->str;
+
+   struct mr_tokenizer tkr;
+   mr_tokenizer_init(&tkr, szr->vtab);
+   if (last_period)
+      mr_tokenizer_set_text(&tkr.base, str, szr->pe - szr->p, offset_incr);
+   else
+      mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);
+
+   struct mr_token *tk;
+   while (mr_tokenizer_next(&tkr.base, &tk)) {
+      if (tk->str == (const char *)last_period) {
+         if (szr->len == 0) {
+            add_token(szr, tk);
+            break;
+         }
+         struct mr_token left = *tk;
+         if (!mr_tokenizer_next(&tkr.base, &tk)) {
+            add_token(szr, tk);
+            break;
+         }
+         bool eos = szr->cfg->eos(szr->bayes, &left, tk);
+         if (eos) {
+            add_token(szr, tk);
+            break;
+         }
+      }
+      if (!reattach_period(szr, tk)) {
+         if (!add_token(szr, tk))
+            return 0;
+         if (szr->len == MR_MAX_SENTENCE_LEN) {
+            szr->p = (const unsigned char *)tk->str + tk->len;
+            break;
+         }
+      }
+   }
+   *tks = szr->tokens;
+   return szr->len;
 }

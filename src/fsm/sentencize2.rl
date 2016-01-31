@@ -14,87 +14,56 @@ include symbol "symbol.rl";
 # Character classes.
 #-------------------------------------------------------------------------------
 
-eos_marker = "." | "?" | "!";
-
-closing_quote = closing_single_quote | closing_double_quote;
-
-
-#-------------------------------------------------------------------------------
-# Where to split.
-#-------------------------------------------------------------------------------
+eos_marker = "." | ellipsis | "?"+ | "!"+;
 
 # Symbols that can appear at the end of a sentence, after the terminal period.
 # Only useful for English. In French, these should appear _before_ the
 # terminal period.
-eos_trail = closing_bracket? closing_single_quote? closing_double_quote?
-          | closing_single_quote? closing_double_quote? closing_bracket?
-          ;
+#
+sent_trail = closing_bracket | closing_single_quote | closing_double_quote;
 
-eos = eos_marker+ eos_trail;
-
+sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 
 #-------------------------------------------------------------------------------
 # Where _not_ to split.
 #-------------------------------------------------------------------------------
 
-# Alphanumeric containing internal periods: Ph.D., 1.2.c, e.g., i.e.
-thing_with_periods = latin+ ("." latin+)+ "."?;
+# Alphanumeric containing internal periods. Includes abbreviations.
+#
+#    Ph.D.
+#    1.2.c
+#    e.g.
+#    i.e.
+#
+thing_with_periods = latin+ ("." latin+)+;
 
-# A token followed by a period followed by a one of these characters is a
-# likely abbreviation.
-period_punct = latin+ "." eos_trail ("," | ";" | ":");
-
-# John J. Doe.
-name_initial = latin_uppercase "." whitespace latin_uppercase;
-
-# Example:
-#    See p. 5 for more informations.
-page_number = "p." whitespace digit;
-
-consonant = [BCDFGHJKLMNPQRSTVWXZ] | [bcdfghjklmnpqrstvwxz];
-
-# Example:
-#    cf.
-#    bzw.
-# We could add consonants containing diacritics, but this is unlikely to be
-# helpful.
-
-abbreviation_consonant = consonant+ ".";
-
-# Exclamation:
+# Discard when followed by a lowercase letter, including exclamations:
 #
 #    Ah! princesse.
 #    "Good gracious!" cried Mrs. Bennet.
 #     "Why?" said Albert
 #
+no_capital = eos_marker sent_trail* whitespace* sent_lead* latin_lowercase;
 
-exclamation = latin+ whitespace? ("!" | "?") closing_quote? whitespace latin_lowercase;
-
-not_eos = thing_with_periods
-        | period_punct
-        | name_initial
-        | page_number
-        | exclamation
-        | abbr_lexicon
-        | abbreviation_consonant
-        | email | uri
-        ;
+not_eos = thing_with_periods | email | uri;
 
 #-------------------------------------------------------------------------------
 # Main.
 #-------------------------------------------------------------------------------
 
 find_eos := |*
-   "." eos_trail => {
+   "." sent_trail* => {
       *period = ts;
       goto found;
    };
-   eos => {
+   eos_marker sent_trail* => {
+      *period = NULL;
       goto found;
    };
    paragraph_break => {
       /* Don't include the paragraph break itself in the sentence. */
       te = ts;
+      *period = NULL;
       goto found;
    };
    any;
@@ -109,7 +78,7 @@ main := whitespace* %{ start = fpc; }
 
 %% write data noerror nofinal;
 
-static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
+static const unsigned char *sentencize2_next(struct mr_classifier *tkr,
                                           size_t *len,
                                           const unsigned char **period)
 {
@@ -120,10 +89,11 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
    const unsigned char *const eof = pe;
 
    const unsigned char *start = NULL;
-   *period = NULL;
 
    %% write init;
    %% write exec;
+
+   *period = NULL;
 
    /* Last sentence. Don't know how to trim whitespace on the right. */
    if (start) {
@@ -138,6 +108,6 @@ found:
    return start;
 
    (void)stack;
-   (void)sentencize_en_main;
-   (void)sentencize_en_find_eos;
+   (void)sentencize2_en_main;
+   (void)sentencize2_en_find_eos;
 }

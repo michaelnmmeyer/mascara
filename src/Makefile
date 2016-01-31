@@ -15,7 +15,7 @@ CODE = gen/en_tokenize.ic gen/en_suffix_match.ic \
        gen/fr_tokenize.ic gen/fr_suffix_match.ic \
        gen/it_tokenize.ic gen/it_suffix_match.ic \
        gen/generic_tokenize.ic gen/generic_suffix_match.ic \
-       gen/sentencize.ic
+       gen/sentencize.ic gen/sentencize2.ic
 
 REST = $(wildcard fsm/*.rl)
 
@@ -33,6 +33,9 @@ gen/%_suffix_match.ic: gen/%_suffix_match.rl scripts/reverse_machine.py
 	scripts/reverse_machine.py $@
 
 gen/sentencize.ic: fsm/sentencize.rl $(UNI) $(REST)
+	ragel $(RAGEL_CFLAGS) $< -o $@
+
+gen/sentencize2.ic: fsm/sentencize2.rl $(UNI) $(REST)
 	ragel $(RAGEL_CFLAGS) $< -o $@
 
 $(UNI): scripts/mkunicode.py

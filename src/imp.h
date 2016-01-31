@@ -1,6 +1,8 @@
 #ifndef MR_IMP_H
 #define MR_IMP_H
 
+#include <stdbool.h>
+
 struct mascara;
 struct mr_token;
 
