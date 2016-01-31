@@ -103,6 +103,13 @@ check{
    input = "der H.-G.-Wells-Literaturverfilmung",
    output = {{"der", "H.-G.-Wells-Literaturverfilmung"}},
 }
+check{
+   input = "(und vor Gelons Tod 216 v. Chr.). Er widerlegte",
+   output = {
+      {"(", "und", "vor", "Gelons", "Tod", "216", "v.", "Chr.", ")", "."},
+      {"Er", "widerlegte"},
+   }
+}
 
 -- Don't split on p. 1234.
 check{

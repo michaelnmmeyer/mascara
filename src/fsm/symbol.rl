@@ -75,6 +75,12 @@ dash =
 | "—"     # EM DASH
 ;
 
+ellipsis =
+  "…"
+| "."+
+| "." (" .")+   # . . .
+;
+
 symbol =
 
 # Punctuation.
@@ -86,9 +92,7 @@ symbol =
 | "."
 
 # Ellipsis, repeated punctuation characters.
-| "…"
-| "."+
-| "." (" .")+   # . . .
+| ellipsis
 | "?"+
 | "!"+
 

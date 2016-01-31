@@ -39,7 +39,7 @@ $(UNI): scripts/mkunicode.py
 	$< $(notdir $(basename $@)) > $@
 
 $(ABR): data/abbr_lexicon.txt scripts/mkabbrs.py
-	scripts/mkabbrs.py < $^ > $@
+	scripts/mkabbrs.py < $< > $@
 
 gen/%_tokenize.rl: scripts/mktpl.py fsm/tokenize.tpl
 	$< $(notdir $(basename $@)) > $@

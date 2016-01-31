@@ -14,67 +14,64 @@ include symbol "symbol.rl";
 # Character classes.
 #-------------------------------------------------------------------------------
 
-eos_marker = "." | "?" | "!";
-
-closing_quote = closing_single_quote | closing_double_quote;
-
-
-#-------------------------------------------------------------------------------
-# Where to split.
-#-------------------------------------------------------------------------------
+eos_marker = "." | ellipsis | "?"+ | "!"+;
 
 # Symbols that can appear at the end of a sentence, after the terminal period.
 # Only useful for English. In French, these should appear _before_ the
 # terminal period.
-eos_trail = closing_bracket? closing_single_quote? closing_double_quote?
-          | closing_single_quote? closing_double_quote? closing_bracket?
-          ;
+#
+sent_trail = closing_bracket | closing_single_quote | closing_double_quote;
 
-eos = eos_marker+ eos_trail;
-
+sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 
 #-------------------------------------------------------------------------------
 # Where _not_ to split.
 #-------------------------------------------------------------------------------
 
-# Alphanumeric containing internal periods: Ph.D., 1.2.c, e.g., i.e.
+# Alphanumeric containing internal periods. Includes abbreviations.
+#
+#    Ph.D.
+#    1.2.c
+#    e.g.
+#    i.e.
+#
 thing_with_periods = latin+ ("." latin+)+ "."?;
 
 # A token followed by a period followed by a one of these characters is a
 # likely abbreviation.
-period_punct = latin+ "." eos_trail ("," | ";" | ":");
+#
+period_punct = latin+ "." sent_trail* ("," | ";" | ":" | "?" | "!");
 
-# John J. Doe.
+# Example:
+#
+#    John J. Doe.
+#
 name_initial = latin_uppercase "." whitespace latin_uppercase;
 
-# Example:
-#    See p. 5 for more informations.
-page_number = "p." whitespace digit;
-
-consonant = [BCDFGHJKLMNPQRSTVWXZ] | [bcdfghjklmnpqrstvwxz];
-
-# Example:
+# Examples:
+#
 #    cf.
 #    bzw.
+#    p. 5
+#    pp. 6-7
+#
 # We could add consonants containing diacritics, but this is unlikely to be
-# helpful.
+# helpful. Adding uppercase consonants is not a good idea.
+#
+abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ ".";
 
-abbreviation_consonant = consonant+ ".";
-
-# Exclamation:
+# Discard when followed by a lowercase letter, including exclamations:
 #
 #    Ah! princesse.
 #    "Good gracious!" cried Mrs. Bennet.
 #     "Why?" said Albert
 #
-
-exclamation = latin+ whitespace? ("!" | "?") closing_quote? whitespace latin_lowercase;
+no_capital = eos_marker sent_trail* whitespace* sent_lead* latin_lowercase;
 
 not_eos = thing_with_periods
         | period_punct
         | name_initial
-        | page_number
-        | exclamation
+        | no_capital
         | abbr_lexicon
         | abbreviation_consonant
         | email | uri
@@ -85,16 +82,27 @@ not_eos = thing_with_periods
 #-------------------------------------------------------------------------------
 
 find_eos := |*
-   "." eos_trail => {
+   "." sent_trail* => {
       *period = ts;
       goto found;
    };
-   eos => {
+   eos_marker sent_trail* => {
+      *period = NULL;
       goto found;
+   };
+   # Discard when the period is followed by a closing bracket or closing
+   # quote and then another period (which indicateds that it was an
+   # abbreviation):
+   #
+   #    (und vor Gelons Tod 216 v. Chr.). Er widerlegte
+   #
+   eos_marker sent_trail* "." => {
+      fhold;
    };
    paragraph_break => {
       /* Don't include the paragraph break itself in the sentence. */
       te = ts;
+      *period = NULL;
       goto found;
    };
    any;
@@ -120,10 +128,11 @@ static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
    const unsigned char *const eof = pe;
 
    const unsigned char *start = NULL;
-   *period = NULL;
 
    %% write init;
    %% write exec;
+
+   *period = NULL;
 
    /* Last sentence. Don't know how to trim whitespace on the right. */
    if (start) {
