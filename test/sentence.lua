@@ -77,6 +77,12 @@ check{
    }
 }
 
+-- Don't split if not followed by an uppercase letter.
+check{
+   input = "foo. bar",
+   output = {{"foo.", "bar"}},
+}
+
 -- Include trailing quotes at the end of a sentence in the sentence itself.
 check{
    input = [[
