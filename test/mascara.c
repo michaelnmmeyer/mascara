@@ -16,12 +16,10 @@ static int mr_lua_new(lua_State *lua)
    enum mr_mode mode = luaL_checkoption(lua, 2, "token", modes);
 
    struct mr_lua *mr = lua_newuserdata(lua, sizeof *mr);
+   int ret = mr_alloc(&mr->mr, lang, mode);
+   if (ret)
+      return luaL_error(lua, "cannot create tokenizer: %s", mr_strerror(ret));
 
-   mr->mr = mr_alloc(lang, mode);
-   if (!mr->mr) {
-      lua_pushfstring(lua, "unknown model: '%s'", lang);
-      return lua_error(lua);
-   }
    mr->str_ref = LUA_NOREF;
 
    luaL_getmetatable(lua, MR_MT);

@@ -61,6 +61,7 @@ abbr_lexicon =
 "I." |
 "Ie." |
 "Inc." |
+"Ins." |
 "Insp." |
 "J." |
 "Jan." |
@@ -179,7 +180,9 @@ abbr_lexicon =
 "viz." |
 "vol." |
 "vols." |
-"vs."
+"vs." |
+"Éd." |
+"éd."
 ;
 
 }%%

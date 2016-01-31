@@ -8,6 +8,8 @@
 struct mr_classifier {
    struct mascara base;
 
+   struct mr_classifier_config;
+   const struct mr_classifier_config *cfg;
    struct mr_tokenizer tkr;
    struct mr_bayes *bayes;
    size_t offset_incr;
@@ -16,7 +18,6 @@ struct mr_classifier {
    size_t len, alloc;
 };
 
-void mr_classifier_init(struct mr_classifier *,
-                        const struct mr_tokenizer_vtab *);
+void mr_classifier_init(struct mr_classifier *, const struct mr_tokenizer_vtab *);
 
 #endif

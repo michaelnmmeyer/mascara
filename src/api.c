@@ -49,7 +49,7 @@ const char *mr_strerror(int err)
 
    if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
       return tbl[err];
-   return "unknown error code";
+   return "unknown error";
 }
 
 const char *mr_token_type_name(enum mr_token_type t)
@@ -72,23 +72,34 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-struct mascara *mr_alloc(const char *lang, enum mr_mode mode)
+int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
 {
    const struct mr_tokenizer_vtab *tk = mr_find_tokenizer(lang);
 
    switch (mode) {
    case MR_TOKEN: {
       struct mr_tokenizer *mr = malloc(sizeof *mr);
+      if (!mr)
+         goto fail;
       mr_tokenizer_init(mr, tk);
-      return &mr->base;
+      *mrp = &mr->base;
+      break;
    }
    case MR_SENTENCE: {
       struct mr_sentencizer *mr = malloc(sizeof *mr);
+      if (!mr)
+         goto fail;
       mr_sentencizer_init(mr, tk);
-      return &mr->base;
+      *mrp = &mr->base;
+      break;
    }
    }
-   return NULL;
+   (*mrp)->err = MR_OK;
+   return MR_OK;
+
+fail:
+   *mrp = NULL;
+   return MR_ENOMEM;
 }
 
 enum mr_mode mr_mode(const struct mascara *mr)
@@ -122,4 +133,14 @@ void mr_dealloc(struct mascara *mr)
       fini(mr);
 
    free(mr);
+}
+
+int mr_error(struct mascara *mr)
+{
+   return mr->err;
+}
+
+void mr_clear_error(struct mascara *mr)
+{
+   mr->err = MR_OK;
 }

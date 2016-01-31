@@ -1,6 +1,7 @@
 /* Shows how to split a text into tokens.
  * Input strings must be passed as argument on the command-line.
  * Outputs one token per line.
+ * Error handling is omitted for brevity!
  */
 
 #include <stdio.h>
@@ -9,7 +10,8 @@
 
 int main(int argc, char **argv)
 {
-   struct mascara *mr = mr_alloc("en", MR_TOKEN);
+   struct mascara *mr;
+   mr_alloc(&mr, "en", MR_TOKEN);
    
    while (*++argv) {
       struct mr_token *token;

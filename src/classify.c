@@ -3,8 +3,11 @@
 #include "api.h"
 #include "classify.h"
 
-// FIXME find that automatically.
-#define MAX_FEATURE_LEN 127 /* So far, longest = 65 on Tiger. */
+/*******************************************************************************
+ * Features.
+ ******************************************************************************/
+
+#define MAX_FEATURE_LEN 255
 
 static char *strzcat(char *restrict buf, const char *restrict str)
 {
@@ -75,6 +78,63 @@ char *ft_case(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
    return buf + 4;
 }
 
+
+/*******************************************************************************
+ * Concrete implementation.
+ ******************************************************************************/
+
+bool fr_sequoia_eos(const struct mr_bayes *mdl, const struct mr_token *left, const struct mr_token *right)
+{
+   double vec[2];
+   char stack[MAX_FEATURE_LEN + 1], *buf;
+
+   mr_bayes_init(mdl, vec);
+
+   buf = stack;
+   *buf++ = 1;
+   buf = ft_shape(buf, left);
+   *buf++ = '+';
+   buf = ft_len(buf, left);
+   *buf = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 2;
+   buf = ft_word(buf, left);
+   *buf++ = '+';
+   buf = ft_shape(buf, right);
+   *buf = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   return vec[MR_EOS] >= vec[MR_NOT_EOS];
+}
+
+struct mr_classifier_config {
+   const char *name;
+   const struct mr_bayes_config bayes_config;
+   bool (*eos)(const struct mr_bayes *mdl, const struct mr_token *, const struct mr_token *);
+};
+
+static const char *const fr_sequoia_features[] = {
+   "l_shape+l_len",
+   "l_word+r_shape",
+   NULL
+};
+
+static const struct mr_classifier_config mr_fr_sequoia_config = {
+   .name = "fr_sequoia",
+   .bayes_config = {
+      .signature = "fr_sequoia",
+      .features = fr_sequoia_features,
+   },
+   .eos = fr_sequoia_eos,
+};
+
+
+/*******************************************************************************
+ * Interface.
+ ******************************************************************************/
+
 static void mr_classifier_set_text(struct mascara *,
                                     const unsigned char *str, size_t len,
                                     size_t offset_incr);
@@ -95,13 +155,18 @@ void mr_classifier_init(struct mr_classifier *tkr,
    *tkr = (struct mr_classifier){
       .base.imp = &mr_classifier_imp,
    };
-   mr_bayes_load(&tkr->bayes, "models/fr_sequoia.mdl");
+   
+   const struct mr_classifier_config *cfg = &mr_fr_sequoia_config;
+   tkr->cfg = cfg;
+   mr_bayes_load(&tkr->bayes, "models/fr_sequoia.mdl", &cfg->bayes_config);
+
    mr_tokenizer_init(&tkr->tkr, vtab);
 }
 
 static void mr_classifier_fini(struct mascara *imp)
 {
    struct mr_classifier *tkr = (struct mr_classifier *)imp;
+   mr_bayes_dealloc(tkr->bayes);
    free(tkr->tokens);
 }
 

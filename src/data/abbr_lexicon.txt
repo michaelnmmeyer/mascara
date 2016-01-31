@@ -1,4 +1,4 @@
-# Amalgamated from the files in ../lab/sbd
+# Amalgamated from the files in ../lab/sbd, plus some manual additions.
 Apr
 Aug
 Biol
@@ -19,6 +19,7 @@ Dr
 Drs
 Ed
 Eds
+Éd.
 Eg
 Eq
 Eqs
@@ -72,6 +73,7 @@ dec
 dept
 depts
 ed
+éd.
 eds
 eg
 eq
@@ -139,6 +141,7 @@ H.
 Hon.
 Hosp.
 I.
+Ins.
 Insp.
 J.
 K.

@@ -10,8 +10,8 @@ import sys
 
 ABBRS = set()
 
-for line in sys.stdin:
-   abbr = line.strip()
+for line in sys.stdin.buffer:
+   abbr = line.decode("UTF-8").strip()
    if not abbr.startswith("#"):
       abbr = abbr.rstrip(".")
       ABBRS.add(abbr)
@@ -28,4 +28,5 @@ DATA
 
 }%%"""
 
-print(TPL.replace("DATA", " |\n".join('"%s."' % abbr for abbr in sorted(ABBRS))))
+ret = TPL.replace("DATA", " |\n".join('"%s."' % abbr for abbr in sorted(ABBRS)))
+sys.stdout.buffer.write(ret.encode("UTF-8"))

@@ -12,6 +12,7 @@ struct mr_imp {
 
 struct mascara {
    const struct mr_imp *imp;
+   int err;
 };
 
 #endif

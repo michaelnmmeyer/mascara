@@ -77,6 +77,12 @@ check{
    }
 }
 
+-- Don't split if not followed by an uppercase letter.
+check{
+   input = "foo. bar",
+   output = {{"foo.", "bar"}},
+}
+
 -- Include trailing quotes at the end of a sentence in the sentence itself.
 check{
    input = [[
@@ -102,6 +108,13 @@ check{
 check{
    input = "der H.-G.-Wells-Literaturverfilmung",
    output = {{"der", "H.-G.-Wells-Literaturverfilmung"}},
+}
+check{
+   input = "(und vor Gelons Tod 216 v. Chr.). Er widerlegte",
+   output = {
+      {"(", "und", "vor", "Gelons", "Tod", "216", "v.", "Chr.", ")", "."},
+      {"Er", "widerlegte"},
+   }
 }
 
 -- Don't split on p. 1234.

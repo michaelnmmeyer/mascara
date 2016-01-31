@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.5"
+#define MR_VERSION "0.6"
 
 #include <stddef.h>
 
@@ -56,9 +56,11 @@ const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
  * If there is no specific support for the provided language name, chooses a
- * generic tokenizer. Available languages are "en", "fr", and "it".
+ * generic tokenizer. Available languages are "en", "fr", and "it". On success,
+ * makes the provided structure pointer point to an allocated tokenizer, and
+ * returns MR_OK. Otherwise, makes it point to NULL, and returns an error code.
  */
-struct mascara *mr_alloc(const char *lang, enum mr_mode);
+int mr_alloc(struct mascara **, const char *lang, enum mr_mode);
 
 /* Destructor. */
 void mr_dealloc(struct mascara *);
@@ -94,5 +96,13 @@ struct mr_token {
  * and returns 0.
  */
 size_t mr_next(struct mascara *, struct mr_token **);
+
+/* Checks if an error happened during tokenization.
+ * MR_OK is returned if everything went fine.
+ */
+int mr_error(struct mascara *);
+
+/* Clears the error indicator of an allocated tokenizer. */
+void mr_clear_error(struct mascara *);
 
 #endif
