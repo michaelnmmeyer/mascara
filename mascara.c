@@ -107,8 +107,6 @@ size_t mr_next(struct mascara *, struct mr_token **);
 #ifndef MR_IMP_H
 #define MR_IMP_H
 
-#include <stdbool.h>
-
 struct mascara;
 struct mr_token;
 
@@ -175,6 +173,7 @@ size_t mr_tokenizer_next(struct mascara *, struct mr_token **);
 #ifndef MR_CLASSIFY_H
 #define MR_CLASSIFY_H
 
+#include <stdbool.h>
 #line 1 "bayes.h"
 #ifndef MR_BAYES_H
 #define MR_BAYES_H
@@ -200,26 +199,30 @@ void mr_bayes_init(const struct mr_bayes *, double [static 2]);
 void mr_bayes_feed(const struct mr_bayes *, double [static 2], const void *ft);
 
 #endif
-#line 6 "classify.h"
+#line 7 "classify.h"
 
 typedef bool at_eos_fn(const struct mr_bayes *,
                        const struct mr_token *lhs, const struct mr_token *rhs);
 
 struct mr_classifier {
    struct mascara base;
-   
+
    /* EOS classifier. */
    struct mr_bayes *bayes;
    at_eos_fn *at_eos;
    
    struct mr_tokenizer tkr;
-
-   /* Ragel variables. */
    const unsigned char *p, *pe;
 
+   /* Current sentence. We store at 0 the last token of the previous sentence,
+    * or a dummy token if at the beginning of the text. The current sentence
+    * starts at 1, and ends at -2 included. The token at -1 is the first token
+    * of the next sentence, or a dummy one if at the end of the text.
+    */
    struct mr_token *tokens;
    size_t len, alloc;
    
+   /* Whether we're at the start of the text. */
    bool first;
 };
 
@@ -22042,7 +22045,7 @@ static void reattach_period(struct mr_classifier *szr)
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 88 "fsm/sentencize2.rl"
+#line 79 "fsm/sentencize2.rl"
 
 
 
@@ -23527,7 +23530,7 @@ static const int sentencize2_en_find_eos = 369;
 static const int sentencize2_en_main = 1;
 
 
-#line 91 "fsm/sentencize2.rl"
+#line 82 "fsm/sentencize2.rl"
 
 static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
 {
@@ -23549,7 +23552,7 @@ static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
 	act = 0;
 	}
 
-#line 103 "fsm/sentencize2.rl"
+#line 94 "fsm/sentencize2.rl"
    
 #line 1514 "gen/sentencize2.ic"
 	{
@@ -23628,11 +23631,11 @@ _eof_trans:
 
 	switch ( _sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 85 "fsm/sentencize2.rl"
+#line 76 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 86 "fsm/sentencize2.rl"
+#line 77 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 369; goto _again;} }
 	break;
 	case 9:
@@ -23640,11 +23643,11 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 17:
-#line 81 "fsm/sentencize2.rl"
+#line 72 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
 	case 22:
-#line 61 "fsm/sentencize2.rl"
+#line 56 "fsm/sentencize2.rl"
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
@@ -23655,29 +23658,29 @@ _eof_trans:
    }}
 	break;
 	case 21:
-#line 71 "fsm/sentencize2.rl"
+#line 64 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 20:
-#line 77 "fsm/sentencize2.rl"
+#line 68 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 18:
-#line 81 "fsm/sentencize2.rl"
+#line 72 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 19:
-#line 82 "fsm/sentencize2.rl"
+#line 73 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 13:
-#line 61 "fsm/sentencize2.rl"
+#line 56 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
@@ -23688,25 +23691,25 @@ _eof_trans:
    }}
 	break;
 	case 11:
-#line 71 "fsm/sentencize2.rl"
+#line 64 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 10:
-#line 77 "fsm/sentencize2.rl"
+#line 68 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 8:
-#line 81 "fsm/sentencize2.rl"
+#line 72 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 7:
-#line 82 "fsm/sentencize2.rl"
+#line 73 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -23735,33 +23738,33 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 85 "fsm/sentencize2.rl"
+#line 76 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 86 "fsm/sentencize2.rl"
+#line 77 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 369; goto _again;} }
 	break;
 	case 14:
 #line 1 "NONE"
 	{te = p+1;}
-#line 61 "fsm/sentencize2.rl"
+#line 56 "fsm/sentencize2.rl"
 	{act = 1;}
 	break;
 	case 12:
 #line 1 "NONE"
 	{te = p+1;}
-#line 71 "fsm/sentencize2.rl"
+#line 64 "fsm/sentencize2.rl"
 	{act = 2;}
 	break;
 	case 16:
 #line 1 "NONE"
 	{te = p+1;}
-#line 81 "fsm/sentencize2.rl"
+#line 72 "fsm/sentencize2.rl"
 	{act = 4;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 82 "fsm/sentencize2.rl"
+#line 73 "fsm/sentencize2.rl"
 	{act = 5;}
 	break;
 #line 1727 "gen/sentencize2.ic"
@@ -23792,16 +23795,16 @@ _again:
 	_out: {}
 	}
 
-#line 104 "fsm/sentencize2.rl"
+#line 95 "fsm/sentencize2.rl"
    
    if (!start) {
       *tks = NULL;
       return 0;
    }
 
-   /* Last sentence. Don't know how to trim whitespace on the right. */
-   fetch_tokens(tkr, eof);
+   /* Last sentence. */
    te = eof;
+   fetch_tokens(tkr, te);
 
 fini:
    tkr->p = te;

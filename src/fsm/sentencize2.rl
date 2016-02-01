@@ -52,11 +52,6 @@ not_eos = thing_with_periods | no_capital | email | uri;
 #-------------------------------------------------------------------------------
 
 find_eos := |*
-   # Add tokens until there is one > ts (so that we have the period plus the
-   # trailing token). Then check if we're at EOS. If so, decrement the length
-   # of the current sentence, set a flag that says that a token is pending so
-   # that we can move it to the front of the array on the next call, set p = te,
-   # and fbreak. Otherwise, just proceed.
    # sentence.
    "." sent_trail* => {
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
@@ -66,14 +61,10 @@ find_eos := |*
       }
       reattach_period(tkr);
    };
-   # Add tokens until there is one >= te, reattaching all periods. Then set
-   # p = te and fbreak.
    eos_marker sent_trail* => {
       fetch_tokens(tkr, te);
       goto fini;
    };
-   # Add tokens until there is one >= ts, reattaching all periods but the last
-   # one. Then set p = te and fbreak.
    paragraph_break => {
       fetch_tokens(tkr, ts);
       goto fini;
@@ -107,9 +98,9 @@ static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
       return 0;
    }
 
-   /* Last sentence. Don't know how to trim whitespace on the right. */
-   fetch_tokens(tkr, eof);
+   /* Last sentence. */
    te = eof;
+   fetch_tokens(tkr, te);
 
 fini:
    tkr->p = te;
