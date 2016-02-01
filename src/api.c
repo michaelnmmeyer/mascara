@@ -1,11 +1,13 @@
+#define MR_LOCAL static
+
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "api.h"
 #include "imp.h"
 #include "tokenize.h"
-#include "classify.h"
 #include "sentencize.h"
+#include "sentencize2.h"
 #include "mem.h"
 
 #include "gen/en_tokenize.ic"
@@ -85,8 +87,9 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
       break;
    }
    case MR_SENTENCE: {
-      struct mr_classifier *mr = mr_malloc(sizeof *mr);
-      mr_classifier_init(mr, tk);
+      (void)mr_sentencizer_init;
+      struct mr_sentencizer2 *mr = mr_malloc(sizeof *mr);
+      mr_sentencizer2_init(mr, tk);
       *mrp = &mr->base;
       break;
    }

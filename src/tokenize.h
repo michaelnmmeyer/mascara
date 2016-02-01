@@ -33,13 +33,16 @@ struct mr_tokenizer {
 
 extern const struct mr_imp mr_tokenizer_imp;
 
+MR_LOCAL
 void mr_tokenizer_init(struct mr_tokenizer *,
                        const struct mr_tokenizer_vtab *);
 
+MR_LOCAL
 void mr_tokenizer_set_text(struct mascara *,
                            const unsigned char *str, size_t len,
                            size_t offset_incr);
 
+MR_LOCAL
 size_t mr_tokenizer_next(struct mascara *, struct mr_token **);
 
 #endif

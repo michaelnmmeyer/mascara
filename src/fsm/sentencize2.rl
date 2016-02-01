@@ -1,6 +1,6 @@
 %%{
 
-machine sentencize2;
+machine mr_sentencize2;
 
 alphtype unsigned char;
 
@@ -80,7 +80,7 @@ main := whitespace* %{ start = fpc; }
 
 %% write data noerror nofinal;
 
-static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
+static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token **tks)
 {
    int cs, act, top, stack[1];
    const unsigned char *ts, *te;
@@ -108,6 +108,6 @@ fini:
    return tkr->len - 2;
 
    (void)stack;
-   (void)sentencize2_en_main;
-   (void)sentencize2_en_find_eos;
+   (void)mr_sentencize2_en_main;
+   (void)mr_sentencize2_en_find_eos;
 }

@@ -15,7 +15,8 @@ CODE = gen/en_tokenize.ic gen/en_suffix_match.ic \
        gen/fr_tokenize.ic gen/fr_suffix_match.ic \
        gen/it_tokenize.ic gen/it_suffix_match.ic \
        gen/generic_tokenize.ic gen/generic_suffix_match.ic \
-       gen/sentencize.ic gen/sentencize2.ic
+       gen/sentencize.ic gen/sentencize2.ic \
+       gen/vowel.ic
 
 REST = $(wildcard fsm/*.rl)
 
@@ -23,6 +24,9 @@ all: $(UNI) $(LANG) $(TPL) $(ABR) $(CODE)
 
 clean:
 	rm -f gen/*
+
+gen/vowel.ic: scripts/mkvowels.py
+	$< > $@
 
 gen/%_tokenize.ic: gen/%_tokenize.rl $(UNI) $(REST) gen/%_prefix.rl \
                    gen/%_suffix.rl gen/%_lexicon.rl gen/%_word.rl

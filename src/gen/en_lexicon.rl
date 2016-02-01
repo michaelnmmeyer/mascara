@@ -4,7 +4,8 @@
 machine en_lexicon;
 
 en_lexicon =
-((apostrophe)("T"|"t")("I"|"i")("L"|"l"))
+((apostrophe)("T"|"t")("I"|"i")("L"|"l"))|
+(("&")("C"|"c"))
 ;
 
 }%%

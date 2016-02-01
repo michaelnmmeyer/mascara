@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "mem.h"
 
-noreturn void mr_fatal(const char *msg, ...)
+MR_LOCAL noreturn void mr_fatal(const char *msg, ...)
 {
    va_list ap;
 
@@ -18,7 +18,7 @@ noreturn void mr_fatal(const char *msg, ...)
 
 #define MR_OOM() mr_fatal("out of memory")
 
-void *mr_malloc(size_t size)
+MR_LOCAL void *mr_malloc(size_t size)
 {
    assert(size);
    void *mem = malloc(size);
@@ -27,7 +27,7 @@ void *mr_malloc(size_t size)
    return mem;
 }
 
-void *mr_calloc(size_t nmemb, size_t size)
+MR_LOCAL void *mr_calloc(size_t nmemb, size_t size)
 {
    assert(size && nmemb);
    void *mem = calloc(nmemb, size);
@@ -36,7 +36,7 @@ void *mr_calloc(size_t nmemb, size_t size)
    return mem;
 }
 
-void *mr_realloc(void *mem, size_t size)
+MR_LOCAL void *mr_realloc(void *mem, size_t size)
 {
    assert(size);
    mem = realloc(mem, size);

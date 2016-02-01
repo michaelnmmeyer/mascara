@@ -1,0 +1,54 @@
+/* Generated code, don't edit! */
+
+static bool en_amalg_at_eos(const struct mr_bayes *mdl,
+                              const struct mr_token *l,
+                              const struct mr_token *r)
+{
+   double vec[2];
+   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
+
+   mr_bayes_init(mdl, vec);
+
+   buf = stack;
+   *buf++ = 1;
+   buf = mr_ft_mask(buf, l);
+   *buf++ = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 2;
+   buf = mr_ft_suffix3(buf, l);
+   *buf++ = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 3;
+   buf = mr_ft_prefix4(buf, r);
+   *buf++ = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 4;
+   buf = mr_ft_shape(buf, r);
+   *buf++ = '\0';
+   mr_bayes_feed(mdl, vec, stack);
+
+   return vec[MR_EOS] >= vec[MR_NOT_EOS];
+}
+
+static const char *const en_amalg_features[] = {
+   "l_mask",
+   "l_suffix3",
+   "r_prefix4",
+   "r_shape",
+   NULL
+};
+
+static const struct mr_sentencizer2_config en_amalg_config = {
+   .bayes_config = {
+      .name = "en_amalg",
+      .version = 1,
+      .features = en_amalg_features,
+   },
+   .at_eos = en_amalg_at_eos,
+};

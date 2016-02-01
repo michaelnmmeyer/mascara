@@ -6,6 +6,7 @@ const struct mr_imp mr_tokenizer_imp = {
    .next = mr_tokenizer_next,
 };
 
+MR_LOCAL
 void mr_tokenizer_init(struct mr_tokenizer *tkr,
                        const struct mr_tokenizer_vtab *vtab)
 {
@@ -15,6 +16,7 @@ void mr_tokenizer_init(struct mr_tokenizer *tkr,
    };
 }
 
+MR_LOCAL
 void mr_tokenizer_set_text(struct mascara *imp,
                            const unsigned char *s, size_t len,
                            size_t offset_incr)
@@ -28,6 +30,7 @@ void mr_tokenizer_set_text(struct mascara *imp,
    tkr->vtab->init(tkr);
 }
 
+MR_LOCAL
 size_t mr_tokenizer_next(struct mascara *imp, struct mr_token **tkp)
 {
    struct mr_tokenizer *tkr = (struct mr_tokenizer *)imp;

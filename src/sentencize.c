@@ -19,8 +19,8 @@ static const struct mr_imp mr_sentencizer_imp = {
    .fini = mr_sentencizer_fini,
 };
 
-void mr_sentencizer_init(struct mr_sentencizer *tkr,
-                         const struct mr_tokenizer_vtab *vtab)
+MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *tkr,
+                                  const struct mr_tokenizer_vtab *vtab)
 {
    *tkr = (struct mr_sentencizer){
       .base.imp = &mr_sentencizer_imp,
@@ -45,7 +45,7 @@ static void mr_sentencizer_set_text(struct mascara *imp,
    tkr->pe = &str[len];
 }
 
-void mr_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
+static void mr_sentencizer_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
       tkr->alloc = tkr->alloc * 2 + 4;
@@ -54,7 +54,7 @@ void mr_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
    tkr->tokens[tkr->len++] = *tk;
 }
 
-bool mr_reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
+static bool mr_sentencizer_reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
 {
    /* Conditions for reattaching a period are:
     * - There must be a single period (no ellipsis).
@@ -96,8 +96,8 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
 
    struct mr_token *tk;
    while (mr_tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !mr_reattach_period(szr, tk)) {
-         mr_add_token(szr, tk);
+      if (tk->str == (const char *)last_period || !mr_sentencizer_reattach_period(szr, tk)) {
+         mr_sentencizer_add_token(szr, tk);
          if (szr->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;

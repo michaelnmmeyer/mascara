@@ -1,1 +1,2 @@
 'til  # until
+&c    # &c. (would need a lookahead)

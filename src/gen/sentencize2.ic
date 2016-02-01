@@ -6,7 +6,7 @@
 
 
 #line 9 "gen/sentencize2.ic"
-static const short _sentencize2_key_offsets[] = {
+static const short _mr_sentencize2_key_offsets[] = {
 	0, 0, 15, 15, 17, 17, 19, 24, 
 	25, 25, 41, 56, 72, 105, 108, 115, 
 	124, 129, 134, 139, 144, 148, 153, 162, 
@@ -61,7 +61,7 @@ static const short _sentencize2_key_offsets[] = {
 	4228, 4238, 4245
 };
 
-static const unsigned char _sentencize2_trans_keys[] = {
+static const unsigned char _mr_sentencize2_trans_keys[] = {
 	32u, 194u, 226u, 9u, 13u, 128u, 191u, 192u, 
 	223u, 224u, 239u, 240u, 247u, 248u, 255u, 133u, 
 	160u, 128u, 129u, 175u, 128u, 139u, 168u, 169u, 
@@ -596,7 +596,7 @@ static const unsigned char _sentencize2_trans_keys[] = {
 	9u, 13u, 0
 };
 
-static const char _sentencize2_single_lengths[] = {
+static const char _mr_sentencize2_single_lengths[] = {
 	0, 3, 0, 2, 0, 2, 1, 1, 
 	0, 4, 3, 4, 9, 1, 5, 1, 
 	1, 1, 1, 1, 2, 3, 5, 1, 
@@ -651,7 +651,7 @@ static const char _sentencize2_single_lengths[] = {
 	8, 5, 3
 };
 
-static const char _sentencize2_range_lengths[] = {
+static const char _mr_sentencize2_range_lengths[] = {
 	0, 6, 0, 0, 0, 0, 2, 0, 
 	0, 6, 6, 6, 12, 1, 1, 4, 
 	2, 2, 2, 2, 1, 1, 2, 3, 
@@ -706,7 +706,7 @@ static const char _sentencize2_range_lengths[] = {
 	1, 1, 1
 };
 
-static const short _sentencize2_index_offsets[] = {
+static const short _mr_sentencize2_index_offsets[] = {
 	0, 0, 10, 11, 14, 15, 18, 22, 
 	24, 25, 36, 46, 57, 79, 82, 89, 
 	95, 99, 103, 107, 111, 115, 120, 128, 
@@ -761,7 +761,7 @@ static const short _sentencize2_index_offsets[] = {
 	3471, 3481, 3488
 };
 
-static const short _sentencize2_indicies[] = {
+static const short _mr_sentencize2_indicies[] = {
 	1, 4, 6, 1, 3, 2, 5, 7, 
 	3, 0, 8, 1, 1, 8, 9, 10, 
 	11, 9, 1, 1, 1, 8, 1, 8, 
@@ -1201,7 +1201,7 @@ static const short _sentencize2_indicies[] = {
 	391, 61, 19, 391, 18, 0
 };
 
-static const short _sentencize2_trans_targs[] = {
+static const short _mr_sentencize2_trans_targs[] = {
 	368, 1, 2, 0, 3, 4, 5, 8, 
 	368, 2, 6, 7, 4, 369, 9, 10, 
 	48, 49, 50, 51, 54, 11, 13, 21, 
@@ -1258,7 +1258,7 @@ static const short _sentencize2_trans_targs[] = {
 	367
 };
 
-static const char _sentencize2_trans_actions[] = {
+static const char _mr_sentencize2_trans_actions[] = {
 	2, 0, 3, 0, 3, 3, 3, 3, 
 	4, 0, 0, 0, 0, 5, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -1315,7 +1315,7 @@ static const char _sentencize2_trans_actions[] = {
 	0
 };
 
-static const char _sentencize2_to_state_actions[] = {
+static const char _mr_sentencize2_to_state_actions[] = {
 	0, 1, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -1370,7 +1370,7 @@ static const char _sentencize2_to_state_actions[] = {
 	0, 0, 0
 };
 
-static const char _sentencize2_from_state_actions[] = {
+static const char _mr_sentencize2_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -1425,7 +1425,7 @@ static const char _sentencize2_from_state_actions[] = {
 	0, 0, 0
 };
 
-static const short _sentencize2_eof_trans[] = {
+static const short _mr_sentencize2_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 14, 14, 14, 14, 14, 14, 14, 
 	14, 14, 14, 39, 14, 14, 14, 14, 
@@ -1480,15 +1480,15 @@ static const short _sentencize2_eof_trans[] = {
 	392, 392, 392
 };
 
-static const int sentencize2_start = 1;
+static const int mr_sentencize2_start = 1;
 
-static const int sentencize2_en_find_eos = 369;
-static const int sentencize2_en_main = 1;
+static const int mr_sentencize2_en_find_eos = 369;
+static const int mr_sentencize2_en_main = 1;
 
 
 #line 82 "fsm/sentencize2.rl"
 
-static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
+static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token **tks)
 {
    int cs, act, top, stack[1];
    const unsigned char *ts, *te;
@@ -1501,7 +1501,7 @@ static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
    
 #line 1503 "gen/sentencize2.ic"
 	{
-	cs = sentencize2_start;
+	cs = mr_sentencize2_start;
 	top = 0;
 	ts = 0;
 	te = 0;
@@ -1521,7 +1521,7 @@ static size_t sentencize2_next(struct mr_classifier *tkr, struct mr_token **tks)
 	if ( cs == 0 )
 		goto _out;
 _resume:
-	switch ( _sentencize2_from_state_actions[cs] ) {
+	switch ( _mr_sentencize2_from_state_actions[cs] ) {
 	case 15:
 #line 1 "NONE"
 	{ts = p;}
@@ -1529,10 +1529,10 @@ _resume:
 #line 1530 "gen/sentencize2.ic"
 	}
 
-	_keys = _sentencize2_trans_keys + _sentencize2_key_offsets[cs];
-	_trans = _sentencize2_index_offsets[cs];
+	_keys = _mr_sentencize2_trans_keys + _mr_sentencize2_key_offsets[cs];
+	_trans = _mr_sentencize2_index_offsets[cs];
 
-	_klen = _sentencize2_single_lengths[cs];
+	_klen = _mr_sentencize2_single_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -1555,7 +1555,7 @@ _resume:
 		_trans += _klen;
 	}
 
-	_klen = _sentencize2_range_lengths[cs];
+	_klen = _mr_sentencize2_range_lengths[cs];
 	if ( _klen > 0 ) {
 		const unsigned char *_lower = _keys;
 		const unsigned char *_mid;
@@ -1578,14 +1578,14 @@ _resume:
 	}
 
 _match:
-	_trans = _sentencize2_indicies[_trans];
+	_trans = _mr_sentencize2_indicies[_trans];
 _eof_trans:
-	cs = _sentencize2_trans_targs[_trans];
+	cs = _mr_sentencize2_trans_targs[_trans];
 
-	if ( _sentencize2_trans_actions[_trans] == 0 )
+	if ( _mr_sentencize2_trans_actions[_trans] == 0 )
 		goto _again;
 
-	switch ( _sentencize2_trans_actions[_trans] ) {
+	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
 #line 76 "fsm/sentencize2.rl"
 	{ start = p; }
@@ -1727,7 +1727,7 @@ _eof_trans:
 	}
 
 _again:
-	switch ( _sentencize2_to_state_actions[cs] ) {
+	switch ( _mr_sentencize2_to_state_actions[cs] ) {
 	case 1:
 #line 1 "NONE"
 	{ts = 0;}
@@ -1742,8 +1742,8 @@ _again:
 	_test_eof: {}
 	if ( p == eof )
 	{
-	if ( _sentencize2_eof_trans[cs] > 0 ) {
-		_trans = _sentencize2_eof_trans[cs] - 1;
+	if ( _mr_sentencize2_eof_trans[cs] > 0 ) {
+		_trans = _mr_sentencize2_eof_trans[cs] - 1;
 		goto _eof_trans;
 	}
 	}
@@ -1768,6 +1768,6 @@ fini:
    return tkr->len - 2;
 
    (void)stack;
-   (void)sentencize2_en_main;
-   (void)sentencize2_en_find_eos;
+   (void)mr_sentencize2_en_main;
+   (void)mr_sentencize2_en_find_eos;
 }

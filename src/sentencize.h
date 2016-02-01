@@ -19,7 +19,7 @@ struct mr_sentencizer {
    size_t len, alloc;
 };
 
-void mr_sentencizer_init(struct mr_sentencizer *,
-                         const struct mr_tokenizer_vtab *);
+MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *,
+                                  const struct mr_tokenizer_vtab *);
 
 #endif

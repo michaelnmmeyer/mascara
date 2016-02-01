@@ -1,0 +1,29 @@
+#include <uchar.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#define MR_VOWEL_MIN 65
+#define MR_VOWEL_MAX 363
+#define MR_VOWELS U"aeiouyáéíóúàèìòùäëïöüâêîôûāēīōūAEIOUYÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛĀĒĪŌŪ"
+
+static bool mr_is_vowel(char32_t c)
+{
+   static const uint32_t tbl[] = {
+      17842449,
+      17842449,
+      0,
+      2147483648,
+      2402189195,
+      2402189195,
+      393217,
+      1536,
+      6144,
+      1536,
+   };
+   
+   if (c >= MR_VOWEL_MIN && c <= MR_VOWEL_MAX) {
+      c -= MR_VOWEL_MIN;
+      return tbl[c >> 5] & (1 << (c & 31));
+   }
+   return false;
+}
