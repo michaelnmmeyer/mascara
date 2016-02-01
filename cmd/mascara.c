@@ -185,6 +185,9 @@ int main(int argc, char **argv)
    parse_options(opts, help, &argc, &argv);
    if (argc > 1)
       die("excess arguments");
+   
+   const char *home = getenv("MR_HOME");
+   mr_home = home ? home : MR_HOME;
 
    if (list)
       display_langs();

@@ -21,9 +21,14 @@ check: test/mascara.so
 
 install: mascara
 	install -spm 0755 $< $(PREFIX)/bin/mascara
+	$(foreach model, $(wildcard models/*), \
+	   install -pDm +r $(model) $(PREFIX)/share/mascara/$(notdir $(model));)
 
 uninstall:
 	rm -f $(PREFIX)/bin/mascara
+	$(foreach model, $(wildcard models/*), \
+	   rm -f $(PREFIX)/share/mascara/$(notdir $(model));)
+	rmdir $(PREFIX)/share/mascara/ 2> /dev/null || true
 
 .PHONY: all clean check install uninstall
 
@@ -45,7 +50,7 @@ mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
 	src/scripts/mkamalg.py src/*.c > $@
 
 mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
-	$(CC) $(CFLAGS) mascara.c cmd/mascara.c src/lib/utf8proc.c cmd/cmd.c -o $@
+	$(CC) $(CFLAGS) -DMR_HOME='"$(PREFIX)/share/mascara"' mascara.c cmd/mascara.c src/lib/utf8proc.c cmd/cmd.c -o $@
 
 examples/%: examples/%.c $(AMALG)
 	$(CC) $(CFLAGS) $< mascara.c src/lib/utf8proc.c -o $@

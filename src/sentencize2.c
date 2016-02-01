@@ -90,7 +90,7 @@ char *mr_ft_word(char *buf, const struct mr_token *tk)
 char *mr_ft_case(char *buf, const struct mr_token *tk)
 {
    memcpy(buf, first_upper(tk) ? "LCAP" : "LLOW", 4);
-   return buf + 4;
+   return &buf[4];
 }
 
 char *mr_ft_shape(char *buf, const struct mr_token *tk)
@@ -143,7 +143,7 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
 
 
 /*******************************************************************************
- * Concrete implementation.
+ * Concrete implementations.
  ******************************************************************************/
 
 #include "fr_sequoia.cm"
@@ -169,30 +169,33 @@ static const struct mr_imp mr_sentencizer2_imp = {
    .fini = mr_sentencizer2_fini,
 };
 
-MR_LOCAL void mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
-                                   const struct mr_tokenizer_vtab *vtab)
+MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
+                                  const struct mr_tokenizer_vtab *vtab)
 {
    (void)fr_sequoia_config;
    (void)de_tiger_config;
    (void)en_amalg_config;
 
-   const struct mr_sentencizer2_config *cfg = &en_amalg_config;
+   const struct mr_sentencizer2_config *cfg = &fr_sequoia_config;
 
    *tkr = (struct mr_sentencizer2){.base.imp = &mr_sentencizer2_imp};
-   mr_tokenizer_init(&tkr->tkr, vtab);
-   
+
+   const char *home = mr_home;
+   if (!home)
+      return MR_EHOME;
+
    char path[4096];
-   int len = snprintf(path, sizeof path, "models/%s.mdl", cfg->bayes_config.name);
-   if (len < 0 || (size_t)len >= sizeof path) {
-      fprintf(stderr, "path too long");
-      abort();
-   }
+   int len = snprintf(path, sizeof path, "%s/%s.mdl", home, cfg->bayes_config.name);
+   if (len < 0 || (size_t)len >= sizeof path)
+      return MR_EHOME;
+
    int ret = mr_bayes_load(&tkr->bayes, path, &cfg->bayes_config);
-   if (ret) {
-      fprintf(stderr, "cannot load model: %s\n", mr_strerror(ret));
-      abort();
-   }
+   if (ret)
+      return ret;
+
    tkr->at_eos = cfg->at_eos;
+   mr_tokenizer_init(&tkr->tkr, vtab);
+   return MR_OK;
 }
 
 static void mr_sentencizer2_fini(struct mascara *imp)

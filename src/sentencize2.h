@@ -35,7 +35,7 @@ struct mr_sentencizer2 {
    bool first;
 };
 
-MR_LOCAL void mr_sentencizer2_init(struct mr_sentencizer2 *,
-                                   const struct mr_tokenizer_vtab *);
+MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *,
+                                  const struct mr_tokenizer_vtab *);
 
 #endif

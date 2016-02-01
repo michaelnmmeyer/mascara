@@ -12,12 +12,18 @@
 
 #include <stddef.h>
 
+/* Location of the directory that contains model files. Should be set at
+ * startup. Defaults to "models".
+ */
+extern const char *mr_home;
+
 enum {
    MR_OK,      /* No error. */
-   MR_EOPEN,   /* Cannot open SBD model file. */
-   MR_EMAGIC,  /* SBD model file signature mismatch. */
-   MR_EMODEL,  /* SBD model file seems corrupt. */
-   MR_EIO,     /* I/O error while reading model file. */
+   MR_EHOME,   /* Cannot find models directory. */
+   MR_EOPEN,   /* Cannot open model file. */
+   MR_EMAGIC,  /* Model file signature mismatch. */
+   MR_EMODEL,  /* Model file is corrupt. */
+   MR_EIO,     /* Cannot read model file. */
 };
 
 /* Returns a string describing an error code. */
@@ -273,8 +279,8 @@ struct mr_sentencizer2 {
    bool first;
 };
 
-MR_LOCAL void mr_sentencizer2_init(struct mr_sentencizer2 *,
-                                   const struct mr_tokenizer_vtab *);
+MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *,
+                                  const struct mr_tokenizer_vtab *);
 
 #endif
 #line 11 "api.c"
@@ -20849,6 +20855,8 @@ _again:
 }
 #line 17 "api.c"
 
+const char *mr_home = "models";
+
 static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
 {
    static const struct mr_tokenizer_vtab tbl[] = {
@@ -20878,10 +20886,11 @@ const char *mr_strerror(int err)
 {
    static const char *const tbl[] = {
       [MR_OK] = "no error",
+      [MR_EHOME] = "cannot find models directory",
       [MR_EOPEN] = "cannot open model file",
       [MR_EMAGIC] = "model file signature mismatch",
       [MR_EMODEL] = "model file is corrupt",
-      [MR_EIO] = "I/O error while reading model file",
+      [MR_EIO] = "cannot read model file",
    };
 
    if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
@@ -20923,7 +20932,12 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
    case MR_SENTENCE: {
       (void)mr_sentencizer_init;
       struct mr_sentencizer2 *mr = mr_malloc(sizeof *mr);
-      mr_sentencizer2_init(mr, tk);
+      int ret = mr_sentencizer2_init(mr, tk);
+      if (ret) {
+         free(mr);
+         *mrp = NULL;
+         return ret;
+      }
       *mrp = &mr->base;
       break;
    }
@@ -25330,7 +25344,7 @@ char *mr_ft_word(char *buf, const struct mr_token *tk)
 char *mr_ft_case(char *buf, const struct mr_token *tk)
 {
    memcpy(buf, first_upper(tk) ? "LCAP" : "LLOW", 4);
-   return buf + 4;
+   return &buf[4];
 }
 
 char *mr_ft_shape(char *buf, const struct mr_token *tk)
@@ -25413,7 +25427,7 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
 
 
 /*******************************************************************************
- * Concrete implementation.
+ * Concrete implementations.
  ******************************************************************************/
 
 #line 1 "fr_sequoia.cm"
@@ -25587,30 +25601,33 @@ static const struct mr_imp mr_sentencizer2_imp = {
    .fini = mr_sentencizer2_fini,
 };
 
-MR_LOCAL void mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
-                                   const struct mr_tokenizer_vtab *vtab)
+MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
+                                  const struct mr_tokenizer_vtab *vtab)
 {
    (void)fr_sequoia_config;
    (void)de_tiger_config;
    (void)en_amalg_config;
 
-   const struct mr_sentencizer2_config *cfg = &en_amalg_config;
+   const struct mr_sentencizer2_config *cfg = &fr_sequoia_config;
 
    *tkr = (struct mr_sentencizer2){.base.imp = &mr_sentencizer2_imp};
-   mr_tokenizer_init(&tkr->tkr, vtab);
-   
+
+   const char *home = mr_home;
+   if (!home)
+      return MR_EHOME;
+
    char path[4096];
-   int len = snprintf(path, sizeof path, "models/%s.mdl", cfg->bayes_config.name);
-   if (len < 0 || (size_t)len >= sizeof path) {
-      fprintf(stderr, "path too long");
-      abort();
-   }
+   int len = snprintf(path, sizeof path, "%s/%s.mdl", home, cfg->bayes_config.name);
+   if (len < 0 || (size_t)len >= sizeof path)
+      return MR_EHOME;
+
    int ret = mr_bayes_load(&tkr->bayes, path, &cfg->bayes_config);
-   if (ret) {
-      fprintf(stderr, "cannot load model: %s\n", mr_strerror(ret));
-      abort();
-   }
+   if (ret)
+      return ret;
+
    tkr->at_eos = cfg->at_eos;
+   mr_tokenizer_init(&tkr->tkr, vtab);
+   return MR_OK;
 }
 
 static void mr_sentencizer2_fini(struct mascara *imp)
@@ -27473,7 +27490,7 @@ fini:
    (void)mr_sentencize2_en_main;
    (void)mr_sentencize2_en_find_eos;
 }
-#line 285 "sentencize2.c"
+#line 288 "sentencize2.c"
 
 static size_t mr_sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {

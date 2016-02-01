@@ -15,6 +15,8 @@
 #include "gen/it_tokenize.ic"
 #include "gen/generic_tokenize.ic"
 
+const char *mr_home = "models";
+
 static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
 {
    static const struct mr_tokenizer_vtab tbl[] = {
@@ -44,10 +46,11 @@ const char *mr_strerror(int err)
 {
    static const char *const tbl[] = {
       [MR_OK] = "no error",
+      [MR_EHOME] = "cannot find models directory",
       [MR_EOPEN] = "cannot open model file",
       [MR_EMAGIC] = "model file signature mismatch",
       [MR_EMODEL] = "model file is corrupt",
-      [MR_EIO] = "I/O error while reading model file",
+      [MR_EIO] = "cannot read model file",
    };
 
    if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
@@ -89,7 +92,12 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
    case MR_SENTENCE: {
       (void)mr_sentencizer_init;
       struct mr_sentencizer2 *mr = mr_malloc(sizeof *mr);
-      mr_sentencizer2_init(mr, tk);
+      int ret = mr_sentencizer2_init(mr, tk);
+      if (ret) {
+         free(mr);
+         *mrp = NULL;
+         return ret;
+      }
       *mrp = &mr->base;
       break;
    }

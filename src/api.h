@@ -5,12 +5,18 @@
 
 #include <stddef.h>
 
+/* Location of the directory that contains model files. Should be set at
+ * startup. Defaults to "models".
+ */
+extern const char *mr_home;
+
 enum {
    MR_OK,      /* No error. */
-   MR_EOPEN,   /* Cannot open SBD model file. */
-   MR_EMAGIC,  /* SBD model file signature mismatch. */
-   MR_EMODEL,  /* SBD model file seems corrupt. */
-   MR_EIO,     /* I/O error while reading model file. */
+   MR_EHOME,   /* Cannot find models directory. */
+   MR_EOPEN,   /* Cannot open model file. */
+   MR_EMAGIC,  /* Model file signature mismatch. */
+   MR_EMODEL,  /* Model file is corrupt. */
+   MR_EIO,     /* Cannot read model file. */
 };
 
 /* Returns a string describing an error code. */
