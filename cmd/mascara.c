@@ -134,8 +134,8 @@ static void tokenize_without_eos(struct mascara *mr, const char *fmt)
       print_token(fmt, tk);
 }
 
-static int tokenize(const char *path, const char *lang,
-                    const char *fmt, const char *eos)
+static void tokenize(const char *path, const char *lang,
+                     const char *fmt, const char *eos)
 {
    enum mr_mode mode = *eos ? MR_SENTENCE : MR_TOKEN;
    struct mascara *mr;
@@ -153,12 +153,7 @@ static int tokenize(const char *path, const char *lang,
       tokenize_with_eos(mr, fmt, eos);
 
    free(str);
-   
-   ret = mr_error(mr);
-   if (ret)
-      complain("an error happened during tokenization: %s", mr_strerror(ret));
    mr_dealloc(mr);
-   return ret ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 static void display_langs(void)
@@ -194,5 +189,5 @@ int main(int argc, char **argv)
    if (list)
       display_langs();
    else
-      return tokenize(*argv, lang, fmt, eos);
+      tokenize(*argv, lang, fmt, eos);
 }

@@ -5,6 +5,7 @@
 #include <stdalign.h>
 #include "bayes.h"
 #include "api.h"
+#include "mem.h"
 
 struct feature {
    double probs[2];
@@ -52,9 +53,7 @@ static int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
    if (feat_no > feat_nr || len == 0 || len > MAX_STRING_LEN)
       return MR_EMODEL;
 
-   struct feature *f = malloc(sizeof *f + 1 + len + 1);
-   if (!f)
-      return MR_ENOMEM;
+   struct feature *f = mr_malloc(sizeof *f + 1 + len + 1);
    f->next = NULL;
    *f->value = feat_no + 1;
    if (fread(f->value + 1, 1, len, fp) != len)
@@ -163,9 +162,7 @@ static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_confi
    size_t unk_off = pad(sizeof(struct mr_bayes) + tbl_size * sizeof(struct feature *), double);
    size_t total = unk_off + sizeof(double[feat_nr][value_nr]);
 
-   struct mr_bayes *mdl = calloc(1, total);
-   if (!mdl)
-      return MR_ENOMEM;
+   struct mr_bayes *mdl = mr_calloc(1, total);
 
    int ret = MR_OK;
    mdl->priors[0] = priors[0];

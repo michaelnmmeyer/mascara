@@ -2,6 +2,7 @@
 #include "lib/utf8proc.h"
 #include "api.h"
 #include "classify.h"
+#include "mem.h"
 
 /*******************************************************************************
  * Features.
@@ -16,7 +17,7 @@ static char *strzcat(char *restrict buf, const char *restrict str)
    return buf;
 }
 
-char *ft_suffix(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
+char *ft_suffix(char buf[static MAX_FEATURE_LEN], const struct mr_token *tk)
 {
    const uint8_t *str = (const void *)tk->str;
    size_t len = tk->len;
@@ -26,11 +27,12 @@ char *ft_suffix(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
       if ((str[--len] & 0xc0) != 0x80 && !--nr)
          break;
 
-   memcpy(buf, &str[len], tk->len - len);
-   return &buf[tk->len - len];
+   const size_t sfx_len = tk->len - len;
+   memcpy(buf, &str[len], sfx_len);
+   return &buf[sfx_len];
 }
 
-char *ft_len(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
+char *ft_len(char buf[static MAX_FEATURE_LEN], const struct mr_token *tk)
 {
    static const char *const tbl[] = {
       [0] = "0",
@@ -39,11 +41,13 @@ char *ft_len(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
       [3] = "2..3",
       [4] = "4..5",
       [5] = "4..5",
+      [6] = "6..7",
+      [7] = "6..7",
    };
-   return strzcat(buf, tk->len < 6 ? tbl[tk->len] : "6..");
+   return strzcat(buf, tk->len < 8 ? tbl[tk->len] : "8..");
 }
 
-char *ft_word(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
+char *ft_word(char buf[static MAX_FEATURE_LEN], const struct mr_token *tk)
 {
    if (tk->len > MAX_FEATURE_LEN) {
       buf[0] = '\xff';  /* Won't find it. */
@@ -62,20 +66,17 @@ static bool first_upper(const struct mr_token *tk)
    return false;
 }
 
-char *ft_shape(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
-{
-   const char *t;
-   if (tk->type == MR_LATIN)
-      t = first_upper(tk) ? "LCAP" : "LLOW";
-   else
-      t = mr_token_type_name(tk->type);
-   return strzcat(buf, t);
-}
-
-char *ft_case(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
+char *ft_case(char buf[static MAX_FEATURE_LEN], const struct mr_token *tk)
 {
    memcpy(buf, first_upper(tk) ? "LCAP" : "LLOW", 4);
    return buf + 4;
+}
+
+char *ft_shape(char buf[static MAX_FEATURE_LEN], const struct mr_token *tk)
+{
+   if (tk->type == MR_LATIN)
+      return ft_case(buf, tk);
+   return strzcat(buf, mr_token_type_name(tk->type));
 }
 
 
@@ -83,10 +84,11 @@ char *ft_case(char buf[static MAX_FEATURE_LEN + 1], const struct mr_token *tk)
  * Concrete implementation.
  ******************************************************************************/
 
-bool fr_sequoia_eos(const struct mr_bayes *mdl, const struct mr_token *left, const struct mr_token *right)
+bool fr_sequoia_at_eos(const struct mr_bayes *mdl,
+                       const struct mr_token *left, const struct mr_token *right)
 {
    double vec[2];
-   char stack[MAX_FEATURE_LEN + 1], *buf;
+   char stack[MAX_FEATURE_LEN * 2 + 1], *buf;
 
    mr_bayes_init(mdl, vec);
 
@@ -112,7 +114,7 @@ bool fr_sequoia_eos(const struct mr_bayes *mdl, const struct mr_token *left, con
 struct mr_classifier_config {
    const char *name;
    const struct mr_bayes_config bayes_config;
-   bool (*eos)(const struct mr_bayes *mdl, const struct mr_token *, const struct mr_token *);
+   at_eos_fn *at_eos;
 };
 
 static const char *const fr_sequoia_features[] = {
@@ -124,10 +126,10 @@ static const char *const fr_sequoia_features[] = {
 static const struct mr_classifier_config mr_fr_sequoia_config = {
    .name = "fr_sequoia",
    .bayes_config = {
-      .signature = "fr_sequoia",
+      .signature = "fr_sequoia 1",
       .features = fr_sequoia_features,
    },
-   .eos = fr_sequoia_eos,
+   .at_eos = fr_sequoia_at_eos,
 };
 
 
@@ -152,14 +154,23 @@ static const struct mr_imp mr_classifier_imp = {
 void mr_classifier_init(struct mr_classifier *tkr,
                         const struct mr_tokenizer_vtab *vtab)
 {
-   *tkr = (struct mr_classifier){
-      .base.imp = &mr_classifier_imp,
-      .vtab = vtab,
-   };
-   
    const struct mr_classifier_config *cfg = &mr_fr_sequoia_config;
-   tkr->cfg = cfg;
-   mr_bayes_load(&tkr->bayes, "models/fr_sequoia.mdl", &cfg->bayes_config);
+
+   *tkr = (struct mr_classifier){.base.imp = &mr_classifier_imp};
+   mr_tokenizer_init(&tkr->tkr, vtab);
+   
+   char path[4096];
+   int len = snprintf(path, sizeof path, "models/%s.mdl", cfg->name);
+   if (len < 0 || (size_t)len >= sizeof path) {
+      fprintf(stderr, "path too long");
+      abort();
+   }
+   int ret = mr_bayes_load(&tkr->bayes, path, &cfg->bayes_config);
+   if (ret) {
+      fprintf(stderr, "cannot load model: %s\n", mr_strerror(ret));
+      abort();
+   }
+   tkr->at_eos = cfg->at_eos;
 }
 
 static void mr_classifier_fini(struct mascara *imp)
@@ -169,50 +180,82 @@ static void mr_classifier_fini(struct mascara *imp)
    free(tkr->tokens);
 }
 
+void add_token(struct mr_classifier *tkr, const struct mr_token *tk)
+{
+   if (tkr->len == tkr->alloc) {
+      tkr->alloc = tkr->alloc * 2 + 4;
+      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
+   }
+   tkr->tokens[tkr->len++] = *tk;
+}
+
 static void mr_classifier_set_text(struct mascara *imp,
                                     const unsigned char *str, size_t len,
                                     size_t offset_incr)
 {
-   struct mr_classifier *tkr = (struct mr_classifier *)imp;
-   tkr->offset_incr = offset_incr;
+   struct mr_classifier *tkr = (void *)imp;
+
+   mr_tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
    tkr->p = str;
    tkr->pe = &str[len];
+
+   add_token(tkr, &(struct mr_token){
+      .str = (const char *)str,
+      .offset = 0,
+      .len = 0,
+      .type = MR_UNK,
+   });
+   tkr->first = true;
 }
 
-bool add_token(struct mr_classifier *tkr, const struct mr_token *tk)
+static struct mr_token *fetch_tokens(struct mr_classifier *szr,
+                                     const unsigned char *end)
 {
-   if (tkr->len == tkr->alloc) {
-      size_t new_alloc = tkr->alloc * 2 + 4;
-      void *tokens = realloc(tkr->tokens, new_alloc * sizeof *tkr->tokens);
-      if (!tokens) {
-         tkr->base.err = MR_ENOMEM;
-         return false;
+   struct mr_token *tk = &szr->tokens[szr->len - 1];
+
+   for (;;) {
+      if (tk->str >= (const char *)end)
+         return &szr->tokens[szr->len - 1];
+      if (!mr_tokenizer_next(&szr->tkr.base, &tk)) {
+         add_token(szr, &(struct mr_token){
+            .str = (const char *)szr->pe,
+            .len = 0,
+            .offset = 0,
+            .type = MR_UNK,
+         });
+         return &szr->tokens[szr->len - 1];
       }
-      tkr->alloc = new_alloc;
-      tkr->tokens = tokens;
-   }
-   tkr->tokens[tkr->len++] = *tk;
-   return true;
+      add_token(szr, tk);
+   };
 }
 
-bool reattach_period(struct mr_classifier *szr, const struct mr_token *tk)
+/* Conditions for reattaching a period are:
+ * - There must be a single period (no ellipsis).
+ * - This must not be the last period in the input sentence.
+ * - The previous token is a likely abbreviation (type latin or abbr), not a
+ *   symbol, etc.
+ * - The period immediately follows the previous token.
+ */
+static void reattach_period(struct mr_classifier *szr)
 {
-   /* Conditions for reattaching a period are:
-    * - There must be a single period (no ellipsis).
-    * - This must not be the last period in the input text.
-    * - The previous token is a likely abbreviation (type latin or abbr), not a
-    *   symbol, etc.
-    * - The period immediately follows the previous token.
-    */
-   if (*tk->str == '.' && tk->len == 1 && szr->len) {
-      struct mr_token *prev = &szr->tokens[szr->len - 1];
-      if (prev->offset + prev->len == tk->offset &&
-          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
-            prev->len++;
-            return true;
-      }
+   struct mr_token *period = &szr->tokens[szr->len - 2];
+   
+   assert(*period->str == '.' && period->len == 1);
+   
+   struct mr_token *prev = period - 1;
+   if (prev->offset + prev->len != period->offset)
+      return;
+   
+   switch (prev->type) {
+   case MR_ABBR:
+   case MR_LATIN:
+      prev->len++;
+      *period = period[1];
+      szr->len--;
+      break;
+   default:
+      break;
    }
-   return false;
 }
 
 #include "gen/sentencize2.ic"
@@ -220,53 +263,15 @@ bool reattach_period(struct mr_classifier *szr, const struct mr_token *tk)
 static size_t mr_classifier_next(struct mascara *imp, struct mr_token **tks)
 {
    struct mr_classifier *szr = (void *)imp;
-   assert(szr->str && "text no set");
+   assert(szr->p && "text no set");
 
-   szr->len = 0;
-
-   size_t len;
-   const unsigned char *last_period;
-   const unsigned char *str = sentencize2_next(szr, &len, &last_period);
-   if (!str) {
-      *tks = NULL;
-      return 0;
+   if (!szr->first) {
+      szr->tokens[0] = szr->tokens[szr->len - 2];
+      szr->tokens[1] = szr->tokens[szr->len - 1];
+      szr->len = 2;
+   } else {
+      szr->len = 1;
+      szr->first = false;
    }
-   size_t offset_incr = szr->offset_incr + str - szr->str;
-
-   struct mr_tokenizer tkr;
-   mr_tokenizer_init(&tkr, szr->vtab);
-   if (last_period)
-      mr_tokenizer_set_text(&tkr.base, str, szr->pe - szr->p, offset_incr);
-   else
-      mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);
-
-   struct mr_token *tk;
-   while (mr_tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period) {
-         if (szr->len == 0) {
-            add_token(szr, tk);
-            break;
-         }
-         struct mr_token left = *tk;
-         if (!mr_tokenizer_next(&tkr.base, &tk)) {
-            add_token(szr, tk);
-            break;
-         }
-         bool eos = szr->cfg->eos(szr->bayes, &left, tk);
-         if (eos) {
-            add_token(szr, tk);
-            break;
-         }
-      }
-      if (!reattach_period(szr, tk)) {
-         if (!add_token(szr, tk))
-            return 0;
-         if (szr->len == MR_MAX_SENTENCE_LEN) {
-            szr->p = (const unsigned char *)tk->str + tk->len;
-            break;
-         }
-      }
-   }
-   *tks = szr->tokens;
-   return szr->len;
+   return sentencize2_next(szr, tks);
 }

@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.6"
+#define MR_VERSION "0.7"
 
 #include <stddef.h>
 
@@ -11,7 +11,6 @@ enum {
    MR_EMAGIC,  /* SBD model file signature mismatch. */
    MR_EMODEL,  /* SBD model file seems corrupt. */
    MR_EIO,     /* I/O error while reading model file. */
-   MR_ENOMEM,  /* Out of memory. */
 };
 
 /* Returns a string describing an error code. */
@@ -96,13 +95,5 @@ struct mr_token {
  * and returns 0.
  */
 size_t mr_next(struct mascara *, struct mr_token **);
-
-/* Checks if an error happened during tokenization.
- * MR_OK is returned if everything went fine.
- */
-int mr_error(struct mascara *);
-
-/* Clears the error indicator of an allocated tokenizer. */
-void mr_clear_error(struct mascara *);
 
 #endif

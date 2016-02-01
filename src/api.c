@@ -4,7 +4,9 @@
 #include "api.h"
 #include "imp.h"
 #include "tokenize.h"
+#include "classify.h"
 #include "sentencize.h"
+#include "mem.h"
 
 #include "gen/en_tokenize.ic"
 #include "gen/fr_tokenize.ic"
@@ -44,7 +46,6 @@ const char *mr_strerror(int err)
       [MR_EMAGIC] = "model file signature mismatch",
       [MR_EMODEL] = "model file is corrupt",
       [MR_EIO] = "I/O error while reading model file",
-      [MR_ENOMEM] = "out of memory",
    };
 
    if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
@@ -78,28 +79,19 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
 
    switch (mode) {
    case MR_TOKEN: {
-      struct mr_tokenizer *mr = malloc(sizeof *mr);
-      if (!mr)
-         goto fail;
+      struct mr_tokenizer *mr = mr_malloc(sizeof *mr);
       mr_tokenizer_init(mr, tk);
       *mrp = &mr->base;
       break;
    }
    case MR_SENTENCE: {
-      struct mr_sentencizer *mr = malloc(sizeof *mr);
-      if (!mr)
-         goto fail;
-      mr_sentencizer_init(mr, tk);
+      struct mr_classifier *mr = mr_malloc(sizeof *mr);
+      mr_classifier_init(mr, tk);
       *mrp = &mr->base;
       break;
    }
    }
-   (*mrp)->err = MR_OK;
    return MR_OK;
-
-fail:
-   *mrp = NULL;
-   return MR_ENOMEM;
 }
 
 enum mr_mode mr_mode(const struct mascara *mr)
@@ -133,14 +125,4 @@ void mr_dealloc(struct mascara *mr)
       fini(mr);
 
    free(mr);
-}
-
-int mr_error(struct mascara *mr)
-{
-   return mr->err;
-}
-
-void mr_clear_error(struct mascara *mr)
-{
-   mr->err = MR_OK;
 }

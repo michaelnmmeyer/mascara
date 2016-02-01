@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include "api.h"
 #include "sentencize.h"
+#include "mem.h"
+
 #include "gen/sentencize.ic"
 
 static void mr_sentencizer_set_text(struct mascara *,
@@ -43,20 +45,13 @@ static void mr_sentencizer_set_text(struct mascara *imp,
    tkr->pe = &str[len];
 }
 
-bool mr_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
+void mr_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
-      size_t new_alloc = tkr->alloc * 2 + 4;
-      void *tokens = realloc(tkr->tokens, new_alloc * sizeof *tkr->tokens);
-      if (!tokens) {
-         tkr->base.err = MR_ENOMEM;
-         return false;
-      }
-      tkr->alloc = new_alloc;
-      tkr->tokens = tokens;
+      tkr->alloc = tkr->alloc * 2 + 4;
+      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
    }
    tkr->tokens[tkr->len++] = *tk;
-   return true;
 }
 
 bool mr_reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
@@ -102,8 +97,7 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    struct mr_token *tk;
    while (mr_tokenizer_next(&tkr.base, &tk)) {
       if (tk->str == (const char *)last_period || !mr_reattach_period(szr, tk)) {
-         if (!mr_add_token(szr, tk))
-            return 0;
+         mr_add_token(szr, tk);
          if (szr->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;

@@ -2,6 +2,7 @@ PREFIX = /usr/local
 
 CFLAGS = -std=c11 -g -Wall -Werror
 CFLAGS += -O2 -DNDEBUG -march=native -mtune=native -fomit-frame-pointer -s
+CFLAGS += -flto
 
 AMALG = mascara.h mascara.c
 

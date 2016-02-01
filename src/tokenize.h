@@ -19,11 +19,13 @@ struct mr_tokenizer {
    const unsigned char *str;
    size_t offset_incr;
 
+   /* Ragel variables. */
    const unsigned char *p, *pe;
    const unsigned char *ts, *te;
    const unsigned char *eof;
    int cs, act;
 
+   /* > 0 if there is a pending suffix waiting to be emitted. */
    size_t suffix_len;
 
    struct mr_token token;
