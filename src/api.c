@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 #include "api.h"
 #include "imp.h"
 #include "tokenize.h"
@@ -76,8 +78,47 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
+static const char *split_cfg(char lang[static 3], const char *cfg)
 {
+   const char *sbd = "bayes";
+   const char *sep = strchr(cfg, ' ');
+   
+   if (sep)
+      sbd = sep + 1;
+   else
+      sep = cfg + strlen(cfg);
+   
+   memcpy(lang, sep - cfg == 2 ? cfg : "zz", 2);
+   lang[2] = '\0';
+   return sbd;
+}
+
+static int alloc_sentencizer2(struct mascara **mrp,
+                              const struct tokenizer_vtab *tk,
+                              const char *sbd, const char *lang)
+{
+   const struct sentencizer2_config *cfg = find_sentencizer2(lang);
+   if (!cfg)
+      return -1;
+   
+   struct sentencizer2 *mr = mr_malloc(sizeof *mr);
+   int ret = sentencizer2_init(mr, tk, cfg);
+   if (ret) {
+      /* Could fall back to the FSM, but hiding this kind of error is not
+       * a good idea.
+       */
+      free(mr);
+      *mrp = NULL;
+      return ret;
+   }
+   *mrp = &mr->base;
+   return MR_OK;
+}
+
+int mr_alloc(struct mascara **mrp, const char *cfg, enum mr_mode mode)
+{
+   char lang[3];
+   const char *sbd = split_cfg(lang, cfg);
    const struct tokenizer_vtab *tk = find_tokenizer(lang);
 
    switch (mode) {
@@ -85,33 +126,23 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
       struct tokenizer *mr = mr_malloc(sizeof *mr);
       tokenizer_init(mr, tk);
       *mrp = &mr->base;
-      break;
+      return MR_OK;
    }
    case MR_SENTENCE: {
-      const struct sentencizer2_config *cfg = find_sentencizer2(lang);
-      if (cfg) {
-         struct sentencizer2 *mr = mr_malloc(sizeof *mr);
-         int ret = sentencizer2_init(mr, tk, cfg);
-         if (ret) {
-            /* Could fall back to the FSM, but hiding this kind of error is not
-             * a good idea.
-             */
-            free(mr);
-            *mrp = NULL;
+      if (!strcmp(sbd, "bayes")) {
+         int ret = alloc_sentencizer2(mrp, tk, sbd, lang);
+         if (ret >= 0) {
             return ret;
          }
-         *mrp = &mr->base;
-      } else {
-         struct sentencizer *mr = mr_malloc(sizeof *mr);
-         sentencizer_init(mr, tk);
-         *mrp = &mr->base;
-      }      
-      break;
+      }
+      struct sentencizer *mr = mr_malloc(sizeof *mr);
+      sentencizer_init(mr, tk);
+      *mrp = &mr->base;
+      return MR_OK;
    }
    default:
       fatal("bad tokenization mode: %u", mode);
    }
-   return MR_OK;
 }
 
 enum mr_mode mr_mode(const struct mascara *mr)

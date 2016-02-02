@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 #line 1 "api.h"
 #ifndef MASCARA_H
 #define MASCARA_H
@@ -108,7 +110,7 @@ struct mr_token {
 size_t mr_next(struct mascara *, struct mr_token **);
 
 #endif
-#line 5 "api.c"
+#line 7 "api.c"
 #line 1 "imp.h"
 #ifndef MR_IMP_H
 #define MR_IMP_H
@@ -129,7 +131,7 @@ struct mascara {
 };
 
 #endif
-#line 6 "api.c"
+#line 8 "api.c"
 #line 1 "tokenize.h"
 #ifndef MR_TOKENIZE_H
 #define MR_TOKENIZE_H
@@ -174,7 +176,7 @@ local void tokenizer_set_text(struct mascara *,
 local size_t tokenizer_next(struct mascara *, struct mr_token **);
 
 #endif
-#line 7 "api.c"
+#line 9 "api.c"
 #line 1 "sentencize.h"
 #ifndef MR_SENTENCIZE_H
 #define MR_SENTENCIZE_H
@@ -200,7 +202,7 @@ local void sentencizer_init(struct sentencizer *,
                             const struct tokenizer_vtab *);
 
 #endif
-#line 8 "api.c"
+#line 10 "api.c"
 #line 1 "sentencize2.h"
 #ifndef MR_SENTENCIZE2_H
 #define MR_SENTENCIZE2_H
@@ -279,7 +281,7 @@ local int sentencizer2_init(struct sentencizer2 *,
                             const struct sentencizer2_config *);
 
 #endif
-#line 9 "api.c"
+#line 11 "api.c"
 #line 1 "mem.h"
 #ifndef MR_MEM_H
 #define MR_MEM_H
@@ -305,7 +307,7 @@ local void *mr_calloc(size_t, size_t)
 local void *mr_realloc(void *, size_t);
 
 #endif
-#line 10 "api.c"
+#line 12 "api.c"
 
 #line 1 "en_tokenize.ic"
 
@@ -5257,7 +5259,7 @@ _again:
 #line 102 "gen/en_tokenize.rl"
    (void)tokenize_en_en_main;
 }
-#line 12 "api.c"
+#line 14 "api.c"
 #line 1 "fr_tokenize.ic"
 
 #line 1 "gen/fr_tokenize.rl"
@@ -10747,7 +10749,7 @@ _again:
 #line 102 "gen/fr_tokenize.rl"
    (void)tokenize_fr_en_main;
 }
-#line 13 "api.c"
+#line 15 "api.c"
 #line 1 "it_tokenize.ic"
 
 #line 1 "gen/it_tokenize.rl"
@@ -16198,7 +16200,7 @@ _again:
 #line 102 "gen/it_tokenize.rl"
    (void)tokenize_it_en_main;
 }
-#line 14 "api.c"
+#line 16 "api.c"
 #line 1 "generic_tokenize.ic"
 
 #line 1 "gen/generic_tokenize.rl"
@@ -20849,7 +20851,7 @@ _again:
 #line 102 "gen/generic_tokenize.rl"
    (void)tokenize_generic_en_main;
 }
-#line 15 "api.c"
+#line 17 "api.c"
 
 const char *mr_home = "models";
 
@@ -20914,8 +20916,47 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
+static const char *split_cfg(char lang[static 3], const char *cfg)
 {
+   const char *sbd = "bayes";
+   const char *sep = strchr(cfg, ' ');
+   
+   if (sep)
+      sbd = sep + 1;
+   else
+      sep = cfg + strlen(cfg);
+   
+   memcpy(lang, sep - cfg == 2 ? cfg : "zz", 2);
+   lang[2] = '\0';
+   return sbd;
+}
+
+static int alloc_sentencizer2(struct mascara **mrp,
+                              const struct tokenizer_vtab *tk,
+                              const char *sbd, const char *lang)
+{
+   const struct sentencizer2_config *cfg = find_sentencizer2(lang);
+   if (!cfg)
+      return -1;
+   
+   struct sentencizer2 *mr = mr_malloc(sizeof *mr);
+   int ret = sentencizer2_init(mr, tk, cfg);
+   if (ret) {
+      /* Could fall back to the FSM, but hiding this kind of error is not
+       * a good idea.
+       */
+      free(mr);
+      *mrp = NULL;
+      return ret;
+   }
+   *mrp = &mr->base;
+   return MR_OK;
+}
+
+int mr_alloc(struct mascara **mrp, const char *cfg, enum mr_mode mode)
+{
+   char lang[3];
+   const char *sbd = split_cfg(lang, cfg);
    const struct tokenizer_vtab *tk = find_tokenizer(lang);
 
    switch (mode) {
@@ -20923,33 +20964,23 @@ int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
       struct tokenizer *mr = mr_malloc(sizeof *mr);
       tokenizer_init(mr, tk);
       *mrp = &mr->base;
-      break;
+      return MR_OK;
    }
    case MR_SENTENCE: {
-      const struct sentencizer2_config *cfg = find_sentencizer2(lang);
-      if (cfg) {
-         struct sentencizer2 *mr = mr_malloc(sizeof *mr);
-         int ret = sentencizer2_init(mr, tk, cfg);
-         if (ret) {
-            /* Could fall back to the FSM, but hiding this kind of error is not
-             * a good idea.
-             */
-            free(mr);
-            *mrp = NULL;
+      if (!strcmp(sbd, "bayes")) {
+         int ret = alloc_sentencizer2(mrp, tk, sbd, lang);
+         if (ret >= 0) {
             return ret;
          }
-         *mrp = &mr->base;
-      } else {
-         struct sentencizer *mr = mr_malloc(sizeof *mr);
-         sentencizer_init(mr, tk);
-         *mrp = &mr->base;
-      }      
-      break;
+      }
+      struct sentencizer *mr = mr_malloc(sizeof *mr);
+      sentencizer_init(mr, tk);
+      *mrp = &mr->base;
+      return MR_OK;
    }
    default:
       fatal("bad tokenization mode: %u", mode);
    }
-   return MR_OK;
 }
 
 enum mr_mode mr_mode(const struct mascara *mr)
