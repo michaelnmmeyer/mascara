@@ -2944,7 +2944,7 @@ static const int sentencize_en_main = 1;
 
 #line 119 "fsm/sentencize.rl"
 
-static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
+static const unsigned char *next_sentence(struct sentencizer *tkr,
                                           size_t *len,
                                           const unsigned char **period)
 {

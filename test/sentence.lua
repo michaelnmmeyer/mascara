@@ -89,10 +89,11 @@ check{
       «C'est vrai, répondait mon amour, il n'y a plus rien à faire de cette
       amitié-là, elle ne changera pas.»
    ]],
+   lang = "fr",
    output = {
-      {"«", "C'est", "vrai", ",", "répondait", "mon", "amour", ",", "il", "n'y",
-       "a", "plus", "rien", "à", "faire", "de", "cette", "amitié-là", ",",
-       "elle", "ne", "changera", "pas", ".", "»"},
+      {"«", "C'", "est", "vrai", ",", "répondait", "mon", "amour", ",", "il",
+      "n'", "y", "a", "plus", "rien", "à", "faire", "de", "cette", "amitié",
+      "-là", ",", "elle", "ne", "changera", "pas", ".", "»"},
    }
 }
 
@@ -103,6 +104,7 @@ check{
 }
 check{
    input = "seit M.-S. Samain",
+   lang = "de",
    output = {{"seit", "M.-S.", "Samain"}},
 }
 check{
@@ -126,10 +128,9 @@ check{
 -- Split sentences that would grow too much.
 local max_sent_len = require("mascara").MAX_SENTENCE_LEN
 local output = {}
-for i = 1, max_sent_len - 1 do
+for i = 1, max_sent_len do
    output[i] = "foo"
 end
-output[max_sent_len] = "foo"
 check{
    input = table.concat(output, " ") .. " foo",
    output = {output, {"foo"}},

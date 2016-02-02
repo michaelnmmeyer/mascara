@@ -114,5 +114,8 @@ int luaopen_mascara(lua_State *lua)
    lua_setfield(lua, -2, "VERSION");
    lua_pushnumber(lua, MR_MAX_SENTENCE_LEN);
    lua_setfield(lua, -2, "MAX_SENTENCE_LEN");
+   
+   mr_home = "../models";
+
    return 1;
 }

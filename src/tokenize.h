@@ -4,18 +4,18 @@
 #include "imp.h"
 
 struct mr_token;
-struct mr_tokenizer;
+struct tokenizer;
 
-struct mr_tokenizer_vtab {
+struct tokenizer_vtab {
    const char *name;
-   void (*init)(struct mr_tokenizer *);
-   void (*exec)(struct mr_tokenizer *, struct mr_token *);
+   void (*init)(struct tokenizer *);
+   void (*exec)(struct tokenizer *, struct mr_token *);
 };
 
-struct mr_tokenizer {
+struct tokenizer {
    struct mascara base;
 
-   const struct mr_tokenizer_vtab *vtab;
+   const struct tokenizer_vtab *vtab;
    const unsigned char *str;
    size_t offset_incr;
 
@@ -33,16 +33,12 @@ struct mr_tokenizer {
 
 extern const struct mr_imp mr_tokenizer_imp;
 
-MR_LOCAL
-void mr_tokenizer_init(struct mr_tokenizer *,
-                       const struct mr_tokenizer_vtab *);
+local void tokenizer_init(struct tokenizer *, const struct tokenizer_vtab *);
 
-MR_LOCAL
-void mr_tokenizer_set_text(struct mascara *,
-                           const unsigned char *str, size_t len,
-                           size_t offset_incr);
+local void tokenizer_set_text(struct mascara *,
+                              const unsigned char *str, size_t len,
+                              size_t offset_incr);
 
-MR_LOCAL
-size_t mr_tokenizer_next(struct mascara *, struct mr_token **);
+local size_t tokenizer_next(struct mascara *, struct mr_token **);
 
 #endif

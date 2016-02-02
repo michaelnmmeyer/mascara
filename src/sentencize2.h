@@ -5,22 +5,22 @@
 #include "imp.h"
 #include "bayes.h"
 
-typedef bool at_eos_fn(const struct mr_bayes *,
+typedef bool at_eos_fn(const struct bayes *,
                        const struct mr_token *lhs, const struct mr_token *rhs);
 
-struct mr_sentencizer2_config {
-   const struct mr_bayes_config bayes_config;
+struct sentencizer2_config {
+   const struct bayes_config bayes_config;
    at_eos_fn *at_eos;
 };
 
-struct mr_sentencizer2 {
+struct sentencizer2 {
    struct mascara base;
 
    /* EOS classifier. */
-   struct mr_bayes *bayes;
+   struct bayes *bayes;
    at_eos_fn *at_eos;
    
-   struct mr_tokenizer tkr;
+   struct tokenizer tkr;
    const unsigned char *p, *pe;
 
    /* Current sentence. We store at 0 the last token of the previous sentence,
@@ -35,7 +35,10 @@ struct mr_sentencizer2 {
    bool first;
 };
 
-MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *,
-                                  const struct mr_tokenizer_vtab *);
+local const struct sentencizer2_config *find_sentencizer2(const char *lang);
+
+local int sentencizer2_init(struct sentencizer2 *,
+                            const struct tokenizer_vtab *,
+                            const struct sentencizer2_config *);
 
 #endif

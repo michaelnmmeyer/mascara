@@ -1,13 +1,18 @@
 /* Generated code, don't edit! */
 
-static bool fr_sequoia_at_eos(const struct mr_bayes *mdl,
-                              const struct mr_token *l,
-                              const struct mr_token *r)
+static const char *const fr_sequoia_features[] = {
+   "l_shape+l_len",
+   "l_word+r_shape",
+   NULL
+};
+
+static bool fr_sequoia_at_eos(const struct bayes *mdl,
+                            const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
    char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
 
-   mr_bayes_init(mdl, vec);
+   bayes_init(mdl, vec);
 
    buf = stack;
    *buf++ = 1;
@@ -15,7 +20,7 @@ static bool fr_sequoia_at_eos(const struct mr_bayes *mdl,
    *buf++ = '+';
    buf = mr_ft_len(buf, l);
    *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
+   bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
@@ -23,18 +28,12 @@ static bool fr_sequoia_at_eos(const struct mr_bayes *mdl,
    *buf++ = '+';
    buf = mr_ft_shape(buf, r);
    *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
+   bayes_feed(mdl, vec, stack);
 
-   return vec[MR_EOS] >= vec[MR_NOT_EOS];
+   return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const char *const fr_sequoia_features[] = {
-   "l_shape+l_len",
-   "l_word+r_shape",
-   NULL
-};
-
-static const struct mr_sentencizer2_config fr_sequoia_config = {
+static const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
       .version = 1,

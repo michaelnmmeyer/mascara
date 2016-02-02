@@ -107,7 +107,7 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
    const uint8_t *str = (const void *)tk->str;
    size_t len = tk->len;
    
-   /* Technically, could match, but MAX_FEATURE_LEN is quite large. */
+   /* Technically, could match, but MAX_FEATURE_LEN is quite large already. */
    if (len > MAX_FEATURE_LEN)
       return mr_ft_void(buf);
 
@@ -146,39 +146,50 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
  * Concrete implementations.
  ******************************************************************************/
 
-#include "fr_sequoia.cm"
-#include "en_amalg.cm"
 #include "de_tiger.cm"
+#include "en_amalg.cm"
+#include "fr_sequoia.cm"
 
+local const struct sentencizer2_config *find_sentencizer2(const char *lang)
+{
+   static const struct {
+      const char *lang;
+      const struct sentencizer2_config *cfg;
+   } tbl[] = {
+      {"de", &de_tiger_config},
+      {"en", &en_amalg_config},
+      {"fr", &fr_sequoia_config},
+   };
+   
+   for (size_t i = 0; i < sizeof tbl / sizeof *tbl; i++)
+      if (!strcmp(tbl[i].lang, lang))
+         return tbl[i].cfg;
+   return NULL;
+}
 
 /*******************************************************************************
  * Interface.
  ******************************************************************************/
 
-static void mr_sentencizer2_set_text(struct mascara *,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr);
+static void sentencizer2_set_text(struct mascara *,
+                                     const unsigned char *str, size_t len,
+                                     size_t offset_incr);
 
-static size_t mr_sentencizer2_next(struct mascara *, struct mr_token **);
+static size_t sentencizer2_next(struct mascara *, struct mr_token **);
 
-static void mr_sentencizer2_fini(struct mascara *);
+static void sentencizer2_fini(struct mascara *);
 
-static const struct mr_imp mr_sentencizer2_imp = {
-   .set_text = mr_sentencizer2_set_text,
-   .next = mr_sentencizer2_next,
-   .fini = mr_sentencizer2_fini,
+static const struct mr_imp sentencizer2_imp = {
+   .set_text = sentencizer2_set_text,
+   .next = sentencizer2_next,
+   .fini = sentencizer2_fini,
 };
 
-MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
-                                  const struct mr_tokenizer_vtab *vtab)
+local int sentencizer2_init(struct sentencizer2 *tkr,
+                               const struct tokenizer_vtab *vtab,
+                               const struct sentencizer2_config *cfg)
 {
-   (void)fr_sequoia_config;
-   (void)de_tiger_config;
-   (void)en_amalg_config;
-
-   const struct mr_sentencizer2_config *cfg = &fr_sequoia_config;
-
-   *tkr = (struct mr_sentencizer2){.base.imp = &mr_sentencizer2_imp};
+   *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
 
    const char *home = mr_home;
    if (!home)
@@ -189,23 +200,23 @@ MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
    if (len < 0 || (size_t)len >= sizeof path)
       return MR_EHOME;
 
-   int ret = mr_bayes_load(&tkr->bayes, path, &cfg->bayes_config);
+   int ret = bayes_load(&tkr->bayes, path, &cfg->bayes_config);
    if (ret)
       return ret;
 
    tkr->at_eos = cfg->at_eos;
-   mr_tokenizer_init(&tkr->tkr, vtab);
+   tokenizer_init(&tkr->tkr, vtab);
    return MR_OK;
 }
 
-static void mr_sentencizer2_fini(struct mascara *imp)
+static void sentencizer2_fini(struct mascara *imp)
 {
-   struct mr_sentencizer2 *tkr = (struct mr_sentencizer2 *)imp;
-   mr_bayes_dealloc(tkr->bayes);
+   struct sentencizer2 *tkr = (struct sentencizer2 *)imp;
+   bayes_dealloc(tkr->bayes);
    free(tkr->tokens);
 }
 
-static void add_token(struct mr_sentencizer2 *tkr, const struct mr_token *tk)
+static void add_token(struct sentencizer2 *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
       tkr->alloc = tkr->alloc * 2 + 4;
@@ -214,45 +225,37 @@ static void add_token(struct mr_sentencizer2 *tkr, const struct mr_token *tk)
    tkr->tokens[tkr->len++] = *tk;
 }
 
-static void mr_sentencizer2_set_text(struct mascara *imp,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr)
+static void sentencizer2_set_text(struct mascara *imp,
+                                  const unsigned char *str, size_t len,
+                                  size_t offset_incr)
 {
-   struct mr_sentencizer2 *tkr = (void *)imp;
+   struct sentencizer2 *tkr = (void *)imp;
 
-   mr_tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
+   tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
    tkr->p = str;
    tkr->pe = &str[len];
 
    tkr->len = 0;
-   add_token(tkr, &(struct mr_token){
-      .str = (const char *)str,
-      .offset = 0,
-      .len = 0,
-      .type = MR_UNK,
-   });
-   tkr->first = true;
 }
 
-static struct mr_token *fetch_tokens(struct mr_sentencizer2 *szr,
+static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
                                      const unsigned char *end)
 {
    struct mr_token *tk = &szr->tokens[szr->len - 1];
 
-   for (;;) {
+   while (szr->len < MR_MAX_SENTENCE_LEN + 2) {
       if (tk->str >= (const char *)end)
          return &szr->tokens[szr->len - 1];
-      if (!mr_tokenizer_next(&szr->tkr.base, &tk)) {
+      if (!tokenizer_next(&szr->tkr.base, &tk)) {
          add_token(szr, &(struct mr_token){
             .str = (const char *)szr->pe,
-            .len = 0,
-            .offset = 0,
             .type = MR_UNK,
          });
          return &szr->tokens[szr->len - 1];
       }
       add_token(szr, tk);
    };
+   return NULL;
 }
 
 /* Conditions for reattaching a period are:
@@ -262,11 +265,11 @@ static struct mr_token *fetch_tokens(struct mr_sentencizer2 *szr,
  *   symbol, etc.
  * - The period immediately follows the previous token.
  */
-static void reattach_period(struct mr_sentencizer2 *szr)
+static void reattach_period(struct sentencizer2 *szr)
 {
    struct mr_token *period = &szr->tokens[szr->len - 2];
-   
-   assert(*period->str == '.' && period->len == 1);
+
+   assert(period->len == 1 && *period->str == '.');
    
    struct mr_token *prev = period - 1;
    if (prev->offset + prev->len != period->offset)
@@ -284,20 +287,28 @@ static void reattach_period(struct mr_sentencizer2 *szr)
    }
 }
 
+static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
+{
+   return szr->at_eos(szr->bayes, rhs - 2, rhs);
+}
+
 #include "gen/sentencize2.ic"
 
-static size_t mr_sentencizer2_next(struct mascara *imp, struct mr_token **tks)
+static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
-   struct mr_sentencizer2 *szr = (void *)imp;
+   struct sentencizer2 *szr = (void *)imp;
    assert(szr->p && "text no set");
 
-   if (!szr->first) {
+   /* Pending tokens? */
+   if (szr->len) {
       szr->tokens[0] = szr->tokens[szr->len - 2];
       szr->tokens[1] = szr->tokens[szr->len - 1];
       szr->len = 2;
    } else {
-      szr->len = 1;
-      szr->first = false;
+      add_token(szr, &(struct mr_token){
+         .str = (const char *)szr->p,
+         .type = MR_UNK,
+      });
    }
    return mr_sentencize2_next(szr, tks);
 }

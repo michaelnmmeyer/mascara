@@ -13,11 +13,11 @@ struct feature {
    char value[];
 };
 
-struct mr_bayes {
+struct bayes {
    double priors[2];
    double *unknown_probs;
    size_t table_mask;
-   const struct mr_bayes_config *cfg;  /* For debugging. */
+   const struct bayes_config *cfg;  /* For debugging. */
    struct feature *table[];
 };
 
@@ -38,7 +38,7 @@ static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
    buf[len] = '\0';
    if (strcmp(buf, name))
       return MR_EMODEL;
-   if (fscanf(fp, "%la %la\n", &unk_probs[MR_EOS], &unk_probs[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "%la %la\n", &unk_probs[EOS], &unk_probs[NOT_EOS]) != 2)
       return MR_EMODEL;
    return MR_OK;
 }
@@ -63,7 +63,7 @@ static int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
    f->value[1 + len] = '\0';
    if (strlen(f->value + 1) != len)
       goto fail;
-   if (fscanf(fp, "%la %la\n", &f->probs[MR_EOS], &f->probs[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "%la %la\n", &f->probs[EOS], &f->probs[NOT_EOS]) != 2)
       goto fail;
 
    *ff = f;
@@ -107,7 +107,7 @@ static uint32_t roundup_pow2(uint32_t num)
    return num ? num : 1;
 }
 
-static struct feature **table_chain(const struct mr_bayes *mdl, const void *val)
+static struct feature **table_chain(const struct bayes *mdl, const void *val)
 {
    uint32_t h = 1315423911;
    const uint8_t *v = val;
@@ -122,7 +122,7 @@ static struct feature **table_chain(const struct mr_bayes *mdl, const void *val)
    return (void *)f;
 }
 
-static void mr_bayes_clear(struct mr_bayes *mdl)
+static void bayes_clear(struct bayes *mdl)
 {
    for (size_t i = 0; i < mdl->table_mask + 1; i++) {
       struct feature *f = mdl->table[i];
@@ -134,7 +134,7 @@ static void mr_bayes_clear(struct mr_bayes *mdl)
    }
 }
 
-static unsigned mr_array_len(const char *const *xs)
+static unsigned array_len(const char *const *xs)
 {
    unsigned i;
    for (i = 0; xs[i]; i++)
@@ -142,7 +142,7 @@ static unsigned mr_array_len(const char *const *xs)
    return i;
 }
 
-static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_config *cfg)
+static int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
 {
    if (match_signature(fp, "mr_bayes 1"))
       return MR_EMAGIC;
@@ -156,20 +156,20 @@ static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_confi
    size_t value_nr;
    if (fscanf(fp, "features %u values %zu\n", &feat_nr, &value_nr) != 2)
       return MR_EMODEL;
-   if (feat_nr == 0 || feat_nr > MAX_FEATURES || feat_nr != mr_array_len(cfg->features))
+   if (feat_nr == 0 || feat_nr > MAX_FEATURES || feat_nr != array_len(cfg->features))
       return MR_EMODEL;
    if (value_nr == 0 || value_nr > MAX_VALUES)
       return MR_EMODEL;
 
    double priors[2];
-   if (fscanf(fp, "EOS %la !EOS %la\n", &priors[MR_EOS], &priors[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "EOS %la !EOS %la\n", &priors[EOS], &priors[NOT_EOS]) != 2)
       return MR_EMODEL;
 
    size_t tbl_size = roundup_pow2(value_nr * 0.7);
-   size_t unk_off = pad(sizeof(struct mr_bayes) + tbl_size * sizeof(struct feature *), double);
+   size_t unk_off = pad(sizeof(struct bayes) + tbl_size * sizeof(struct feature *), double);
    size_t total = unk_off + sizeof(double[feat_nr][value_nr]);
 
-   struct mr_bayes *mdl = mr_calloc(1, total);
+   struct bayes *mdl = mr_calloc(1, total);
 
    int ret = MR_OK;
    mdl->priors[0] = priors[0];
@@ -206,12 +206,12 @@ static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_confi
    return MR_OK;
 
 fail:
-   mr_bayes_dealloc(mdl);
+   bayes_dealloc(mdl);
    return ret;
 }
 
-MR_LOCAL int mr_bayes_load(struct mr_bayes **mdl, const char *path,
-                           const struct mr_bayes_config *cfg)
+local int bayes_load(struct bayes **mdl, const char *path,
+                           const struct bayes_config *cfg)
 {
    FILE *fp = fopen(path, "r");
    if (!fp)
@@ -225,39 +225,39 @@ MR_LOCAL int mr_bayes_load(struct mr_bayes **mdl, const char *path,
    return err ? MR_EIO : ret;
 }
 
-MR_LOCAL void mr_bayes_dealloc(struct mr_bayes *mdl)
+local void bayes_dealloc(struct bayes *mdl)
 {
-   mr_bayes_clear(mdl);
+   bayes_clear(mdl);
    free(mdl);
 }
 
-static const double *mr_bayes_probs(const struct mr_bayes *mdl, const uint8_t *val)
+static const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
 {
    assert(*val > 0);
    const struct feature *f = *table_chain(mdl, val);
    return f ? f->probs : &mdl->unknown_probs[(*val - 1) * 2];
 }
 
-static const bool mr_bayes_debug = false;
+static const bool bayes_debug = false;
 
-MR_LOCAL void mr_bayes_init(const struct mr_bayes *mdl, double v[static 2])
+local void bayes_init(const struct bayes *mdl, double v[static 2])
 {
    v[0] = mdl->priors[0];
    v[1] = mdl->priors[1];
 
-   if (mr_bayes_debug) {
+   if (bayes_debug) {
       fprintf(stderr, "%s INIT %.3lf %.3lf\n", mdl->cfg->name, v[0], v[1]);
    }
 }
 
-MR_LOCAL void mr_bayes_feed(const struct mr_bayes *mdl, double v[static 2],
+local void bayes_feed(const struct bayes *mdl, double v[static 2],
                             const void *val)
 {
-   const double *restrict x = mr_bayes_probs(mdl, val);
+   const double *restrict x = bayes_probs(mdl, val);
    v[0] += x[0];
    v[1] += x[1];
 
-   if (mr_bayes_debug) {
+   if (bayes_debug) {
       const char *sig = mdl->cfg->name;
       const char *nam = mdl->cfg->features[*(uint8_t *)val - 1];
       const char *ft = (const char *)val + 1;

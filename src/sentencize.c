@@ -3,49 +3,24 @@
 #include "sentencize.h"
 #include "mem.h"
 
-#include "gen/sentencize.ic"
-
-static void mr_sentencizer_set_text(struct mascara *,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr);
-
-static size_t mr_sentencizer_next(struct mascara *, struct mr_token **);
-
-static void mr_sentencizer_fini(struct mascara *);
-
-static const struct mr_imp mr_sentencizer_imp = {
-   .set_text = mr_sentencizer_set_text,
-   .next = mr_sentencizer_next,
-   .fini = mr_sentencizer_fini,
-};
-
-MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *tkr,
-                                  const struct mr_tokenizer_vtab *vtab)
+static void sentencizer_fini(struct mascara *imp)
 {
-   *tkr = (struct mr_sentencizer){
-      .base.imp = &mr_sentencizer_imp,
-      .vtab = vtab,
-   };
-}
-
-static void mr_sentencizer_fini(struct mascara *imp)
-{
-   struct mr_sentencizer *tkr = (struct mr_sentencizer *)imp;
+   struct sentencizer *tkr = (struct sentencizer *)imp;
    free(tkr->tokens);
 }
 
-static void mr_sentencizer_set_text(struct mascara *imp,
+static void sentencizer_set_text(struct mascara *imp,
                                     const unsigned char *str, size_t len,
                                     size_t offset_incr)
 {
-   struct mr_sentencizer *tkr = (struct mr_sentencizer *)imp;
+   struct sentencizer *tkr = (struct sentencizer *)imp;
 
    tkr->offset_incr = offset_incr;
    tkr->str = tkr->p = str;
    tkr->pe = &str[len];
 }
 
-static void mr_sentencizer_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
+static void sentencizer_add_token(struct sentencizer *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
       tkr->alloc = tkr->alloc * 2 + 4;
@@ -54,7 +29,7 @@ static void mr_sentencizer_add_token(struct mr_sentencizer *tkr, const struct mr
    tkr->tokens[tkr->len++] = *tk;
 }
 
-static bool mr_sentencizer_reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
+static bool sentencizer_reattach_period(struct sentencizer *szr, const struct mr_token *tk)
 {
    /* Conditions for reattaching a period are:
     * - There must be a single period (no ellipsis).
@@ -74,9 +49,11 @@ static bool mr_sentencizer_reattach_period(struct mr_sentencizer *szr, const str
    return false;
 }
 
-static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
+#include "gen/sentencize.ic"
+
+static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
-   struct mr_sentencizer *szr = (struct mr_sentencizer *)imp;
+   struct sentencizer *szr = (struct sentencizer *)imp;
    assert(szr->str && "text no set");
 
    szr->len = 0;
@@ -90,14 +67,14 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    }
    size_t offset_incr = szr->offset_incr + str - szr->str;
 
-   struct mr_tokenizer tkr;
-   mr_tokenizer_init(&tkr, szr->vtab);
-   mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);
+   struct tokenizer tkr;
+   tokenizer_init(&tkr, szr->vtab);
+   tokenizer_set_text(&tkr.base, str, len, offset_incr);
 
    struct mr_token *tk;
-   while (mr_tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !mr_sentencizer_reattach_period(szr, tk)) {
-         mr_sentencizer_add_token(szr, tk);
+   while (tokenizer_next(&tkr.base, &tk)) {
+      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(szr, tk)) {
+         sentencizer_add_token(szr, tk);
          if (szr->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;
@@ -106,4 +83,19 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    }
    *tks = szr->tokens;
    return szr->len;
+}
+
+static const struct mr_imp sentencizer_imp = {
+   .set_text = sentencizer_set_text,
+   .next = sentencizer_next,
+   .fini = sentencizer_fini,
+};
+
+local void sentencizer_init(struct sentencizer *tkr,
+                            const struct tokenizer_vtab *vtab)
+{
+   *tkr = (struct sentencizer){
+      .base.imp = &sentencizer_imp,
+      .vtab = vtab,
+   };
 }

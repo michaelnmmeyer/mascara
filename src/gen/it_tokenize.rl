@@ -91,12 +91,12 @@ main := |*
 
 %% write data noerror nofinal;
 
-static void it_init(struct mr_tokenizer *tkr)
+static void it_init(struct tokenizer *tkr)
 {
    %% write init;
 }
 
-static void it_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void it_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
    (void)tokenize_it_en_main;

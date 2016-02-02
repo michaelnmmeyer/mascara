@@ -4862,7 +4862,7 @@ static const int tokenize_fr_en_main = 1019;
 
 #line 93 "gen/fr_tokenize.rl"
 
-static void fr_init(struct mr_tokenizer *tkr)
+static void fr_init(struct tokenizer *tkr)
 {
    
 #line 4869 "gen/fr_tokenize.ic"
@@ -4876,7 +4876,7 @@ static void fr_init(struct mr_tokenizer *tkr)
 #line 97 "gen/fr_tokenize.rl"
 }
 
-static void fr_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void fr_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4883 "gen/fr_tokenize.ic"

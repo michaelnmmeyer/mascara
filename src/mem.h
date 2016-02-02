@@ -5,20 +5,20 @@
 #include <stdarg.h>
 #include <stdnoreturn.h>
 
-MR_LOCAL noreturn void mr_fatal(const char *, ...);
+local noreturn void fatal(const char *, ...);
 
-MR_LOCAL void *mr_malloc(size_t)
+local void *mr_malloc(size_t)
 #ifdef ___GNUC__
    __attribute__((malloc))
 #endif
    ;
 
-MR_LOCAL void *mr_calloc(size_t, size_t)
+local void *mr_calloc(size_t, size_t)
 #ifdef ___GNUC__
    __attribute__((malloc))
 #endif
    ;
 
-MR_LOCAL void *mr_realloc(void *, size_t);
+local void *mr_realloc(void *, size_t);
 
 #endif

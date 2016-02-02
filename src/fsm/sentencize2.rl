@@ -35,7 +35,7 @@ sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 #    e.g.
 #    i.e.
 #
-thing_with_periods = latin+ ("." latin+)+;
+thing_with_periods = latin+ ("." "-"? latin+)+;
 
 # Discard when followed by a lowercase letter, including exclamations:
 #
@@ -52,25 +52,34 @@ not_eos = thing_with_periods | no_capital | email | uri;
 #-------------------------------------------------------------------------------
 
 find_eos := |*
-   # sentence.
+
    "." sent_trail* => {
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
-      if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
+      if (!rhs) {
+         /* Sentence has grown too large. */
+         goto fini;
+      } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
+         /* Mismatch in tokenization (should not happen). FIXME log? */
+         ;
+      } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      } else {
+         reattach_period(tkr);
       }
-      reattach_period(tkr);
    };
+
    eos_marker sent_trail* => {
       fetch_tokens(tkr, te);
       goto fini;
    };
+
    paragraph_break => {
       fetch_tokens(tkr, ts);
       goto fini;
    };
-   any;
-   not_eos;
+
+   any | not_eos;
 *|;
 
 main := whitespace* %{ start = fpc; }
@@ -80,7 +89,7 @@ main := whitespace* %{ start = fpc; }
 
 %% write data noerror nofinal;
 
-static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token **tks)
+static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
    int cs, act, top, stack[1];
    const unsigned char *ts, *te;
@@ -92,22 +101,19 @@ static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token *
 
    %% write init;
    %% write exec;
-   
-   if (!start) {
-      *tks = NULL;
-      return 0;
-   }
 
-   /* Last sentence. */
+   /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
 
-fini:
+fini: {
+   const size_t len = tkr->len - 2;
    tkr->p = te;
-   *tks = tkr->tokens + 1;
-   return tkr->len - 2;
+   *tks = len ? &tkr->tokens[1] : NULL;
+   return len;
 
    (void)stack;
    (void)mr_sentencize2_en_main;
    (void)mr_sentencize2_en_find_eos;
+}
 }

@@ -4364,7 +4364,7 @@ static const int tokenize_en_en_main = 995;
 
 #line 93 "gen/en_tokenize.rl"
 
-static void en_init(struct mr_tokenizer *tkr)
+static void en_init(struct tokenizer *tkr)
 {
    
 #line 4371 "gen/en_tokenize.ic"
@@ -4378,7 +4378,7 @@ static void en_init(struct mr_tokenizer *tkr)
 #line 97 "gen/en_tokenize.rl"
 }
 
-static void en_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void en_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4385 "gen/en_tokenize.ic"

@@ -91,12 +91,12 @@ main := |*
 
 %% write data noerror nofinal;
 
-static void generic_init(struct mr_tokenizer *tkr)
+static void generic_init(struct tokenizer *tkr)
 {
    %% write init;
 }
 
-static void generic_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void generic_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
    (void)tokenize_generic_en_main;

@@ -3,12 +3,12 @@
 
 #include "imp.h"
 
-struct mr_tokenizer_vtab;
+struct tokenizer_vtab;
 
-struct mr_sentencizer {
+struct sentencizer {
    struct mascara base;
 
-   const struct mr_tokenizer_vtab *vtab;
+   const struct tokenizer_vtab *vtab;
    const unsigned char *str;
    size_t offset_incr;
 
@@ -19,7 +19,7 @@ struct mr_sentencizer {
    size_t len, alloc;
 };
 
-MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *,
-                                  const struct mr_tokenizer_vtab *);
+local void sentencizer_init(struct sentencizer *,
+                            const struct tokenizer_vtab *);
 
 #endif

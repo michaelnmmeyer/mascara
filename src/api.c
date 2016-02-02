@@ -1,5 +1,3 @@
-#define MR_LOCAL static
-
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -17,9 +15,9 @@
 
 const char *mr_home = "models";
 
-static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
+static const struct tokenizer_vtab *find_tokenizer(const char *name)
 {
-   static const struct mr_tokenizer_vtab tbl[] = {
+   static const struct tokenizer_vtab tbl[] = {
    #define _(name) {#name, name##_init, name##_exec},
       _(en)
       _(fr)
@@ -28,12 +26,12 @@ static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
    #undef _
    };
 
-   const size_t size = sizeof tbl / sizeof *tbl;
+   const size_t size = sizeof tbl / sizeof *tbl - 1;
    for (size_t i = 0; i < size; i++)
       if (!strcmp(tbl[i].name, name))
          return &tbl[i];
 
-   return &tbl[size - 1];
+   return &tbl[size];
 }
 
 const char *const *mr_langs(void)
@@ -80,27 +78,38 @@ const char *mr_token_type_name(enum mr_token_type t)
 
 int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
 {
-   const struct mr_tokenizer_vtab *tk = mr_find_tokenizer(lang);
+   const struct tokenizer_vtab *tk = find_tokenizer(lang);
 
    switch (mode) {
    case MR_TOKEN: {
-      struct mr_tokenizer *mr = mr_malloc(sizeof *mr);
-      mr_tokenizer_init(mr, tk);
+      struct tokenizer *mr = mr_malloc(sizeof *mr);
+      tokenizer_init(mr, tk);
       *mrp = &mr->base;
       break;
    }
    case MR_SENTENCE: {
-      (void)mr_sentencizer_init;
-      struct mr_sentencizer2 *mr = mr_malloc(sizeof *mr);
-      int ret = mr_sentencizer2_init(mr, tk);
-      if (ret) {
-         free(mr);
-         *mrp = NULL;
-         return ret;
-      }
-      *mrp = &mr->base;
+      const struct sentencizer2_config *cfg = find_sentencizer2(lang);
+      if (cfg) {
+         struct sentencizer2 *mr = mr_malloc(sizeof *mr);
+         int ret = sentencizer2_init(mr, tk, cfg);
+         if (ret) {
+            /* Could fall back to the FSM, but hiding this kind of error is not
+             * a good idea.
+             */
+            free(mr);
+            *mrp = NULL;
+            return ret;
+         }
+         *mrp = &mr->base;
+      } else {
+         struct sentencizer *mr = mr_malloc(sizeof *mr);
+         sentencizer_init(mr, tk);
+         *mrp = &mr->base;
+      }      
       break;
    }
+   default:
+      fatal("bad tokenization mode: %u", mode);
    }
    return MR_OK;
 }

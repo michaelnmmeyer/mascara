@@ -1,6 +1,4 @@
 #line 1 "api.c"
-#define MR_LOCAL static
-
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -13,7 +11,7 @@
 #include <stddef.h>
 
 /* Location of the directory that contains model files. Should be set at
- * startup. Defaults to "models".
+ * startup and not changed afterwards. Defaults to "models".
  */
 extern const char *mr_home;
 
@@ -54,11 +52,10 @@ const char *mr_token_type_name(enum mr_token_type);
 
 struct mascara;
 
-/* Tokenization mode. */
+/* Tokenization modes. */
 enum mr_mode {
    MR_TOKEN,      /* Iterate over tokens. */
-   MR_SENTENCE,   /* Iterate over sentences, where a sentence is an array of
-                   * tokens. */
+   MR_SENTENCE,   /* Iterate over sentences (arrays of tokens). */
 };
 
 /* Returns an array containing the names of the supported languages.
@@ -68,9 +65,10 @@ const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
  * If there is no specific support for the provided language name, chooses a
- * generic tokenizer. Available languages are "en", "fr", and "it". On success,
- * makes the provided structure pointer point to an allocated tokenizer, and
- * returns MR_OK. Otherwise, makes it point to NULL, and returns an error code.
+ * generic tokenizer.
+ * On success, makes the provided structure pointer point to an allocated
+ * tokenizer, and returns MR_OK. Otherwise, makes it point to NULL, and returns
+ * an error code.
  */
 int mr_alloc(struct mascara **, const char *lang, enum mr_mode);
 
@@ -110,10 +108,12 @@ struct mr_token {
 size_t mr_next(struct mascara *, struct mr_token **);
 
 #endif
-#line 7 "api.c"
+#line 5 "api.c"
 #line 1 "imp.h"
 #ifndef MR_IMP_H
 #define MR_IMP_H
+
+#define local static
 
 struct mascara;
 struct mr_token;
@@ -129,25 +129,25 @@ struct mascara {
 };
 
 #endif
-#line 8 "api.c"
+#line 6 "api.c"
 #line 1 "tokenize.h"
 #ifndef MR_TOKENIZE_H
 #define MR_TOKENIZE_H
 
 
 struct mr_token;
-struct mr_tokenizer;
+struct tokenizer;
 
-struct mr_tokenizer_vtab {
+struct tokenizer_vtab {
    const char *name;
-   void (*init)(struct mr_tokenizer *);
-   void (*exec)(struct mr_tokenizer *, struct mr_token *);
+   void (*init)(struct tokenizer *);
+   void (*exec)(struct tokenizer *, struct mr_token *);
 };
 
-struct mr_tokenizer {
+struct tokenizer {
    struct mascara base;
 
-   const struct mr_tokenizer_vtab *vtab;
+   const struct tokenizer_vtab *vtab;
    const unsigned char *str;
    size_t offset_incr;
 
@@ -165,31 +165,27 @@ struct mr_tokenizer {
 
 extern const struct mr_imp mr_tokenizer_imp;
 
-MR_LOCAL
-void mr_tokenizer_init(struct mr_tokenizer *,
-                       const struct mr_tokenizer_vtab *);
+local void tokenizer_init(struct tokenizer *, const struct tokenizer_vtab *);
 
-MR_LOCAL
-void mr_tokenizer_set_text(struct mascara *,
-                           const unsigned char *str, size_t len,
-                           size_t offset_incr);
+local void tokenizer_set_text(struct mascara *,
+                              const unsigned char *str, size_t len,
+                              size_t offset_incr);
 
-MR_LOCAL
-size_t mr_tokenizer_next(struct mascara *, struct mr_token **);
+local size_t tokenizer_next(struct mascara *, struct mr_token **);
 
 #endif
-#line 9 "api.c"
+#line 7 "api.c"
 #line 1 "sentencize.h"
 #ifndef MR_SENTENCIZE_H
 #define MR_SENTENCIZE_H
 
 
-struct mr_tokenizer_vtab;
+struct tokenizer_vtab;
 
-struct mr_sentencizer {
+struct sentencizer {
    struct mascara base;
 
-   const struct mr_tokenizer_vtab *vtab;
+   const struct tokenizer_vtab *vtab;
    const unsigned char *str;
    size_t offset_incr;
 
@@ -200,11 +196,11 @@ struct mr_sentencizer {
    size_t len, alloc;
 };
 
-MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *,
-                                  const struct mr_tokenizer_vtab *);
+local void sentencizer_init(struct sentencizer *,
+                            const struct tokenizer_vtab *);
 
 #endif
-#line 10 "api.c"
+#line 8 "api.c"
 #line 1 "sentencize2.h"
 #ifndef MR_SENTENCIZE2_H
 #define MR_SENTENCIZE2_H
@@ -217,54 +213,54 @@ MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *,
 /* Keep that in sync with the Python code generator. */
 #define MAX_FEATURE_LEN 128
 
-struct mr_bayes;
+struct bayes;
 
 /* Model descriptor. */
-struct mr_bayes_config {
+struct bayes_config {
    const char *name;
    unsigned version;
    const char *const *features;
 };
 
-MR_LOCAL int mr_bayes_load(struct mr_bayes **, const char *path,
-                           const struct mr_bayes_config *);
+local int bayes_load(struct bayes **, const char *path,
+                     const struct bayes_config *);
 
-MR_LOCAL void mr_bayes_dealloc(struct mr_bayes *);
+local void bayes_dealloc(struct bayes *);
 
 enum {
-   MR_EOS,
-   MR_NOT_EOS,
+   EOS,
+   NOT_EOS,
 };
 
 /* Set priors. */
-MR_LOCAL void mr_bayes_init(const struct mr_bayes *, double [static 2]);
+local void bayes_init(const struct bayes *, double [static 2]);
 
 /* Feed a single feature.
  * The feature id (an integer > 0 && <= 0xff) must appear at the beginning of
  * the feature string.
  */
-MR_LOCAL void mr_bayes_feed(const struct mr_bayes *, double [static 2],
-                            const void *feature);
+local void bayes_feed(const struct bayes *, double [static 2],
+                      const void *feature);
 
 #endif
 #line 7 "sentencize2.h"
 
-typedef bool at_eos_fn(const struct mr_bayes *,
+typedef bool at_eos_fn(const struct bayes *,
                        const struct mr_token *lhs, const struct mr_token *rhs);
 
-struct mr_sentencizer2_config {
-   const struct mr_bayes_config bayes_config;
+struct sentencizer2_config {
+   const struct bayes_config bayes_config;
    at_eos_fn *at_eos;
 };
 
-struct mr_sentencizer2 {
+struct sentencizer2 {
    struct mascara base;
 
    /* EOS classifier. */
-   struct mr_bayes *bayes;
+   struct bayes *bayes;
    at_eos_fn *at_eos;
    
-   struct mr_tokenizer tkr;
+   struct tokenizer tkr;
    const unsigned char *p, *pe;
 
    /* Current sentence. We store at 0 the last token of the previous sentence,
@@ -279,11 +275,14 @@ struct mr_sentencizer2 {
    bool first;
 };
 
-MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *,
-                                  const struct mr_tokenizer_vtab *);
+local const struct sentencizer2_config *find_sentencizer2(const char *lang);
+
+local int sentencizer2_init(struct sentencizer2 *,
+                            const struct tokenizer_vtab *,
+                            const struct sentencizer2_config *);
 
 #endif
-#line 11 "api.c"
+#line 9 "api.c"
 #line 1 "mem.h"
 #ifndef MR_MEM_H
 #define MR_MEM_H
@@ -292,24 +291,24 @@ MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *,
 #include <stdarg.h>
 #include <stdnoreturn.h>
 
-MR_LOCAL noreturn void mr_fatal(const char *, ...);
+local noreturn void fatal(const char *, ...);
 
-MR_LOCAL void *mr_malloc(size_t)
+local void *mr_malloc(size_t)
 #ifdef ___GNUC__
    __attribute__((malloc))
 #endif
    ;
 
-MR_LOCAL void *mr_calloc(size_t, size_t)
+local void *mr_calloc(size_t, size_t)
 #ifdef ___GNUC__
    __attribute__((malloc))
 #endif
    ;
 
-MR_LOCAL void *mr_realloc(void *, size_t);
+local void *mr_realloc(void *, size_t);
 
 #endif
-#line 12 "api.c"
+#line 10 "api.c"
 
 #line 1 "en_tokenize.ic"
 
@@ -4900,7 +4899,7 @@ static const int tokenize_en_en_main = 995;
 
 #line 93 "gen/en_tokenize.rl"
 
-static void en_init(struct mr_tokenizer *tkr)
+static void en_init(struct tokenizer *tkr)
 {
    
 #line 4371 "gen/en_tokenize.ic"
@@ -4914,7 +4913,7 @@ static void en_init(struct mr_tokenizer *tkr)
 #line 97 "gen/en_tokenize.rl"
 }
 
-static void en_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void en_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4385 "gen/en_tokenize.ic"
@@ -5261,7 +5260,7 @@ _again:
 #line 102 "gen/en_tokenize.rl"
    (void)tokenize_en_en_main;
 }
-#line 14 "api.c"
+#line 12 "api.c"
 #line 1 "fr_tokenize.ic"
 
 #line 1 "gen/fr_tokenize.rl"
@@ -10406,7 +10405,7 @@ static const int tokenize_fr_en_main = 1019;
 
 #line 93 "gen/fr_tokenize.rl"
 
-static void fr_init(struct mr_tokenizer *tkr)
+static void fr_init(struct tokenizer *tkr)
 {
    
 #line 4869 "gen/fr_tokenize.ic"
@@ -10420,7 +10419,7 @@ static void fr_init(struct mr_tokenizer *tkr)
 #line 97 "gen/fr_tokenize.rl"
 }
 
-static void fr_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void fr_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4883 "gen/fr_tokenize.ic"
@@ -10751,7 +10750,7 @@ _again:
 #line 102 "gen/fr_tokenize.rl"
    (void)tokenize_fr_en_main;
 }
-#line 15 "api.c"
+#line 13 "api.c"
 #line 1 "it_tokenize.ic"
 
 #line 1 "gen/it_tokenize.rl"
@@ -15853,7 +15852,7 @@ static const int tokenize_it_en_main = 988;
 
 #line 93 "gen/it_tokenize.rl"
 
-static void it_init(struct mr_tokenizer *tkr)
+static void it_init(struct tokenizer *tkr)
 {
    
 #line 4918 "gen/it_tokenize.ic"
@@ -15867,7 +15866,7 @@ static void it_init(struct mr_tokenizer *tkr)
 #line 97 "gen/it_tokenize.rl"
 }
 
-static void it_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void it_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4932 "gen/it_tokenize.ic"
@@ -16202,7 +16201,7 @@ _again:
 #line 102 "gen/it_tokenize.rl"
    (void)tokenize_it_en_main;
 }
-#line 16 "api.c"
+#line 14 "api.c"
 #line 1 "generic_tokenize.ic"
 
 #line 1 "gen/generic_tokenize.rl"
@@ -20555,7 +20554,7 @@ static const int tokenize_generic_en_main = 949;
 
 #line 93 "gen/generic_tokenize.rl"
 
-static void generic_init(struct mr_tokenizer *tkr)
+static void generic_init(struct tokenizer *tkr)
 {
    
 #line 4169 "gen/generic_tokenize.ic"
@@ -20569,7 +20568,7 @@ static void generic_init(struct mr_tokenizer *tkr)
 #line 97 "gen/generic_tokenize.rl"
 }
 
-static void generic_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void generic_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4183 "gen/generic_tokenize.ic"
@@ -20853,13 +20852,13 @@ _again:
 #line 102 "gen/generic_tokenize.rl"
    (void)tokenize_generic_en_main;
 }
-#line 17 "api.c"
+#line 15 "api.c"
 
 const char *mr_home = "models";
 
-static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
+static const struct tokenizer_vtab *find_tokenizer(const char *name)
 {
-   static const struct mr_tokenizer_vtab tbl[] = {
+   static const struct tokenizer_vtab tbl[] = {
    #define _(name) {#name, name##_init, name##_exec},
       _(en)
       _(fr)
@@ -20868,12 +20867,12 @@ static const struct mr_tokenizer_vtab *mr_find_tokenizer(const char *name)
    #undef _
    };
 
-   const size_t size = sizeof tbl / sizeof *tbl;
+   const size_t size = sizeof tbl / sizeof *tbl - 1;
    for (size_t i = 0; i < size; i++)
       if (!strcmp(tbl[i].name, name))
          return &tbl[i];
 
-   return &tbl[size - 1];
+   return &tbl[size];
 }
 
 const char *const *mr_langs(void)
@@ -20920,27 +20919,38 @@ const char *mr_token_type_name(enum mr_token_type t)
 
 int mr_alloc(struct mascara **mrp, const char *lang, enum mr_mode mode)
 {
-   const struct mr_tokenizer_vtab *tk = mr_find_tokenizer(lang);
+   const struct tokenizer_vtab *tk = find_tokenizer(lang);
 
    switch (mode) {
    case MR_TOKEN: {
-      struct mr_tokenizer *mr = mr_malloc(sizeof *mr);
-      mr_tokenizer_init(mr, tk);
+      struct tokenizer *mr = mr_malloc(sizeof *mr);
+      tokenizer_init(mr, tk);
       *mrp = &mr->base;
       break;
    }
    case MR_SENTENCE: {
-      (void)mr_sentencizer_init;
-      struct mr_sentencizer2 *mr = mr_malloc(sizeof *mr);
-      int ret = mr_sentencizer2_init(mr, tk);
-      if (ret) {
-         free(mr);
-         *mrp = NULL;
-         return ret;
-      }
-      *mrp = &mr->base;
+      const struct sentencizer2_config *cfg = find_sentencizer2(lang);
+      if (cfg) {
+         struct sentencizer2 *mr = mr_malloc(sizeof *mr);
+         int ret = sentencizer2_init(mr, tk, cfg);
+         if (ret) {
+            /* Could fall back to the FSM, but hiding this kind of error is not
+             * a good idea.
+             */
+            free(mr);
+            *mrp = NULL;
+            return ret;
+         }
+         *mrp = &mr->base;
+      } else {
+         struct sentencizer *mr = mr_malloc(sizeof *mr);
+         sentencizer_init(mr, tk);
+         *mrp = &mr->base;
+      }      
       break;
    }
+   default:
+      fatal("bad tokenization mode: %u", mode);
    }
    return MR_OK;
 }
@@ -20990,11 +21000,11 @@ struct feature {
    char value[];
 };
 
-struct mr_bayes {
+struct bayes {
    double priors[2];
    double *unknown_probs;
    size_t table_mask;
-   const struct mr_bayes_config *cfg;  /* For debugging. */
+   const struct bayes_config *cfg;  /* For debugging. */
    struct feature *table[];
 };
 
@@ -21015,7 +21025,7 @@ static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
    buf[len] = '\0';
    if (strcmp(buf, name))
       return MR_EMODEL;
-   if (fscanf(fp, "%la %la\n", &unk_probs[MR_EOS], &unk_probs[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "%la %la\n", &unk_probs[EOS], &unk_probs[NOT_EOS]) != 2)
       return MR_EMODEL;
    return MR_OK;
 }
@@ -21040,7 +21050,7 @@ static int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
    f->value[1 + len] = '\0';
    if (strlen(f->value + 1) != len)
       goto fail;
-   if (fscanf(fp, "%la %la\n", &f->probs[MR_EOS], &f->probs[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "%la %la\n", &f->probs[EOS], &f->probs[NOT_EOS]) != 2)
       goto fail;
 
    *ff = f;
@@ -21084,7 +21094,7 @@ static uint32_t roundup_pow2(uint32_t num)
    return num ? num : 1;
 }
 
-static struct feature **table_chain(const struct mr_bayes *mdl, const void *val)
+static struct feature **table_chain(const struct bayes *mdl, const void *val)
 {
    uint32_t h = 1315423911;
    const uint8_t *v = val;
@@ -21099,7 +21109,7 @@ static struct feature **table_chain(const struct mr_bayes *mdl, const void *val)
    return (void *)f;
 }
 
-static void mr_bayes_clear(struct mr_bayes *mdl)
+static void bayes_clear(struct bayes *mdl)
 {
    for (size_t i = 0; i < mdl->table_mask + 1; i++) {
       struct feature *f = mdl->table[i];
@@ -21111,7 +21121,7 @@ static void mr_bayes_clear(struct mr_bayes *mdl)
    }
 }
 
-static unsigned mr_array_len(const char *const *xs)
+static unsigned array_len(const char *const *xs)
 {
    unsigned i;
    for (i = 0; xs[i]; i++)
@@ -21119,7 +21129,7 @@ static unsigned mr_array_len(const char *const *xs)
    return i;
 }
 
-static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_config *cfg)
+static int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
 {
    if (match_signature(fp, "mr_bayes 1"))
       return MR_EMAGIC;
@@ -21133,20 +21143,20 @@ static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_confi
    size_t value_nr;
    if (fscanf(fp, "features %u values %zu\n", &feat_nr, &value_nr) != 2)
       return MR_EMODEL;
-   if (feat_nr == 0 || feat_nr > MAX_FEATURES || feat_nr != mr_array_len(cfg->features))
+   if (feat_nr == 0 || feat_nr > MAX_FEATURES || feat_nr != array_len(cfg->features))
       return MR_EMODEL;
    if (value_nr == 0 || value_nr > MAX_VALUES)
       return MR_EMODEL;
 
    double priors[2];
-   if (fscanf(fp, "EOS %la !EOS %la\n", &priors[MR_EOS], &priors[MR_NOT_EOS]) != 2)
+   if (fscanf(fp, "EOS %la !EOS %la\n", &priors[EOS], &priors[NOT_EOS]) != 2)
       return MR_EMODEL;
 
    size_t tbl_size = roundup_pow2(value_nr * 0.7);
-   size_t unk_off = pad(sizeof(struct mr_bayes) + tbl_size * sizeof(struct feature *), double);
+   size_t unk_off = pad(sizeof(struct bayes) + tbl_size * sizeof(struct feature *), double);
    size_t total = unk_off + sizeof(double[feat_nr][value_nr]);
 
-   struct mr_bayes *mdl = mr_calloc(1, total);
+   struct bayes *mdl = mr_calloc(1, total);
 
    int ret = MR_OK;
    mdl->priors[0] = priors[0];
@@ -21183,12 +21193,12 @@ static int load_fp(struct mr_bayes **mdlp, FILE *fp, const struct mr_bayes_confi
    return MR_OK;
 
 fail:
-   mr_bayes_dealloc(mdl);
+   bayes_dealloc(mdl);
    return ret;
 }
 
-MR_LOCAL int mr_bayes_load(struct mr_bayes **mdl, const char *path,
-                           const struct mr_bayes_config *cfg)
+local int bayes_load(struct bayes **mdl, const char *path,
+                           const struct bayes_config *cfg)
 {
    FILE *fp = fopen(path, "r");
    if (!fp)
@@ -21202,39 +21212,39 @@ MR_LOCAL int mr_bayes_load(struct mr_bayes **mdl, const char *path,
    return err ? MR_EIO : ret;
 }
 
-MR_LOCAL void mr_bayes_dealloc(struct mr_bayes *mdl)
+local void bayes_dealloc(struct bayes *mdl)
 {
-   mr_bayes_clear(mdl);
+   bayes_clear(mdl);
    free(mdl);
 }
 
-static const double *mr_bayes_probs(const struct mr_bayes *mdl, const uint8_t *val)
+static const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
 {
    assert(*val > 0);
    const struct feature *f = *table_chain(mdl, val);
    return f ? f->probs : &mdl->unknown_probs[(*val - 1) * 2];
 }
 
-static const bool mr_bayes_debug = false;
+static const bool bayes_debug = false;
 
-MR_LOCAL void mr_bayes_init(const struct mr_bayes *mdl, double v[static 2])
+local void bayes_init(const struct bayes *mdl, double v[static 2])
 {
    v[0] = mdl->priors[0];
    v[1] = mdl->priors[1];
 
-   if (mr_bayes_debug) {
+   if (bayes_debug) {
       fprintf(stderr, "%s INIT %.3lf %.3lf\n", mdl->cfg->name, v[0], v[1]);
    }
 }
 
-MR_LOCAL void mr_bayes_feed(const struct mr_bayes *mdl, double v[static 2],
+local void bayes_feed(const struct bayes *mdl, double v[static 2],
                             const void *val)
 {
-   const double *restrict x = mr_bayes_probs(mdl, val);
+   const double *restrict x = bayes_probs(mdl, val);
    v[0] += x[0];
    v[1] += x[1];
 
-   if (mr_bayes_debug) {
+   if (bayes_debug) {
       const char *sig = mdl->cfg->name;
       const char *nam = mdl->cfg->features[*(uint8_t *)val - 1];
       const char *ft = (const char *)val + 1;
@@ -21245,7 +21255,7 @@ MR_LOCAL void mr_bayes_feed(const struct mr_bayes *mdl, double v[static 2],
 #include <stdlib.h>
 #include <stdio.h>
 
-MR_LOCAL noreturn void mr_fatal(const char *msg, ...)
+local noreturn void fatal(const char *msg, ...)
 {
    va_list ap;
 
@@ -21259,9 +21269,9 @@ MR_LOCAL noreturn void mr_fatal(const char *msg, ...)
    abort();
 }
 
-#define MR_OOM() mr_fatal("out of memory")
+#define MR_OOM() fatal("out of memory")
 
-MR_LOCAL void *mr_malloc(size_t size)
+local void *mr_malloc(size_t size)
 {
    assert(size);
    void *mem = malloc(size);
@@ -21270,7 +21280,7 @@ MR_LOCAL void *mr_malloc(size_t size)
    return mem;
 }
 
-MR_LOCAL void *mr_calloc(size_t nmemb, size_t size)
+local void *mr_calloc(size_t nmemb, size_t size)
 {
    assert(size && nmemb);
    void *mem = calloc(nmemb, size);
@@ -21279,7 +21289,7 @@ MR_LOCAL void *mr_calloc(size_t nmemb, size_t size)
    return mem;
 }
 
-MR_LOCAL void *mr_realloc(void *mem, size_t size)
+local void *mr_realloc(void *mem, size_t size)
 {
    assert(size);
    mem = realloc(mem, size);
@@ -21289,6 +21299,52 @@ MR_LOCAL void *mr_realloc(void *mem, size_t size)
 }
 #line 1 "sentencize.c"
 #include <stdbool.h>
+
+static void sentencizer_fini(struct mascara *imp)
+{
+   struct sentencizer *tkr = (struct sentencizer *)imp;
+   free(tkr->tokens);
+}
+
+static void sentencizer_set_text(struct mascara *imp,
+                                    const unsigned char *str, size_t len,
+                                    size_t offset_incr)
+{
+   struct sentencizer *tkr = (struct sentencizer *)imp;
+
+   tkr->offset_incr = offset_incr;
+   tkr->str = tkr->p = str;
+   tkr->pe = &str[len];
+}
+
+static void sentencizer_add_token(struct sentencizer *tkr, const struct mr_token *tk)
+{
+   if (tkr->len == tkr->alloc) {
+      tkr->alloc = tkr->alloc * 2 + 4;
+      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
+   }
+   tkr->tokens[tkr->len++] = *tk;
+}
+
+static bool sentencizer_reattach_period(struct sentencizer *szr, const struct mr_token *tk)
+{
+   /* Conditions for reattaching a period are:
+    * - There must be a single period (no ellipsis).
+    * - This must not be the last period in the input text.
+    * - The previous token is a likely abbreviation (type latin or abbr), not a
+    *   symbol, etc.
+    * - The period immediately follows the previous token.
+    */
+   if (*tk->str == '.' && tk->len == 1 && szr->len) {
+      struct mr_token *prev = &szr->tokens[szr->len - 1];
+      if (prev->offset + prev->len == tk->offset &&
+          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
+            prev->len++;
+            return true;
+      }
+   }
+   return false;
+}
 
 #line 1 "sentencize.ic"
 
@@ -24237,7 +24293,7 @@ static const int sentencize_en_main = 1;
 
 #line 119 "fsm/sentencize.rl"
 
-static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
+static const unsigned char *next_sentence(struct sentencizer *tkr,
                                           size_t *len,
                                           const unsigned char **period)
 {
@@ -24549,80 +24605,11 @@ found:
    (void)sentencize_en_main;
    (void)sentencize_en_find_eos;
 }
-#line 7 "sentencize.c"
+#line 53 "sentencize.c"
 
-static void mr_sentencizer_set_text(struct mascara *,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr);
-
-static size_t mr_sentencizer_next(struct mascara *, struct mr_token **);
-
-static void mr_sentencizer_fini(struct mascara *);
-
-static const struct mr_imp mr_sentencizer_imp = {
-   .set_text = mr_sentencizer_set_text,
-   .next = mr_sentencizer_next,
-   .fini = mr_sentencizer_fini,
-};
-
-MR_LOCAL void mr_sentencizer_init(struct mr_sentencizer *tkr,
-                                  const struct mr_tokenizer_vtab *vtab)
+static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
-   *tkr = (struct mr_sentencizer){
-      .base.imp = &mr_sentencizer_imp,
-      .vtab = vtab,
-   };
-}
-
-static void mr_sentencizer_fini(struct mascara *imp)
-{
-   struct mr_sentencizer *tkr = (struct mr_sentencizer *)imp;
-   free(tkr->tokens);
-}
-
-static void mr_sentencizer_set_text(struct mascara *imp,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr)
-{
-   struct mr_sentencizer *tkr = (struct mr_sentencizer *)imp;
-
-   tkr->offset_incr = offset_incr;
-   tkr->str = tkr->p = str;
-   tkr->pe = &str[len];
-}
-
-static void mr_sentencizer_add_token(struct mr_sentencizer *tkr, const struct mr_token *tk)
-{
-   if (tkr->len == tkr->alloc) {
-      tkr->alloc = tkr->alloc * 2 + 4;
-      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
-   }
-   tkr->tokens[tkr->len++] = *tk;
-}
-
-static bool mr_sentencizer_reattach_period(struct mr_sentencizer *szr, const struct mr_token *tk)
-{
-   /* Conditions for reattaching a period are:
-    * - There must be a single period (no ellipsis).
-    * - This must not be the last period in the input text.
-    * - The previous token is a likely abbreviation (type latin or abbr), not a
-    *   symbol, etc.
-    * - The period immediately follows the previous token.
-    */
-   if (*tk->str == '.' && tk->len == 1 && szr->len) {
-      struct mr_token *prev = &szr->tokens[szr->len - 1];
-      if (prev->offset + prev->len == tk->offset &&
-          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
-            prev->len++;
-            return true;
-      }
-   }
-   return false;
-}
-
-static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
-{
-   struct mr_sentencizer *szr = (struct mr_sentencizer *)imp;
+   struct sentencizer *szr = (struct sentencizer *)imp;
    assert(szr->str && "text no set");
 
    szr->len = 0;
@@ -24636,14 +24623,14 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    }
    size_t offset_incr = szr->offset_incr + str - szr->str;
 
-   struct mr_tokenizer tkr;
-   mr_tokenizer_init(&tkr, szr->vtab);
-   mr_tokenizer_set_text(&tkr.base, str, len, offset_incr);
+   struct tokenizer tkr;
+   tokenizer_init(&tkr, szr->vtab);
+   tokenizer_set_text(&tkr.base, str, len, offset_incr);
 
    struct mr_token *tk;
-   while (mr_tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !mr_sentencizer_reattach_period(szr, tk)) {
-         mr_sentencizer_add_token(szr, tk);
+   while (tokenizer_next(&tkr.base, &tk)) {
+      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(szr, tk)) {
+         sentencizer_add_token(szr, tk);
          if (szr->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;
@@ -24652,6 +24639,21 @@ static size_t mr_sentencizer_next(struct mascara *imp, struct mr_token **tks)
    }
    *tks = szr->tokens;
    return szr->len;
+}
+
+static const struct mr_imp sentencizer_imp = {
+   .set_text = sentencizer_set_text,
+   .next = sentencizer_next,
+   .fini = sentencizer_fini,
+};
+
+local void sentencizer_init(struct sentencizer *tkr,
+                            const struct tokenizer_vtab *vtab)
+{
+   *tkr = (struct sentencizer){
+      .base.imp = &sentencizer_imp,
+      .vtab = vtab,
+   };
 }
 #line 1 "sentencize2.c"
 #include <string.h>
@@ -25391,7 +25393,7 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
    const uint8_t *str = (const void *)tk->str;
    size_t len = tk->len;
    
-   /* Technically, could match, but MAX_FEATURE_LEN is quite large. */
+   /* Technically, could match, but MAX_FEATURE_LEN is quite large already. */
    if (len > MAX_FEATURE_LEN)
       return mr_ft_void(buf);
 
@@ -25430,90 +25432,56 @@ char *mr_ft_mask(char *buf, const struct mr_token *tk)
  * Concrete implementations.
  ******************************************************************************/
 
-#line 1 "fr_sequoia.cm"
+#line 1 "de_tiger.cm"
 /* Generated code, don't edit! */
 
-static bool fr_sequoia_at_eos(const struct mr_bayes *mdl,
-                              const struct mr_token *l,
-                              const struct mr_token *r)
-{
-   double vec[2];
-   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
-
-   mr_bayes_init(mdl, vec);
-
-   buf = stack;
-   *buf++ = 1;
-   buf = mr_ft_shape(buf, l);
-   *buf++ = '+';
-   buf = mr_ft_len(buf, l);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 2;
-   buf = mr_ft_word(buf, l);
-   *buf++ = '+';
-   buf = mr_ft_shape(buf, r);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   return vec[MR_EOS] >= vec[MR_NOT_EOS];
-}
-
-static const char *const fr_sequoia_features[] = {
-   "l_shape+l_len",
-   "l_word+r_shape",
+static const char *const de_tiger_features[] = {
+   "l_case",
+   "l_suffix3",
+   "r_shape",
    NULL
 };
 
-static const struct mr_sentencizer2_config fr_sequoia_config = {
-   .bayes_config = {
-      .name = "fr_sequoia",
-      .version = 1,
-      .features = fr_sequoia_features,
-   },
-   .at_eos = fr_sequoia_at_eos,
-};
-#line 150 "sentencize2.c"
-#line 1 "en_amalg.cm"
-/* Generated code, don't edit! */
-
-static bool en_amalg_at_eos(const struct mr_bayes *mdl,
-                              const struct mr_token *l,
-                              const struct mr_token *r)
+static bool de_tiger_at_eos(const struct bayes *mdl,
+                            const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
    char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
 
-   mr_bayes_init(mdl, vec);
+   bayes_init(mdl, vec);
 
    buf = stack;
    *buf++ = 1;
-   buf = mr_ft_mask(buf, l);
+   buf = mr_ft_case(buf, l);
    *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
+   bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
    buf = mr_ft_suffix3(buf, l);
    *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
+   bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 3;
-   buf = mr_ft_prefix4(buf, r);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 4;
    buf = mr_ft_shape(buf, r);
    *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
+   bayes_feed(mdl, vec, stack);
 
-   return vec[MR_EOS] >= vec[MR_NOT_EOS];
+   return vec[EOS] >= vec[NOT_EOS];
 }
+
+static const struct sentencizer2_config de_tiger_config = {
+   .bayes_config = {
+      .name = "de_tiger",
+      .version = 1,
+      .features = de_tiger_features,
+   },
+   .at_eos = de_tiger_at_eos,
+};
+#line 150 "sentencize2.c"
+#line 1 "en_amalg.cm"
+/* Generated code, don't edit! */
 
 static const char *const en_amalg_features[] = {
    "l_mask",
@@ -25523,7 +25491,42 @@ static const char *const en_amalg_features[] = {
    NULL
 };
 
-static const struct mr_sentencizer2_config en_amalg_config = {
+static bool en_amalg_at_eos(const struct bayes *mdl,
+                            const struct mr_token *l, const struct mr_token *r)
+{
+   double vec[2];
+   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
+
+   bayes_init(mdl, vec);
+
+   buf = stack;
+   *buf++ = 1;
+   buf = mr_ft_mask(buf, l);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 2;
+   buf = mr_ft_suffix3(buf, l);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 3;
+   buf = mr_ft_prefix4(buf, r);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 4;
+   buf = mr_ft_shape(buf, r);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   return vec[EOS] >= vec[NOT_EOS];
+}
+
+static const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
       .version = 1,
@@ -25532,85 +25535,92 @@ static const struct mr_sentencizer2_config en_amalg_config = {
    .at_eos = en_amalg_at_eos,
 };
 #line 151 "sentencize2.c"
-#line 1 "de_tiger.cm"
+#line 1 "fr_sequoia.cm"
 /* Generated code, don't edit! */
 
-static bool de_tiger_at_eos(const struct mr_bayes *mdl,
-                              const struct mr_token *l,
-                              const struct mr_token *r)
-{
-   double vec[2];
-   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
-
-   mr_bayes_init(mdl, vec);
-
-   buf = stack;
-   *buf++ = 1;
-   buf = mr_ft_case(buf, l);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 2;
-   buf = mr_ft_suffix3(buf, l);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 3;
-   buf = mr_ft_shape(buf, r);
-   *buf++ = '\0';
-   mr_bayes_feed(mdl, vec, stack);
-
-   return vec[MR_EOS] >= vec[MR_NOT_EOS];
-}
-
-static const char *const de_tiger_features[] = {
-   "l_case",
-   "l_suffix3",
-   "r_shape",
+static const char *const fr_sequoia_features[] = {
+   "l_shape+l_len",
+   "l_word+r_shape",
    NULL
 };
 
-static const struct mr_sentencizer2_config de_tiger_config = {
+static bool fr_sequoia_at_eos(const struct bayes *mdl,
+                            const struct mr_token *l, const struct mr_token *r)
+{
+   double vec[2];
+   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
+
+   bayes_init(mdl, vec);
+
+   buf = stack;
+   *buf++ = 1;
+   buf = mr_ft_shape(buf, l);
+   *buf++ = '+';
+   buf = mr_ft_len(buf, l);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 2;
+   buf = mr_ft_word(buf, l);
+   *buf++ = '+';
+   buf = mr_ft_shape(buf, r);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   return vec[EOS] >= vec[NOT_EOS];
+}
+
+static const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
-      .name = "de_tiger",
+      .name = "fr_sequoia",
       .version = 1,
-      .features = de_tiger_features,
+      .features = fr_sequoia_features,
    },
-   .at_eos = de_tiger_at_eos,
+   .at_eos = fr_sequoia_at_eos,
 };
 #line 152 "sentencize2.c"
 
+local const struct sentencizer2_config *find_sentencizer2(const char *lang)
+{
+   static const struct {
+      const char *lang;
+      const struct sentencizer2_config *cfg;
+   } tbl[] = {
+      {"de", &de_tiger_config},
+      {"en", &en_amalg_config},
+      {"fr", &fr_sequoia_config},
+   };
+   
+   for (size_t i = 0; i < sizeof tbl / sizeof *tbl; i++)
+      if (!strcmp(tbl[i].lang, lang))
+         return tbl[i].cfg;
+   return NULL;
+}
 
 /*******************************************************************************
  * Interface.
  ******************************************************************************/
 
-static void mr_sentencizer2_set_text(struct mascara *,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr);
+static void sentencizer2_set_text(struct mascara *,
+                                     const unsigned char *str, size_t len,
+                                     size_t offset_incr);
 
-static size_t mr_sentencizer2_next(struct mascara *, struct mr_token **);
+static size_t sentencizer2_next(struct mascara *, struct mr_token **);
 
-static void mr_sentencizer2_fini(struct mascara *);
+static void sentencizer2_fini(struct mascara *);
 
-static const struct mr_imp mr_sentencizer2_imp = {
-   .set_text = mr_sentencizer2_set_text,
-   .next = mr_sentencizer2_next,
-   .fini = mr_sentencizer2_fini,
+static const struct mr_imp sentencizer2_imp = {
+   .set_text = sentencizer2_set_text,
+   .next = sentencizer2_next,
+   .fini = sentencizer2_fini,
 };
 
-MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
-                                  const struct mr_tokenizer_vtab *vtab)
+local int sentencizer2_init(struct sentencizer2 *tkr,
+                               const struct tokenizer_vtab *vtab,
+                               const struct sentencizer2_config *cfg)
 {
-   (void)fr_sequoia_config;
-   (void)de_tiger_config;
-   (void)en_amalg_config;
-
-   const struct mr_sentencizer2_config *cfg = &fr_sequoia_config;
-
-   *tkr = (struct mr_sentencizer2){.base.imp = &mr_sentencizer2_imp};
+   *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
 
    const char *home = mr_home;
    if (!home)
@@ -25621,23 +25631,23 @@ MR_LOCAL int mr_sentencizer2_init(struct mr_sentencizer2 *tkr,
    if (len < 0 || (size_t)len >= sizeof path)
       return MR_EHOME;
 
-   int ret = mr_bayes_load(&tkr->bayes, path, &cfg->bayes_config);
+   int ret = bayes_load(&tkr->bayes, path, &cfg->bayes_config);
    if (ret)
       return ret;
 
    tkr->at_eos = cfg->at_eos;
-   mr_tokenizer_init(&tkr->tkr, vtab);
+   tokenizer_init(&tkr->tkr, vtab);
    return MR_OK;
 }
 
-static void mr_sentencizer2_fini(struct mascara *imp)
+static void sentencizer2_fini(struct mascara *imp)
 {
-   struct mr_sentencizer2 *tkr = (struct mr_sentencizer2 *)imp;
-   mr_bayes_dealloc(tkr->bayes);
+   struct sentencizer2 *tkr = (struct sentencizer2 *)imp;
+   bayes_dealloc(tkr->bayes);
    free(tkr->tokens);
 }
 
-static void add_token(struct mr_sentencizer2 *tkr, const struct mr_token *tk)
+static void add_token(struct sentencizer2 *tkr, const struct mr_token *tk)
 {
    if (tkr->len == tkr->alloc) {
       tkr->alloc = tkr->alloc * 2 + 4;
@@ -25646,45 +25656,37 @@ static void add_token(struct mr_sentencizer2 *tkr, const struct mr_token *tk)
    tkr->tokens[tkr->len++] = *tk;
 }
 
-static void mr_sentencizer2_set_text(struct mascara *imp,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr)
+static void sentencizer2_set_text(struct mascara *imp,
+                                  const unsigned char *str, size_t len,
+                                  size_t offset_incr)
 {
-   struct mr_sentencizer2 *tkr = (void *)imp;
+   struct sentencizer2 *tkr = (void *)imp;
 
-   mr_tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
+   tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
    tkr->p = str;
    tkr->pe = &str[len];
 
    tkr->len = 0;
-   add_token(tkr, &(struct mr_token){
-      .str = (const char *)str,
-      .offset = 0,
-      .len = 0,
-      .type = MR_UNK,
-   });
-   tkr->first = true;
 }
 
-static struct mr_token *fetch_tokens(struct mr_sentencizer2 *szr,
+static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
                                      const unsigned char *end)
 {
    struct mr_token *tk = &szr->tokens[szr->len - 1];
 
-   for (;;) {
+   while (szr->len < MR_MAX_SENTENCE_LEN + 2) {
       if (tk->str >= (const char *)end)
          return &szr->tokens[szr->len - 1];
-      if (!mr_tokenizer_next(&szr->tkr.base, &tk)) {
+      if (!tokenizer_next(&szr->tkr.base, &tk)) {
          add_token(szr, &(struct mr_token){
             .str = (const char *)szr->pe,
-            .len = 0,
-            .offset = 0,
             .type = MR_UNK,
          });
          return &szr->tokens[szr->len - 1];
       }
       add_token(szr, tk);
    };
+   return NULL;
 }
 
 /* Conditions for reattaching a period are:
@@ -25694,11 +25696,11 @@ static struct mr_token *fetch_tokens(struct mr_sentencizer2 *szr,
  *   symbol, etc.
  * - The period immediately follows the previous token.
  */
-static void reattach_period(struct mr_sentencizer2 *szr)
+static void reattach_period(struct sentencizer2 *szr)
 {
    struct mr_token *period = &szr->tokens[szr->len - 2];
-   
-   assert(*period->str == '.' && period->len == 1);
+
+   assert(period->len == 1 && *period->str == '.');
    
    struct mr_token *prev = period - 1;
    if (prev->offset + prev->len != period->offset)
@@ -25716,11 +25718,16 @@ static void reattach_period(struct mr_sentencizer2 *szr)
    }
 }
 
+static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
+{
+   return szr->at_eos(szr->bayes, rhs - 2, rhs);
+}
+
 #line 1 "sentencize2.ic"
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 79 "fsm/sentencize2.rl"
+#line 88 "fsm/sentencize2.rl"
 
 
 
@@ -25747,37 +25754,37 @@ static const short _mr_sentencize2_key_offsets[] = {
 	1317, 1348, 1372, 1377, 1382, 1389, 1395, 1400, 
 	1405, 1422, 1431, 1441, 1456, 1462, 1463, 1464, 
 	1465, 1492, 1493, 1499, 1505, 1516, 1533, 1539, 
-	1545, 1556, 1593, 1600, 1609, 1614, 1619, 1624, 
-	1629, 1638, 1645, 1656, 1661, 1672, 1678, 1683, 
-	1689, 1695, 1700, 1705, 1715, 1720, 1729, 1734, 
-	1739, 1746, 1753, 1758, 1763, 1768, 1806, 1845, 
-	1852, 1861, 1866, 1871, 1876, 1881, 1890, 1897, 
-	1908, 1913, 1924, 1930, 1935, 1941, 1947, 1952, 
-	1957, 1967, 1972, 1981, 1986, 1991, 1998, 2005, 
-	2010, 2015, 2020, 2037, 2054, 2070, 2097, 2123, 
-	2150, 2187, 2190, 2195, 2199, 2205, 2213, 2217, 
-	2222, 2228, 2235, 2244, 2249, 2254, 2259, 2264, 
-	2273, 2280, 2291, 2296, 2307, 2313, 2318, 2324, 
-	2330, 2335, 2340, 2350, 2355, 2364, 2369, 2374, 
-	2381, 2388, 2393, 2398, 2403, 2406, 2411, 2415, 
-	2421, 2429, 2433, 2438, 2444, 2484, 2526, 2566, 
-	2603, 2620, 2644, 2660, 2676, 2709, 2712, 2717, 
-	2721, 2727, 2735, 2739, 2744, 2750, 2753, 2760, 
-	2769, 2774, 2779, 2784, 2789, 2793, 2798, 2807, 
-	2814, 2825, 2830, 2841, 2849, 2855, 2860, 2866, 
-	2872, 2877, 2882, 2892, 2897, 2906, 2911, 2916, 
-	2923, 2930, 2935, 2940, 2945, 2950, 2956, 2962, 
-	2966, 2989, 2992, 2997, 3001, 3007, 3015, 3019, 
-	3024, 3030, 3068, 3075, 3084, 3089, 3094, 3099, 
-	3104, 3113, 3120, 3131, 3136, 3147, 3153, 3158, 
-	3164, 3170, 3175, 3180, 3190, 3195, 3204, 3209, 
-	3214, 3221, 3228, 3233, 3238, 3243, 3285, 3294, 
-	3300, 3300, 3346, 3362, 3396, 3403, 3408, 3414, 
-	3421, 3463, 3465, 3506, 3524, 3547, 3577, 3607, 
-	3629, 3671, 3709, 3747, 3786, 3828, 3868, 3895, 
-	3922, 3960, 4002, 4017, 4051, 4089, 4128, 4170, 
-	4173, 4180, 4189, 4194, 4199, 4204, 4208, 4217, 
-	4228, 4238, 4245
+	1545, 1556, 1594, 1631, 1638, 1647, 1652, 1657, 
+	1662, 1667, 1676, 1683, 1694, 1699, 1710, 1716, 
+	1721, 1727, 1733, 1738, 1743, 1753, 1758, 1767, 
+	1772, 1777, 1784, 1791, 1796, 1801, 1806, 1844, 
+	1883, 1890, 1899, 1904, 1909, 1914, 1919, 1928, 
+	1935, 1946, 1951, 1962, 1968, 1973, 1979, 1985, 
+	1990, 1995, 2005, 2010, 2019, 2024, 2029, 2036, 
+	2043, 2048, 2053, 2058, 2075, 2092, 2108, 2135, 
+	2161, 2188, 2225, 2228, 2233, 2237, 2243, 2251, 
+	2255, 2260, 2266, 2273, 2282, 2287, 2292, 2297, 
+	2302, 2311, 2318, 2329, 2334, 2345, 2351, 2356, 
+	2362, 2368, 2373, 2378, 2388, 2393, 2402, 2407, 
+	2412, 2419, 2426, 2431, 2436, 2441, 2444, 2449, 
+	2453, 2459, 2467, 2471, 2476, 2482, 2522, 2564, 
+	2604, 2642, 2659, 2683, 2699, 2715, 2748, 2751, 
+	2756, 2760, 2766, 2774, 2778, 2783, 2789, 2792, 
+	2799, 2808, 2813, 2818, 2823, 2828, 2832, 2837, 
+	2846, 2853, 2864, 2869, 2880, 2888, 2894, 2899, 
+	2905, 2911, 2916, 2921, 2931, 2936, 2945, 2950, 
+	2955, 2962, 2969, 2974, 2979, 2984, 2989, 2995, 
+	3001, 3005, 3028, 3031, 3036, 3040, 3046, 3054, 
+	3058, 3063, 3069, 3107, 3146, 3153, 3162, 3167, 
+	3172, 3177, 3182, 3191, 3198, 3209, 3214, 3225, 
+	3231, 3236, 3242, 3248, 3253, 3258, 3268, 3273, 
+	3282, 3287, 3292, 3299, 3306, 3311, 3316, 3321, 
+	3363, 3372, 3378, 3378, 3424, 3440, 3474, 3481, 
+	3486, 3492, 3499, 3541, 3543, 3584, 3602, 3625, 
+	3655, 3685, 3707, 3749, 3787, 3825, 3864, 3906, 
+	3946, 3973, 4000, 4038, 4080, 4095, 4129, 4167, 
+	4206, 4248, 4251, 4258, 4267, 4272, 4277, 4282, 
+	4286, 4295, 4306, 4316, 4323
 };
 
 static const unsigned char _mr_sentencize2_trans_keys[] = {
@@ -25975,21 +25982,173 @@ static const unsigned char _mr_sentencize2_trans_keys[] = {
 	239u, 240u, 247u, 248u, 255u, 32u, 133u, 160u, 
 	187u, 9u, 13u, 32u, 128u, 129u, 194u, 9u, 
 	13u, 32u, 153u, 157u, 175u, 186u, 9u, 13u, 
-	128u, 139u, 168u, 169u, 64u, 194u, 195u, 202u, 
+	128u, 139u, 168u, 169u, 45u, 64u, 194u, 195u, 
+	202u, 203u, 225u, 226u, 234u, 239u, 0u, 8u, 
+	14u, 31u, 33u, 47u, 48u, 57u, 58u, 63u, 
+	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
+	192u, 193u, 196u, 201u, 204u, 223u, 224u, 238u, 
+	240u, 247u, 64u, 194u, 195u, 202u, 203u, 225u, 
+	226u, 234u, 239u, 0u, 8u, 14u, 31u, 33u, 
+	47u, 48u, 57u, 58u, 63u, 65u, 90u, 91u, 
+	96u, 97u, 122u, 123u, 127u, 192u, 193u, 196u, 
+	201u, 204u, 223u, 224u, 238u, 240u, 247u, 32u, 
+	133u, 160u, 170u, 186u, 9u, 13u, 32u, 9u, 
+	13u, 128u, 150u, 152u, 182u, 184u, 191u, 32u, 
+	9u, 13u, 128u, 191u, 32u, 9u, 13u, 128u, 
+	184u, 32u, 9u, 13u, 160u, 164u, 32u, 9u, 
+	13u, 128u, 175u, 32u, 180u, 181u, 182u, 194u, 
+	9u, 13u, 184u, 187u, 32u, 9u, 13u, 128u, 
+	165u, 172u, 191u, 32u, 9u, 13u, 128u, 156u, 
+	162u, 165u, 171u, 183u, 185u, 191u, 32u, 9u, 
+	13u, 128u, 190u, 32u, 128u, 129u, 130u, 132u, 
+	133u, 134u, 177u, 194u, 9u, 13u, 32u, 159u, 
+	177u, 191u, 9u, 13u, 32u, 9u, 13u, 144u, 
+	156u, 32u, 178u, 9u, 13u, 170u, 171u, 32u, 
+	142u, 9u, 13u, 160u, 191u, 32u, 9u, 13u, 
+	128u, 136u, 32u, 9u, 13u, 160u, 191u, 32u, 
+	156u, 157u, 158u, 159u, 172u, 173u, 194u, 9u, 
+	13u, 32u, 9u, 13u, 162u, 191u, 32u, 9u, 
+	13u, 128u, 135u, 139u, 173u, 176u, 183u, 32u, 
+	9u, 13u, 183u, 191u, 32u, 9u, 13u, 176u, 
+	191u, 32u, 9u, 13u, 128u, 154u, 156u, 164u, 
+	32u, 172u, 188u, 189u, 194u, 9u, 13u, 32u, 
+	9u, 13u, 128u, 134u, 32u, 9u, 13u, 161u, 
+	186u, 32u, 9u, 13u, 129u, 154u, 46u, 64u, 
+	194u, 195u, 202u, 203u, 225u, 226u, 234u, 239u, 
+	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
+	58u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
+	123u, 127u, 192u, 193u, 196u, 201u, 204u, 223u, 
+	224u, 238u, 240u, 247u, 46u, 64u, 194u, 195u, 
+	202u, 203u, 205u, 225u, 226u, 234u, 239u, 0u, 
+	8u, 14u, 31u, 33u, 47u, 48u, 57u, 58u, 
+	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
+	127u, 192u, 193u, 196u, 204u, 206u, 223u, 224u, 
+	238u, 240u, 247u, 32u, 133u, 160u, 170u, 186u, 
+	9u, 13u, 32u, 9u, 13u, 128u, 150u, 152u, 
+	182u, 184u, 191u, 32u, 9u, 13u, 128u, 191u, 
+	32u, 9u, 13u, 128u, 184u, 32u, 9u, 13u, 
+	160u, 164u, 32u, 9u, 13u, 128u, 175u, 32u, 
+	180u, 181u, 182u, 194u, 9u, 13u, 184u, 187u, 
+	32u, 9u, 13u, 128u, 165u, 172u, 191u, 32u, 
+	9u, 13u, 128u, 156u, 162u, 165u, 171u, 183u, 
+	185u, 191u, 32u, 9u, 13u, 128u, 190u, 32u, 
+	128u, 129u, 130u, 132u, 133u, 134u, 177u, 194u, 
+	9u, 13u, 32u, 159u, 177u, 191u, 9u, 13u, 
+	32u, 9u, 13u, 144u, 156u, 32u, 178u, 9u, 
+	13u, 170u, 171u, 32u, 142u, 9u, 13u, 160u, 
+	191u, 32u, 9u, 13u, 128u, 136u, 32u, 9u, 
+	13u, 160u, 191u, 32u, 156u, 157u, 158u, 159u, 
+	172u, 173u, 194u, 9u, 13u, 32u, 9u, 13u, 
+	162u, 191u, 32u, 9u, 13u, 128u, 135u, 139u, 
+	173u, 176u, 183u, 32u, 9u, 13u, 183u, 191u, 
+	32u, 9u, 13u, 176u, 191u, 32u, 9u, 13u, 
+	128u, 154u, 156u, 164u, 32u, 172u, 188u, 189u, 
+	194u, 9u, 13u, 32u, 9u, 13u, 128u, 134u, 
+	32u, 9u, 13u, 161u, 186u, 32u, 9u, 13u, 
+	129u, 154u, 32u, 47u, 64u, 194u, 226u, 9u, 
+	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 248u, 255u, 32u, 47u, 64u, 194u, 226u, 
+	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
+	240u, 247u, 248u, 255u, 32u, 64u, 194u, 226u, 
+	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
+	240u, 247u, 248u, 255u, 64u, 194u, 226u, 0u, 
+	8u, 14u, 31u, 33u, 46u, 47u, 57u, 58u, 
+	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
+	127u, 192u, 223u, 224u, 239u, 240u, 247u, 194u, 
+	226u, 0u, 8u, 14u, 31u, 33u, 46u, 47u, 
+	57u, 58u, 64u, 65u, 90u, 91u, 96u, 97u, 
+	122u, 123u, 127u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 46u, 194u, 226u, 0u, 8u, 14u, 31u, 
+	33u, 45u, 47u, 57u, 58u, 64u, 65u, 90u, 
+	91u, 96u, 97u, 122u, 123u, 127u, 192u, 223u, 
+	224u, 239u, 240u, 247u, 46u, 194u, 195u, 202u, 
 	203u, 225u, 226u, 234u, 239u, 0u, 8u, 14u, 
-	31u, 33u, 47u, 48u, 57u, 58u, 63u, 65u, 
+	31u, 33u, 45u, 47u, 57u, 58u, 64u, 65u, 
 	90u, 91u, 96u, 97u, 122u, 123u, 127u, 192u, 
 	193u, 196u, 201u, 204u, 223u, 224u, 238u, 240u, 
-	247u, 32u, 133u, 160u, 170u, 186u, 9u, 13u, 
-	32u, 9u, 13u, 128u, 150u, 152u, 182u, 184u, 
-	191u, 32u, 9u, 13u, 128u, 191u, 32u, 9u, 
-	13u, 128u, 184u, 32u, 9u, 13u, 160u, 164u, 
-	32u, 9u, 13u, 128u, 175u, 32u, 180u, 181u, 
+	247u, 32u, 9u, 13u, 32u, 133u, 160u, 9u, 
+	13u, 32u, 194u, 9u, 13u, 32u, 128u, 129u, 
+	194u, 9u, 13u, 32u, 175u, 9u, 13u, 128u, 
+	139u, 168u, 169u, 32u, 159u, 9u, 13u, 32u, 
+	194u, 226u, 9u, 13u, 32u, 133u, 160u, 194u, 
+	9u, 13u, 32u, 133u, 160u, 170u, 186u, 9u, 
+	13u, 32u, 9u, 13u, 128u, 150u, 152u, 182u, 
+	184u, 191u, 32u, 9u, 13u, 128u, 191u, 32u, 
+	9u, 13u, 128u, 184u, 32u, 9u, 13u, 160u, 
+	164u, 32u, 9u, 13u, 128u, 175u, 32u, 180u, 
+	181u, 182u, 194u, 9u, 13u, 184u, 187u, 32u, 
+	9u, 13u, 128u, 165u, 172u, 191u, 32u, 9u, 
+	13u, 128u, 156u, 162u, 165u, 171u, 183u, 185u, 
+	191u, 32u, 9u, 13u, 128u, 190u, 32u, 128u, 
+	129u, 130u, 132u, 133u, 134u, 177u, 194u, 9u, 
+	13u, 32u, 159u, 177u, 191u, 9u, 13u, 32u, 
+	9u, 13u, 144u, 156u, 32u, 178u, 9u, 13u, 
+	170u, 171u, 32u, 142u, 9u, 13u, 160u, 191u, 
+	32u, 9u, 13u, 128u, 136u, 32u, 9u, 13u, 
+	160u, 191u, 32u, 156u, 157u, 158u, 159u, 172u, 
+	173u, 194u, 9u, 13u, 32u, 9u, 13u, 162u, 
+	191u, 32u, 9u, 13u, 128u, 135u, 139u, 173u, 
+	176u, 183u, 32u, 9u, 13u, 183u, 191u, 32u, 
+	9u, 13u, 176u, 191u, 32u, 9u, 13u, 128u, 
+	154u, 156u, 164u, 32u, 172u, 188u, 189u, 194u, 
+	9u, 13u, 32u, 9u, 13u, 128u, 134u, 32u, 
+	9u, 13u, 161u, 186u, 32u, 9u, 13u, 129u, 
+	154u, 32u, 9u, 13u, 32u, 133u, 160u, 9u, 
+	13u, 32u, 194u, 9u, 13u, 32u, 128u, 129u, 
+	194u, 9u, 13u, 32u, 175u, 9u, 13u, 128u, 
+	139u, 168u, 169u, 32u, 159u, 9u, 13u, 32u, 
+	194u, 226u, 9u, 13u, 32u, 133u, 160u, 194u, 
+	9u, 13u, 46u, 58u, 64u, 194u, 195u, 202u, 
+	203u, 205u, 225u, 226u, 234u, 239u, 0u, 8u, 
+	14u, 31u, 33u, 47u, 48u, 57u, 59u, 63u, 
+	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
+	192u, 193u, 196u, 204u, 206u, 223u, 224u, 238u, 
+	240u, 247u, 46u, 58u, 64u, 80u, 112u, 194u, 
+	195u, 202u, 203u, 205u, 225u, 226u, 234u, 239u, 
+	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
+	59u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
+	123u, 127u, 192u, 193u, 196u, 204u, 206u, 223u, 
+	224u, 238u, 240u, 247u, 46u, 58u, 64u, 194u, 
+	195u, 202u, 203u, 205u, 225u, 226u, 234u, 239u, 
+	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
+	59u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
+	123u, 127u, 192u, 193u, 196u, 204u, 206u, 223u, 
+	224u, 238u, 240u, 247u, 45u, 64u, 194u, 195u, 
+	202u, 203u, 225u, 226u, 234u, 239u, 0u, 8u, 
+	14u, 31u, 33u, 47u, 48u, 57u, 58u, 63u, 
+	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
+	192u, 193u, 196u, 201u, 204u, 223u, 224u, 238u, 
+	240u, 247u, 32u, 46u, 64u, 194u, 226u, 9u, 
+	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 248u, 255u, 46u, 64u, 194u, 226u, 0u, 
+	8u, 14u, 31u, 33u, 63u, 65u, 90u, 91u, 
+	96u, 97u, 122u, 123u, 127u, 192u, 223u, 224u, 
+	239u, 240u, 247u, 32u, 46u, 194u, 226u, 9u, 
+	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 248u, 255u, 32u, 46u, 194u, 226u, 9u, 
+	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 248u, 255u, 46u, 194u, 195u, 202u, 203u, 
+	225u, 226u, 234u, 239u, 0u, 8u, 14u, 31u, 
+	33u, 64u, 65u, 90u, 91u, 96u, 97u, 122u, 
+	123u, 127u, 192u, 193u, 196u, 201u, 204u, 223u, 
+	224u, 238u, 240u, 247u, 32u, 9u, 13u, 32u, 
+	133u, 160u, 9u, 13u, 32u, 194u, 9u, 13u, 
+	32u, 128u, 129u, 194u, 9u, 13u, 32u, 175u, 
+	9u, 13u, 128u, 139u, 168u, 169u, 32u, 159u, 
+	9u, 13u, 32u, 194u, 226u, 9u, 13u, 32u, 
+	133u, 160u, 194u, 9u, 13u, 32u, 9u, 13u, 
+	32u, 133u, 160u, 170u, 186u, 9u, 13u, 32u, 
+	9u, 13u, 128u, 150u, 152u, 182u, 184u, 191u, 
+	32u, 9u, 13u, 128u, 191u, 32u, 9u, 13u, 
+	128u, 184u, 32u, 9u, 13u, 160u, 164u, 32u, 
+	9u, 13u, 128u, 175u, 32u, 194u, 9u, 13u, 
+	32u, 133u, 160u, 9u, 13u, 32u, 180u, 181u, 
 	182u, 194u, 9u, 13u, 184u, 187u, 32u, 9u, 
 	13u, 128u, 165u, 172u, 191u, 32u, 9u, 13u, 
 	128u, 156u, 162u, 165u, 171u, 183u, 185u, 191u, 
 	32u, 9u, 13u, 128u, 190u, 32u, 128u, 129u, 
 	130u, 132u, 133u, 134u, 177u, 194u, 9u, 13u, 
+	32u, 175u, 9u, 13u, 128u, 139u, 168u, 169u, 
 	32u, 159u, 177u, 191u, 9u, 13u, 32u, 9u, 
 	13u, 144u, 156u, 32u, 178u, 9u, 13u, 170u, 
 	171u, 32u, 142u, 9u, 13u, 160u, 191u, 32u, 
@@ -26002,142 +26161,37 @@ static const unsigned char _mr_sentencize2_trans_keys[] = {
 	156u, 164u, 32u, 172u, 188u, 189u, 194u, 9u, 
 	13u, 32u, 9u, 13u, 128u, 134u, 32u, 9u, 
 	13u, 161u, 186u, 32u, 9u, 13u, 129u, 154u, 
-	46u, 64u, 194u, 195u, 202u, 203u, 225u, 226u, 
-	234u, 239u, 0u, 8u, 14u, 31u, 33u, 47u, 
-	48u, 57u, 58u, 63u, 65u, 90u, 91u, 96u, 
-	97u, 122u, 123u, 127u, 192u, 193u, 196u, 201u, 
-	204u, 223u, 224u, 238u, 240u, 247u, 46u, 64u, 
-	194u, 195u, 202u, 203u, 205u, 225u, 226u, 234u, 
-	239u, 0u, 8u, 14u, 31u, 33u, 47u, 48u, 
-	57u, 58u, 63u, 65u, 90u, 91u, 96u, 97u, 
-	122u, 123u, 127u, 192u, 193u, 196u, 204u, 206u, 
-	223u, 224u, 238u, 240u, 247u, 32u, 133u, 160u, 
-	170u, 186u, 9u, 13u, 32u, 9u, 13u, 128u, 
-	150u, 152u, 182u, 184u, 191u, 32u, 9u, 13u, 
-	128u, 191u, 32u, 9u, 13u, 128u, 184u, 32u, 
-	9u, 13u, 160u, 164u, 32u, 9u, 13u, 128u, 
-	175u, 32u, 180u, 181u, 182u, 194u, 9u, 13u, 
-	184u, 187u, 32u, 9u, 13u, 128u, 165u, 172u, 
-	191u, 32u, 9u, 13u, 128u, 156u, 162u, 165u, 
-	171u, 183u, 185u, 191u, 32u, 9u, 13u, 128u, 
-	190u, 32u, 128u, 129u, 130u, 132u, 133u, 134u, 
-	177u, 194u, 9u, 13u, 32u, 159u, 177u, 191u, 
-	9u, 13u, 32u, 9u, 13u, 144u, 156u, 32u, 
-	178u, 9u, 13u, 170u, 171u, 32u, 142u, 9u, 
-	13u, 160u, 191u, 32u, 9u, 13u, 128u, 136u, 
-	32u, 9u, 13u, 160u, 191u, 32u, 156u, 157u, 
-	158u, 159u, 172u, 173u, 194u, 9u, 13u, 32u, 
-	9u, 13u, 162u, 191u, 32u, 9u, 13u, 128u, 
-	135u, 139u, 173u, 176u, 183u, 32u, 9u, 13u, 
-	183u, 191u, 32u, 9u, 13u, 176u, 191u, 32u, 
-	9u, 13u, 128u, 154u, 156u, 164u, 32u, 172u, 
-	188u, 189u, 194u, 9u, 13u, 32u, 9u, 13u, 
-	128u, 134u, 32u, 9u, 13u, 161u, 186u, 32u, 
-	9u, 13u, 129u, 154u, 32u, 47u, 64u, 194u, 
-	226u, 9u, 13u, 128u, 191u, 192u, 223u, 224u, 
-	239u, 240u, 247u, 248u, 255u, 32u, 47u, 64u, 
-	194u, 226u, 9u, 13u, 128u, 191u, 192u, 223u, 
-	224u, 239u, 240u, 247u, 248u, 255u, 32u, 64u, 
-	194u, 226u, 9u, 13u, 128u, 191u, 192u, 223u, 
-	224u, 239u, 240u, 247u, 248u, 255u, 64u, 194u, 
-	226u, 0u, 8u, 14u, 31u, 33u, 46u, 47u, 
-	57u, 58u, 63u, 65u, 90u, 91u, 96u, 97u, 
-	122u, 123u, 127u, 192u, 223u, 224u, 239u, 240u, 
-	247u, 194u, 226u, 0u, 8u, 14u, 31u, 33u, 
-	46u, 47u, 57u, 58u, 64u, 65u, 90u, 91u, 
-	96u, 97u, 122u, 123u, 127u, 192u, 223u, 224u, 
-	239u, 240u, 247u, 46u, 194u, 226u, 0u, 8u, 
-	14u, 31u, 33u, 45u, 47u, 57u, 58u, 64u, 
-	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
-	192u, 223u, 224u, 239u, 240u, 247u, 46u, 194u, 
-	195u, 202u, 203u, 225u, 226u, 234u, 239u, 0u, 
-	8u, 14u, 31u, 33u, 45u, 47u, 57u, 58u, 
-	64u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
-	127u, 192u, 193u, 196u, 201u, 204u, 223u, 224u, 
-	238u, 240u, 247u, 32u, 9u, 13u, 32u, 133u, 
-	160u, 9u, 13u, 32u, 194u, 9u, 13u, 32u, 
-	128u, 129u, 194u, 9u, 13u, 32u, 175u, 9u, 
-	13u, 128u, 139u, 168u, 169u, 32u, 159u, 9u, 
-	13u, 32u, 194u, 226u, 9u, 13u, 32u, 133u, 
-	160u, 194u, 9u, 13u, 32u, 133u, 160u, 170u, 
-	186u, 9u, 13u, 32u, 9u, 13u, 128u, 150u, 
-	152u, 182u, 184u, 191u, 32u, 9u, 13u, 128u, 
-	191u, 32u, 9u, 13u, 128u, 184u, 32u, 9u, 
-	13u, 160u, 164u, 32u, 9u, 13u, 128u, 175u, 
-	32u, 180u, 181u, 182u, 194u, 9u, 13u, 184u, 
-	187u, 32u, 9u, 13u, 128u, 165u, 172u, 191u, 
-	32u, 9u, 13u, 128u, 156u, 162u, 165u, 171u, 
-	183u, 185u, 191u, 32u, 9u, 13u, 128u, 190u, 
-	32u, 128u, 129u, 130u, 132u, 133u, 134u, 177u, 
-	194u, 9u, 13u, 32u, 159u, 177u, 191u, 9u, 
-	13u, 32u, 9u, 13u, 144u, 156u, 32u, 178u, 
-	9u, 13u, 170u, 171u, 32u, 142u, 9u, 13u, 
-	160u, 191u, 32u, 9u, 13u, 128u, 136u, 32u, 
-	9u, 13u, 160u, 191u, 32u, 156u, 157u, 158u, 
-	159u, 172u, 173u, 194u, 9u, 13u, 32u, 9u, 
-	13u, 162u, 191u, 32u, 9u, 13u, 128u, 135u, 
-	139u, 173u, 176u, 183u, 32u, 9u, 13u, 183u, 
-	191u, 32u, 9u, 13u, 176u, 191u, 32u, 9u, 
-	13u, 128u, 154u, 156u, 164u, 32u, 172u, 188u, 
-	189u, 194u, 9u, 13u, 32u, 9u, 13u, 128u, 
-	134u, 32u, 9u, 13u, 161u, 186u, 32u, 9u, 
-	13u, 129u, 154u, 32u, 9u, 13u, 32u, 133u, 
-	160u, 9u, 13u, 32u, 194u, 9u, 13u, 32u, 
-	128u, 129u, 194u, 9u, 13u, 32u, 175u, 9u, 
-	13u, 128u, 139u, 168u, 169u, 32u, 159u, 9u, 
-	13u, 32u, 194u, 226u, 9u, 13u, 32u, 133u, 
-	160u, 194u, 9u, 13u, 46u, 58u, 64u, 194u, 
-	195u, 202u, 203u, 205u, 225u, 226u, 234u, 239u, 
-	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
-	59u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
-	123u, 127u, 192u, 193u, 196u, 204u, 206u, 223u, 
-	224u, 238u, 240u, 247u, 46u, 58u, 64u, 80u, 
-	112u, 194u, 195u, 202u, 203u, 205u, 225u, 226u, 
-	234u, 239u, 0u, 8u, 14u, 31u, 33u, 47u, 
-	48u, 57u, 59u, 63u, 65u, 90u, 91u, 96u, 
-	97u, 122u, 123u, 127u, 192u, 193u, 196u, 204u, 
-	206u, 223u, 224u, 238u, 240u, 247u, 46u, 58u, 
-	64u, 194u, 195u, 202u, 203u, 205u, 225u, 226u, 
-	234u, 239u, 0u, 8u, 14u, 31u, 33u, 47u, 
-	48u, 57u, 59u, 63u, 65u, 90u, 91u, 96u, 
-	97u, 122u, 123u, 127u, 192u, 193u, 196u, 204u, 
-	206u, 223u, 224u, 238u, 240u, 247u, 64u, 194u, 
+	32u, 194u, 226u, 9u, 13u, 32u, 133u, 160u, 
+	194u, 9u, 13u, 32u, 128u, 129u, 194u, 9u, 
+	13u, 32u, 159u, 9u, 13u, 46u, 194u, 226u, 
+	0u, 8u, 14u, 31u, 33u, 64u, 65u, 90u, 
+	91u, 96u, 97u, 122u, 123u, 127u, 192u, 223u, 
+	224u, 239u, 240u, 247u, 32u, 9u, 13u, 32u, 
+	133u, 160u, 9u, 13u, 32u, 194u, 9u, 13u, 
+	32u, 128u, 129u, 194u, 9u, 13u, 32u, 175u, 
+	9u, 13u, 128u, 139u, 168u, 169u, 32u, 159u, 
+	9u, 13u, 32u, 194u, 226u, 9u, 13u, 32u, 
+	133u, 160u, 194u, 9u, 13u, 46u, 64u, 194u, 
 	195u, 202u, 203u, 225u, 226u, 234u, 239u, 0u, 
 	8u, 14u, 31u, 33u, 47u, 48u, 57u, 58u, 
 	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
 	127u, 192u, 193u, 196u, 201u, 204u, 223u, 224u, 
-	238u, 240u, 247u, 32u, 46u, 64u, 194u, 226u, 
-	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
-	240u, 247u, 248u, 255u, 46u, 64u, 194u, 226u, 
-	0u, 8u, 14u, 31u, 33u, 63u, 65u, 90u, 
-	91u, 96u, 97u, 122u, 123u, 127u, 192u, 223u, 
-	224u, 239u, 240u, 247u, 32u, 46u, 194u, 226u, 
-	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
-	240u, 247u, 248u, 255u, 32u, 46u, 194u, 226u, 
-	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
-	240u, 247u, 248u, 255u, 46u, 194u, 195u, 202u, 
-	203u, 225u, 226u, 234u, 239u, 0u, 8u, 14u, 
-	31u, 33u, 64u, 65u, 90u, 91u, 96u, 97u, 
-	122u, 123u, 127u, 192u, 193u, 196u, 201u, 204u, 
-	223u, 224u, 238u, 240u, 247u, 32u, 9u, 13u, 
-	32u, 133u, 160u, 9u, 13u, 32u, 194u, 9u, 
-	13u, 32u, 128u, 129u, 194u, 9u, 13u, 32u, 
-	175u, 9u, 13u, 128u, 139u, 168u, 169u, 32u, 
-	159u, 9u, 13u, 32u, 194u, 226u, 9u, 13u, 
-	32u, 133u, 160u, 194u, 9u, 13u, 32u, 9u, 
-	13u, 32u, 133u, 160u, 170u, 186u, 9u, 13u, 
-	32u, 9u, 13u, 128u, 150u, 152u, 182u, 184u, 
-	191u, 32u, 9u, 13u, 128u, 191u, 32u, 9u, 
-	13u, 128u, 184u, 32u, 9u, 13u, 160u, 164u, 
-	32u, 9u, 13u, 128u, 175u, 32u, 194u, 9u, 
-	13u, 32u, 133u, 160u, 9u, 13u, 32u, 180u, 
+	238u, 240u, 247u, 45u, 46u, 64u, 194u, 195u, 
+	202u, 203u, 225u, 226u, 234u, 239u, 0u, 8u, 
+	14u, 31u, 33u, 47u, 48u, 57u, 58u, 63u, 
+	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
+	192u, 193u, 196u, 201u, 204u, 223u, 224u, 238u, 
+	240u, 247u, 32u, 133u, 160u, 170u, 186u, 9u, 
+	13u, 32u, 9u, 13u, 128u, 150u, 152u, 182u, 
+	184u, 191u, 32u, 9u, 13u, 128u, 191u, 32u, 
+	9u, 13u, 128u, 184u, 32u, 9u, 13u, 160u, 
+	164u, 32u, 9u, 13u, 128u, 175u, 32u, 180u, 
 	181u, 182u, 194u, 9u, 13u, 184u, 187u, 32u, 
 	9u, 13u, 128u, 165u, 172u, 191u, 32u, 9u, 
 	13u, 128u, 156u, 162u, 165u, 171u, 183u, 185u, 
 	191u, 32u, 9u, 13u, 128u, 190u, 32u, 128u, 
 	129u, 130u, 132u, 133u, 134u, 177u, 194u, 9u, 
-	13u, 32u, 175u, 9u, 13u, 128u, 139u, 168u, 
-	169u, 32u, 159u, 177u, 191u, 9u, 13u, 32u, 
+	13u, 32u, 159u, 177u, 191u, 9u, 13u, 32u, 
 	9u, 13u, 144u, 156u, 32u, 178u, 9u, 13u, 
 	170u, 171u, 32u, 142u, 9u, 13u, 160u, 191u, 
 	32u, 9u, 13u, 128u, 136u, 32u, 9u, 13u, 
@@ -26149,144 +26203,64 @@ static const unsigned char _mr_sentencize2_trans_keys[] = {
 	154u, 156u, 164u, 32u, 172u, 188u, 189u, 194u, 
 	9u, 13u, 32u, 9u, 13u, 128u, 134u, 32u, 
 	9u, 13u, 161u, 186u, 32u, 9u, 13u, 129u, 
-	154u, 32u, 194u, 226u, 9u, 13u, 32u, 133u, 
-	160u, 194u, 9u, 13u, 32u, 128u, 129u, 194u, 
-	9u, 13u, 32u, 159u, 9u, 13u, 46u, 194u, 
-	226u, 0u, 8u, 14u, 31u, 33u, 64u, 65u, 
-	90u, 91u, 96u, 97u, 122u, 123u, 127u, 192u, 
-	223u, 224u, 239u, 240u, 247u, 32u, 9u, 13u, 
-	32u, 133u, 160u, 9u, 13u, 32u, 194u, 9u, 
-	13u, 32u, 128u, 129u, 194u, 9u, 13u, 32u, 
-	175u, 9u, 13u, 128u, 139u, 168u, 169u, 32u, 
-	159u, 9u, 13u, 32u, 194u, 226u, 9u, 13u, 
-	32u, 133u, 160u, 194u, 9u, 13u, 46u, 64u, 
-	194u, 195u, 202u, 203u, 225u, 226u, 234u, 239u, 
-	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
-	58u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
-	123u, 127u, 192u, 193u, 196u, 201u, 204u, 223u, 
-	224u, 238u, 240u, 247u, 32u, 133u, 160u, 170u, 
-	186u, 9u, 13u, 32u, 9u, 13u, 128u, 150u, 
-	152u, 182u, 184u, 191u, 32u, 9u, 13u, 128u, 
-	191u, 32u, 9u, 13u, 128u, 184u, 32u, 9u, 
-	13u, 160u, 164u, 32u, 9u, 13u, 128u, 175u, 
-	32u, 180u, 181u, 182u, 194u, 9u, 13u, 184u, 
-	187u, 32u, 9u, 13u, 128u, 165u, 172u, 191u, 
-	32u, 9u, 13u, 128u, 156u, 162u, 165u, 171u, 
-	183u, 185u, 191u, 32u, 9u, 13u, 128u, 190u, 
-	32u, 128u, 129u, 130u, 132u, 133u, 134u, 177u, 
-	194u, 9u, 13u, 32u, 159u, 177u, 191u, 9u, 
-	13u, 32u, 9u, 13u, 144u, 156u, 32u, 178u, 
-	9u, 13u, 170u, 171u, 32u, 142u, 9u, 13u, 
-	160u, 191u, 32u, 9u, 13u, 128u, 136u, 32u, 
-	9u, 13u, 160u, 191u, 32u, 156u, 157u, 158u, 
-	159u, 172u, 173u, 194u, 9u, 13u, 32u, 9u, 
-	13u, 162u, 191u, 32u, 9u, 13u, 128u, 135u, 
-	139u, 173u, 176u, 183u, 32u, 9u, 13u, 183u, 
-	191u, 32u, 9u, 13u, 176u, 191u, 32u, 9u, 
-	13u, 128u, 154u, 156u, 164u, 32u, 172u, 188u, 
-	189u, 194u, 9u, 13u, 32u, 9u, 13u, 128u, 
-	134u, 32u, 9u, 13u, 161u, 186u, 32u, 9u, 
-	13u, 129u, 154u, 46u, 58u, 64u, 87u, 119u, 
-	194u, 195u, 202u, 203u, 205u, 225u, 226u, 234u, 
-	239u, 0u, 8u, 14u, 31u, 33u, 47u, 48u, 
-	57u, 59u, 63u, 65u, 90u, 91u, 96u, 97u, 
-	122u, 123u, 127u, 192u, 193u, 196u, 204u, 206u, 
-	223u, 224u, 238u, 240u, 247u, 32u, 166u, 168u, 
-	169u, 175u, 9u, 13u, 128u, 139u, 32u, 159u, 
-	177u, 191u, 9u, 13u, 9u, 13u, 32u, 33u, 
-	46u, 63u, 70u, 87u, 102u, 119u, 194u, 195u, 
-	202u, 203u, 225u, 226u, 234u, 239u, 0u, 8u, 
-	10u, 12u, 14u, 47u, 48u, 57u, 58u, 64u, 
+	154u, 46u, 58u, 64u, 87u, 119u, 194u, 195u, 
+	202u, 203u, 205u, 225u, 226u, 234u, 239u, 0u, 
+	8u, 14u, 31u, 33u, 47u, 48u, 57u, 59u, 
+	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
+	127u, 192u, 193u, 196u, 204u, 206u, 223u, 224u, 
+	238u, 240u, 247u, 32u, 166u, 168u, 169u, 175u, 
+	9u, 13u, 128u, 139u, 32u, 159u, 177u, 191u, 
+	9u, 13u, 9u, 13u, 32u, 33u, 46u, 63u, 
+	70u, 87u, 102u, 119u, 194u, 195u, 202u, 203u, 
+	225u, 226u, 234u, 239u, 0u, 8u, 10u, 12u, 
+	14u, 47u, 48u, 57u, 58u, 64u, 65u, 90u, 
+	91u, 96u, 97u, 122u, 123u, 127u, 192u, 193u, 
+	196u, 201u, 204u, 223u, 224u, 238u, 240u, 247u, 
+	32u, 64u, 194u, 226u, 9u, 13u, 128u, 191u, 
+	192u, 223u, 224u, 239u, 240u, 247u, 248u, 255u, 
+	46u, 194u, 195u, 202u, 203u, 205u, 225u, 226u, 
+	234u, 239u, 0u, 8u, 14u, 31u, 33u, 64u, 
 	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
-	192u, 193u, 196u, 201u, 204u, 223u, 224u, 238u, 
-	240u, 247u, 32u, 64u, 194u, 226u, 9u, 13u, 
+	192u, 193u, 196u, 204u, 206u, 223u, 224u, 238u, 
+	240u, 247u, 9u, 13u, 32u, 194u, 226u, 10u, 
+	12u, 32u, 194u, 226u, 9u, 13u, 9u, 32u, 
+	194u, 226u, 10u, 13u, 32u, 194u, 226u, 9u, 
+	10u, 11u, 13u, 32u, 33u, 34u, 40u, 60u, 
+	62u, 64u, 91u, 93u, 96u, 123u, 125u, 194u, 
+	195u, 196u, 197u, 198u, 199u, 200u, 201u, 202u, 
+	203u, 225u, 226u, 234u, 239u, 9u, 13u, 39u, 
+	41u, 97u, 122u, 128u, 191u, 192u, 223u, 224u, 
+	238u, 240u, 247u, 248u, 255u, 204u, 205u, 32u, 
+	34u, 40u, 60u, 62u, 64u, 91u, 93u, 96u, 
+	123u, 125u, 194u, 195u, 196u, 197u, 198u, 199u, 
+	200u, 201u, 202u, 203u, 225u, 226u, 234u, 239u, 
+	9u, 13u, 39u, 41u, 97u, 122u, 128u, 191u, 
+	192u, 223u, 224u, 238u, 240u, 247u, 248u, 255u, 
+	32u, 64u, 194u, 204u, 205u, 226u, 9u, 13u, 
 	128u, 191u, 192u, 223u, 224u, 239u, 240u, 247u, 
-	248u, 255u, 46u, 194u, 195u, 202u, 203u, 205u, 
-	225u, 226u, 234u, 239u, 0u, 8u, 14u, 31u, 
-	33u, 64u, 65u, 90u, 91u, 96u, 97u, 122u, 
-	123u, 127u, 192u, 193u, 196u, 204u, 206u, 223u, 
-	224u, 238u, 240u, 247u, 9u, 13u, 32u, 194u, 
-	226u, 10u, 12u, 32u, 194u, 226u, 9u, 13u, 
-	9u, 32u, 194u, 226u, 10u, 13u, 32u, 194u, 
-	226u, 9u, 10u, 11u, 13u, 32u, 33u, 34u, 
-	40u, 60u, 62u, 64u, 91u, 93u, 96u, 123u, 
-	125u, 194u, 195u, 196u, 197u, 198u, 199u, 200u, 
-	201u, 202u, 203u, 225u, 226u, 234u, 239u, 9u, 
-	13u, 39u, 41u, 97u, 122u, 128u, 191u, 192u, 
-	223u, 224u, 238u, 240u, 247u, 248u, 255u, 204u, 
-	205u, 32u, 34u, 40u, 60u, 62u, 64u, 91u, 
-	93u, 96u, 123u, 125u, 194u, 195u, 196u, 197u, 
-	198u, 199u, 200u, 201u, 202u, 203u, 225u, 226u, 
-	234u, 239u, 9u, 13u, 39u, 41u, 97u, 122u, 
-	128u, 191u, 192u, 223u, 224u, 238u, 240u, 247u, 
-	248u, 255u, 32u, 64u, 194u, 204u, 205u, 226u, 
-	9u, 13u, 128u, 191u, 192u, 223u, 224u, 239u, 
-	240u, 247u, 248u, 255u, 32u, 34u, 39u, 41u, 
-	46u, 62u, 64u, 93u, 125u, 194u, 226u, 9u, 
-	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
-	247u, 248u, 255u, 32u, 34u, 40u, 60u, 62u, 
-	91u, 93u, 96u, 123u, 125u, 194u, 195u, 196u, 
-	197u, 198u, 199u, 200u, 201u, 202u, 203u, 225u, 
-	226u, 234u, 239u, 9u, 13u, 39u, 41u, 97u, 
-	122u, 32u, 34u, 40u, 60u, 62u, 91u, 93u, 
+	248u, 255u, 32u, 34u, 39u, 41u, 46u, 62u, 
+	64u, 93u, 125u, 194u, 226u, 9u, 13u, 128u, 
+	191u, 192u, 223u, 224u, 239u, 240u, 247u, 248u, 
+	255u, 32u, 34u, 40u, 60u, 62u, 91u, 93u, 
 	96u, 123u, 125u, 194u, 195u, 196u, 197u, 198u, 
 	199u, 200u, 201u, 202u, 203u, 225u, 226u, 234u, 
 	239u, 9u, 13u, 39u, 41u, 97u, 122u, 32u, 
-	34u, 39u, 41u, 62u, 64u, 93u, 125u, 194u, 
-	226u, 9u, 13u, 128u, 191u, 192u, 223u, 224u, 
-	239u, 240u, 247u, 248u, 255u, 32u, 34u, 40u, 
-	46u, 60u, 62u, 64u, 91u, 93u, 96u, 123u, 
+	34u, 40u, 60u, 62u, 91u, 93u, 96u, 123u, 
 	125u, 194u, 195u, 196u, 197u, 198u, 199u, 200u, 
 	201u, 202u, 203u, 225u, 226u, 234u, 239u, 9u, 
-	13u, 39u, 41u, 97u, 122u, 128u, 191u, 192u, 
-	223u, 224u, 238u, 240u, 247u, 248u, 255u, 46u, 
-	64u, 194u, 195u, 202u, 203u, 225u, 226u, 234u, 
-	239u, 0u, 8u, 14u, 31u, 33u, 47u, 48u, 
-	57u, 58u, 63u, 65u, 90u, 91u, 96u, 97u, 
-	122u, 123u, 127u, 192u, 193u, 196u, 201u, 204u, 
-	223u, 224u, 238u, 240u, 247u, 46u, 64u, 194u, 
+	13u, 39u, 41u, 97u, 122u, 32u, 34u, 39u, 
+	41u, 62u, 64u, 93u, 125u, 194u, 226u, 9u, 
+	13u, 128u, 191u, 192u, 223u, 224u, 239u, 240u, 
+	247u, 248u, 255u, 32u, 34u, 40u, 46u, 60u, 
+	62u, 64u, 91u, 93u, 96u, 123u, 125u, 194u, 
+	195u, 196u, 197u, 198u, 199u, 200u, 201u, 202u, 
+	203u, 225u, 226u, 234u, 239u, 9u, 13u, 39u, 
+	41u, 97u, 122u, 128u, 191u, 192u, 223u, 224u, 
+	238u, 240u, 247u, 248u, 255u, 46u, 64u, 194u, 
 	195u, 202u, 203u, 225u, 226u, 234u, 239u, 0u, 
 	8u, 14u, 31u, 33u, 47u, 48u, 57u, 58u, 
 	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
 	127u, 192u, 193u, 196u, 201u, 204u, 223u, 224u, 
-	238u, 240u, 247u, 46u, 64u, 194u, 195u, 202u, 
-	203u, 205u, 225u, 226u, 234u, 239u, 0u, 8u, 
-	14u, 31u, 33u, 47u, 48u, 57u, 58u, 63u, 
-	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
-	192u, 193u, 196u, 204u, 206u, 223u, 224u, 238u, 
-	240u, 247u, 32u, 34u, 40u, 60u, 62u, 63u, 
-	64u, 91u, 93u, 96u, 123u, 125u, 194u, 195u, 
-	196u, 197u, 198u, 199u, 200u, 201u, 202u, 203u, 
-	225u, 226u, 234u, 239u, 9u, 13u, 39u, 41u, 
-	97u, 122u, 128u, 191u, 192u, 223u, 224u, 238u, 
-	240u, 247u, 248u, 255u, 46u, 58u, 64u, 194u, 
-	195u, 202u, 203u, 205u, 225u, 226u, 234u, 239u, 
-	0u, 8u, 14u, 31u, 33u, 47u, 48u, 57u, 
-	59u, 63u, 65u, 90u, 91u, 96u, 97u, 122u, 
-	123u, 127u, 192u, 193u, 196u, 204u, 206u, 223u, 
-	224u, 238u, 240u, 247u, 64u, 194u, 226u, 0u, 
-	8u, 14u, 31u, 33u, 46u, 47u, 57u, 58u, 
-	63u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
-	127u, 192u, 223u, 224u, 239u, 240u, 247u, 46u, 
-	194u, 226u, 0u, 8u, 14u, 31u, 33u, 45u, 
-	47u, 57u, 58u, 64u, 65u, 90u, 91u, 96u, 
-	97u, 122u, 123u, 127u, 192u, 223u, 224u, 239u, 
-	240u, 247u, 46u, 194u, 195u, 202u, 203u, 205u, 
-	225u, 226u, 234u, 239u, 0u, 8u, 14u, 31u, 
-	33u, 45u, 47u, 57u, 58u, 64u, 65u, 90u, 
-	91u, 96u, 97u, 122u, 123u, 127u, 192u, 193u, 
-	196u, 204u, 206u, 223u, 224u, 238u, 240u, 247u, 
-	46u, 58u, 64u, 84u, 116u, 194u, 195u, 202u, 
-	203u, 205u, 225u, 226u, 234u, 239u, 0u, 8u, 
-	14u, 31u, 33u, 47u, 48u, 57u, 59u, 63u, 
-	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
-	192u, 193u, 196u, 204u, 206u, 223u, 224u, 238u, 
-	240u, 247u, 32u, 194u, 226u, 9u, 13u, 128u, 
-	191u, 192u, 223u, 224u, 239u, 240u, 247u, 248u, 
-	255u, 46u, 194u, 195u, 202u, 203u, 205u, 225u, 
-	226u, 234u, 239u, 0u, 8u, 14u, 31u, 33u, 
-	64u, 65u, 90u, 91u, 96u, 97u, 122u, 123u, 
-	127u, 192u, 193u, 196u, 204u, 206u, 223u, 224u, 
 	238u, 240u, 247u, 46u, 64u, 194u, 195u, 202u, 
 	203u, 225u, 226u, 234u, 239u, 0u, 8u, 14u, 
 	31u, 33u, 47u, 48u, 57u, 58u, 63u, 65u, 
@@ -26297,22 +26271,65 @@ static const unsigned char _mr_sentencize2_trans_keys[] = {
 	33u, 47u, 48u, 57u, 58u, 63u, 65u, 90u, 
 	91u, 96u, 97u, 122u, 123u, 127u, 192u, 193u, 
 	196u, 204u, 206u, 223u, 224u, 238u, 240u, 247u, 
-	46u, 58u, 64u, 87u, 119u, 194u, 195u, 202u, 
+	32u, 34u, 40u, 60u, 62u, 63u, 64u, 91u, 
+	93u, 96u, 123u, 125u, 194u, 195u, 196u, 197u, 
+	198u, 199u, 200u, 201u, 202u, 203u, 225u, 226u, 
+	234u, 239u, 9u, 13u, 39u, 41u, 97u, 122u, 
+	128u, 191u, 192u, 223u, 224u, 238u, 240u, 247u, 
+	248u, 255u, 46u, 58u, 64u, 194u, 195u, 202u, 
 	203u, 205u, 225u, 226u, 234u, 239u, 0u, 8u, 
 	14u, 31u, 33u, 47u, 48u, 57u, 59u, 63u, 
 	65u, 90u, 91u, 96u, 97u, 122u, 123u, 127u, 
 	192u, 193u, 196u, 204u, 206u, 223u, 224u, 238u, 
-	240u, 247u, 32u, 9u, 13u, 32u, 133u, 160u, 
-	170u, 186u, 9u, 13u, 32u, 9u, 13u, 128u, 
-	150u, 152u, 182u, 184u, 191u, 32u, 9u, 13u, 
-	128u, 191u, 32u, 9u, 13u, 128u, 184u, 32u, 
-	9u, 13u, 160u, 164u, 32u, 194u, 9u, 13u, 
-	32u, 180u, 181u, 182u, 194u, 9u, 13u, 184u, 
-	187u, 32u, 128u, 129u, 130u, 132u, 133u, 134u, 
-	177u, 194u, 9u, 13u, 32u, 156u, 157u, 158u, 
-	159u, 172u, 173u, 194u, 9u, 13u, 32u, 172u, 
-	188u, 189u, 194u, 9u, 13u, 32u, 194u, 226u, 
-	9u, 13u, 0
+	240u, 247u, 64u, 194u, 226u, 0u, 8u, 14u, 
+	31u, 33u, 46u, 47u, 57u, 58u, 63u, 65u, 
+	90u, 91u, 96u, 97u, 122u, 123u, 127u, 192u, 
+	223u, 224u, 239u, 240u, 247u, 46u, 194u, 226u, 
+	0u, 8u, 14u, 31u, 33u, 45u, 47u, 57u, 
+	58u, 64u, 65u, 90u, 91u, 96u, 97u, 122u, 
+	123u, 127u, 192u, 223u, 224u, 239u, 240u, 247u, 
+	46u, 194u, 195u, 202u, 203u, 205u, 225u, 226u, 
+	234u, 239u, 0u, 8u, 14u, 31u, 33u, 45u, 
+	47u, 57u, 58u, 64u, 65u, 90u, 91u, 96u, 
+	97u, 122u, 123u, 127u, 192u, 193u, 196u, 204u, 
+	206u, 223u, 224u, 238u, 240u, 247u, 46u, 58u, 
+	64u, 84u, 116u, 194u, 195u, 202u, 203u, 205u, 
+	225u, 226u, 234u, 239u, 0u, 8u, 14u, 31u, 
+	33u, 47u, 48u, 57u, 59u, 63u, 65u, 90u, 
+	91u, 96u, 97u, 122u, 123u, 127u, 192u, 193u, 
+	196u, 204u, 206u, 223u, 224u, 238u, 240u, 247u, 
+	32u, 194u, 226u, 9u, 13u, 128u, 191u, 192u, 
+	223u, 224u, 239u, 240u, 247u, 248u, 255u, 46u, 
+	194u, 195u, 202u, 203u, 205u, 225u, 226u, 234u, 
+	239u, 0u, 8u, 14u, 31u, 33u, 64u, 65u, 
+	90u, 91u, 96u, 97u, 122u, 123u, 127u, 192u, 
+	193u, 196u, 204u, 206u, 223u, 224u, 238u, 240u, 
+	247u, 46u, 64u, 194u, 195u, 202u, 203u, 225u, 
+	226u, 234u, 239u, 0u, 8u, 14u, 31u, 33u, 
+	47u, 48u, 57u, 58u, 63u, 65u, 90u, 91u, 
+	96u, 97u, 122u, 123u, 127u, 192u, 193u, 196u, 
+	201u, 204u, 223u, 224u, 238u, 240u, 247u, 46u, 
+	64u, 194u, 195u, 202u, 203u, 205u, 225u, 226u, 
+	234u, 239u, 0u, 8u, 14u, 31u, 33u, 47u, 
+	48u, 57u, 58u, 63u, 65u, 90u, 91u, 96u, 
+	97u, 122u, 123u, 127u, 192u, 193u, 196u, 204u, 
+	206u, 223u, 224u, 238u, 240u, 247u, 46u, 58u, 
+	64u, 87u, 119u, 194u, 195u, 202u, 203u, 205u, 
+	225u, 226u, 234u, 239u, 0u, 8u, 14u, 31u, 
+	33u, 47u, 48u, 57u, 59u, 63u, 65u, 90u, 
+	91u, 96u, 97u, 122u, 123u, 127u, 192u, 193u, 
+	196u, 204u, 206u, 223u, 224u, 238u, 240u, 247u, 
+	32u, 9u, 13u, 32u, 133u, 160u, 170u, 186u, 
+	9u, 13u, 32u, 9u, 13u, 128u, 150u, 152u, 
+	182u, 184u, 191u, 32u, 9u, 13u, 128u, 191u, 
+	32u, 9u, 13u, 128u, 184u, 32u, 9u, 13u, 
+	160u, 164u, 32u, 194u, 9u, 13u, 32u, 180u, 
+	181u, 182u, 194u, 9u, 13u, 184u, 187u, 32u, 
+	128u, 129u, 130u, 132u, 133u, 134u, 177u, 194u, 
+	9u, 13u, 32u, 156u, 157u, 158u, 159u, 172u, 
+	173u, 194u, 9u, 13u, 32u, 172u, 188u, 189u, 
+	194u, 9u, 13u, 32u, 194u, 226u, 9u, 13u, 
+	0
 };
 
 static const char _mr_sentencize2_single_lengths[] = {
@@ -26337,37 +26354,37 @@ static const char _mr_sentencize2_single_lengths[] = {
 	27, 20, 1, 1, 1, 4, 1, 1, 
 	5, 7, 8, 9, 4, 1, 1, 1, 
 	21, 1, 6, 6, 7, 5, 4, 4, 
-	5, 9, 5, 1, 1, 1, 1, 1, 
+	5, 10, 9, 5, 1, 1, 1, 1, 
+	1, 5, 1, 1, 1, 9, 4, 1, 
+	2, 2, 1, 1, 8, 1, 1, 1, 
+	1, 1, 5, 1, 1, 1, 10, 11, 
+	5, 1, 1, 1, 1, 1, 5, 1, 
+	1, 1, 9, 4, 1, 2, 2, 1, 
+	1, 8, 1, 1, 1, 1, 1, 5, 
+	1, 1, 1, 5, 5, 4, 3, 2, 
+	3, 9, 1, 3, 2, 4, 2, 2, 
+	3, 4, 5, 1, 1, 1, 1, 1, 
 	5, 1, 1, 1, 9, 4, 1, 2, 
 	2, 1, 1, 8, 1, 1, 1, 1, 
-	1, 5, 1, 1, 1, 10, 11, 5, 
-	1, 1, 1, 1, 1, 5, 1, 1, 
-	1, 9, 4, 1, 2, 2, 1, 1, 
-	8, 1, 1, 1, 1, 1, 5, 1, 
-	1, 1, 5, 5, 4, 3, 2, 3, 
-	9, 1, 3, 2, 4, 2, 2, 3, 
-	4, 5, 1, 1, 1, 1, 1, 5, 
-	1, 1, 1, 9, 4, 1, 2, 2, 
-	1, 1, 8, 1, 1, 1, 1, 1, 
-	5, 1, 1, 1, 1, 3, 2, 4, 
-	2, 2, 3, 4, 12, 14, 12, 9, 
-	5, 4, 4, 4, 9, 1, 3, 2, 
-	4, 2, 2, 3, 4, 1, 5, 1, 
-	1, 1, 1, 1, 2, 3, 5, 1, 
-	1, 1, 9, 2, 4, 1, 2, 2, 
-	1, 1, 8, 1, 1, 1, 1, 1, 
-	5, 1, 1, 1, 3, 4, 4, 2, 
-	3, 1, 3, 2, 4, 2, 2, 3, 
-	4, 10, 5, 1, 1, 1, 1, 1, 
-	5, 1, 1, 1, 9, 4, 1, 2, 
+	1, 5, 1, 1, 1, 1, 3, 2, 
+	4, 2, 2, 3, 4, 12, 14, 12, 
+	10, 5, 4, 4, 4, 9, 1, 3, 
+	2, 4, 2, 2, 3, 4, 1, 5, 
+	1, 1, 1, 1, 1, 2, 3, 5, 
+	1, 1, 1, 9, 2, 4, 1, 2, 
 	2, 1, 1, 8, 1, 1, 1, 1, 
-	1, 5, 1, 1, 1, 14, 5, 4, 
-	0, 18, 4, 10, 5, 3, 4, 3, 
-	26, 2, 25, 6, 11, 24, 24, 10, 
-	26, 10, 10, 11, 26, 12, 3, 3, 
-	10, 14, 3, 10, 10, 11, 14, 1, 
-	5, 1, 1, 1, 1, 2, 5, 9, 
-	8, 5, 3
+	1, 5, 1, 1, 1, 3, 4, 4, 
+	2, 3, 1, 3, 2, 4, 2, 2, 
+	3, 4, 10, 11, 5, 1, 1, 1, 
+	1, 1, 5, 1, 1, 1, 9, 4, 
+	1, 2, 2, 1, 1, 8, 1, 1, 
+	1, 1, 1, 5, 1, 1, 1, 14, 
+	5, 4, 0, 18, 4, 10, 5, 3, 
+	4, 3, 26, 2, 25, 6, 11, 24, 
+	24, 10, 26, 10, 10, 11, 26, 12, 
+	3, 3, 10, 14, 3, 10, 10, 11, 
+	14, 1, 5, 1, 1, 1, 1, 2, 
+	5, 9, 8, 5, 3
 };
 
 static const char _mr_sentencize2_range_lengths[] = {
@@ -26392,37 +26409,37 @@ static const char _mr_sentencize2_range_lengths[] = {
 	2, 2, 2, 2, 3, 1, 2, 2, 
 	6, 1, 1, 3, 1, 0, 0, 0, 
 	3, 0, 0, 0, 2, 6, 1, 1, 
-	3, 14, 1, 4, 2, 2, 2, 2, 
+	3, 14, 14, 1, 4, 2, 2, 2, 
+	2, 2, 3, 5, 2, 1, 1, 2, 
+	2, 2, 2, 2, 1, 2, 4, 2, 
+	2, 3, 1, 2, 2, 2, 14, 14, 
+	1, 4, 2, 2, 2, 2, 2, 3, 
+	5, 2, 1, 1, 2, 2, 2, 2, 
+	2, 1, 2, 4, 2, 2, 3, 1, 
+	2, 2, 2, 6, 6, 6, 12, 12, 
+	12, 14, 1, 1, 1, 1, 3, 1, 
+	1, 1, 1, 4, 2, 2, 2, 2, 
 	2, 3, 5, 2, 1, 1, 2, 2, 
 	2, 2, 2, 1, 2, 4, 2, 2, 
-	3, 1, 2, 2, 2, 14, 14, 1, 
-	4, 2, 2, 2, 2, 2, 3, 5, 
-	2, 1, 1, 2, 2, 2, 2, 2, 
-	1, 2, 4, 2, 2, 3, 1, 2, 
-	2, 2, 6, 6, 6, 12, 12, 12, 
-	14, 1, 1, 1, 1, 3, 1, 1, 
-	1, 1, 4, 2, 2, 2, 2, 2, 
-	3, 5, 2, 1, 1, 2, 2, 2, 
-	2, 2, 1, 2, 4, 2, 2, 3, 
-	1, 2, 2, 2, 1, 1, 1, 1, 
-	3, 1, 1, 1, 14, 14, 14, 14, 
-	6, 10, 6, 6, 12, 1, 1, 1, 
-	1, 3, 1, 1, 1, 1, 1, 4, 
-	2, 2, 2, 2, 1, 1, 2, 3, 
-	5, 2, 1, 3, 1, 2, 2, 2, 
-	2, 2, 1, 2, 4, 2, 2, 3, 
-	1, 2, 2, 2, 1, 1, 1, 1, 
-	10, 1, 1, 1, 1, 3, 1, 1, 
-	1, 14, 1, 4, 2, 2, 2, 2, 
-	2, 3, 5, 2, 1, 1, 2, 2, 
+	3, 1, 2, 2, 2, 1, 1, 1, 
+	1, 3, 1, 1, 1, 14, 14, 14, 
+	14, 6, 10, 6, 6, 12, 1, 1, 
+	1, 1, 3, 1, 1, 1, 1, 1, 
+	4, 2, 2, 2, 2, 1, 1, 2, 
+	3, 5, 2, 1, 3, 1, 2, 2, 
 	2, 2, 2, 1, 2, 4, 2, 2, 
-	3, 1, 2, 2, 2, 14, 2, 1, 
-	0, 14, 6, 12, 1, 1, 1, 2, 
-	8, 0, 8, 6, 6, 3, 3, 6, 
-	8, 14, 14, 14, 8, 14, 12, 12, 
-	14, 14, 6, 12, 14, 14, 14, 1, 
-	1, 4, 2, 2, 2, 1, 2, 1, 
-	1, 1, 1
+	3, 1, 2, 2, 2, 1, 1, 1, 
+	1, 10, 1, 1, 1, 1, 3, 1, 
+	1, 1, 14, 14, 1, 4, 2, 2, 
+	2, 2, 2, 3, 5, 2, 1, 1, 
+	2, 2, 2, 2, 2, 1, 2, 4, 
+	2, 2, 3, 1, 2, 2, 2, 14, 
+	2, 1, 0, 14, 6, 12, 1, 1, 
+	1, 2, 8, 0, 8, 6, 6, 3, 
+	3, 6, 8, 14, 14, 14, 8, 14, 
+	12, 12, 14, 14, 6, 12, 14, 14, 
+	14, 1, 1, 4, 2, 2, 2, 1, 
+	2, 1, 1, 1, 1
 };
 
 static const short _mr_sentencize2_index_offsets[] = {
@@ -26447,37 +26464,37 @@ static const short _mr_sentencize2_index_offsets[] = {
 	1204, 1234, 1257, 1261, 1265, 1270, 1276, 1280, 
 	1284, 1296, 1305, 1315, 1328, 1334, 1336, 1338, 
 	1340, 1365, 1367, 1374, 1381, 1391, 1403, 1409, 
-	1415, 1424, 1448, 1455, 1461, 1465, 1469, 1473, 
-	1477, 1485, 1490, 1497, 1501, 1512, 1518, 1522, 
-	1527, 1532, 1536, 1540, 1550, 1554, 1560, 1564, 
-	1568, 1573, 1580, 1584, 1588, 1592, 1617, 1643, 
-	1650, 1656, 1660, 1664, 1668, 1672, 1680, 1685, 
-	1692, 1696, 1707, 1713, 1717, 1722, 1727, 1731, 
-	1735, 1745, 1749, 1755, 1759, 1763, 1768, 1775, 
-	1779, 1783, 1787, 1799, 1811, 1822, 1838, 1853, 
-	1869, 1893, 1896, 1901, 1905, 1911, 1917, 1921, 
-	1926, 1932, 1939, 1945, 1949, 1953, 1957, 1961, 
-	1969, 1974, 1981, 1985, 1996, 2002, 2006, 2011, 
-	2016, 2020, 2024, 2034, 2038, 2044, 2048, 2052, 
-	2057, 2064, 2068, 2072, 2076, 2079, 2084, 2088, 
-	2094, 2100, 2104, 2109, 2115, 2142, 2171, 2198, 
-	2222, 2234, 2249, 2260, 2271, 2293, 2296, 2301, 
-	2305, 2311, 2317, 2321, 2326, 2332, 2335, 2342, 
-	2348, 2352, 2356, 2360, 2364, 2368, 2373, 2381, 
-	2386, 2393, 2397, 2408, 2414, 2420, 2424, 2429, 
-	2434, 2438, 2442, 2452, 2456, 2462, 2466, 2470, 
-	2475, 2482, 2486, 2490, 2494, 2499, 2505, 2511, 
-	2515, 2529, 2532, 2537, 2541, 2547, 2553, 2557, 
-	2562, 2568, 2593, 2600, 2606, 2610, 2614, 2618, 
-	2622, 2630, 2635, 2642, 2646, 2657, 2663, 2667, 
-	2672, 2677, 2681, 2685, 2695, 2699, 2705, 2709, 
-	2713, 2718, 2725, 2729, 2733, 2737, 2766, 2774, 
-	2780, 2781, 2814, 2825, 2848, 2855, 2860, 2866, 
-	2872, 2907, 2910, 2944, 2957, 2975, 3003, 3031, 
-	3048, 3083, 3108, 3133, 3159, 3194, 3221, 3237, 
-	3253, 3278, 3307, 3317, 3340, 3365, 3391, 3420, 
-	3423, 3430, 3436, 3440, 3444, 3448, 3452, 3460, 
-	3471, 3481, 3488
+	1415, 1424, 1449, 1473, 1480, 1486, 1490, 1494, 
+	1498, 1502, 1510, 1515, 1522, 1526, 1537, 1543, 
+	1547, 1552, 1557, 1561, 1565, 1575, 1579, 1585, 
+	1589, 1593, 1598, 1605, 1609, 1613, 1617, 1642, 
+	1668, 1675, 1681, 1685, 1689, 1693, 1697, 1705, 
+	1710, 1717, 1721, 1732, 1738, 1742, 1747, 1752, 
+	1756, 1760, 1770, 1774, 1780, 1784, 1788, 1793, 
+	1800, 1804, 1808, 1812, 1824, 1836, 1847, 1863, 
+	1878, 1894, 1918, 1921, 1926, 1930, 1936, 1942, 
+	1946, 1951, 1957, 1964, 1970, 1974, 1978, 1982, 
+	1986, 1994, 1999, 2006, 2010, 2021, 2027, 2031, 
+	2036, 2041, 2045, 2049, 2059, 2063, 2069, 2073, 
+	2077, 2082, 2089, 2093, 2097, 2101, 2104, 2109, 
+	2113, 2119, 2125, 2129, 2134, 2140, 2167, 2196, 
+	2223, 2248, 2260, 2275, 2286, 2297, 2319, 2322, 
+	2327, 2331, 2337, 2343, 2347, 2352, 2358, 2361, 
+	2368, 2374, 2378, 2382, 2386, 2390, 2394, 2399, 
+	2407, 2412, 2419, 2423, 2434, 2440, 2446, 2450, 
+	2455, 2460, 2464, 2468, 2478, 2482, 2488, 2492, 
+	2496, 2501, 2508, 2512, 2516, 2520, 2525, 2531, 
+	2537, 2541, 2555, 2558, 2563, 2567, 2573, 2579, 
+	2583, 2588, 2594, 2619, 2645, 2652, 2658, 2662, 
+	2666, 2670, 2674, 2682, 2687, 2694, 2698, 2709, 
+	2715, 2719, 2724, 2729, 2733, 2737, 2747, 2751, 
+	2757, 2761, 2765, 2770, 2777, 2781, 2785, 2789, 
+	2818, 2826, 2832, 2833, 2866, 2877, 2900, 2907, 
+	2912, 2918, 2924, 2959, 2962, 2996, 3009, 3027, 
+	3055, 3083, 3100, 3135, 3160, 3185, 3211, 3246, 
+	3273, 3289, 3305, 3330, 3359, 3369, 3392, 3417, 
+	3443, 3472, 3475, 3482, 3488, 3492, 3496, 3500, 
+	3504, 3512, 3523, 3533, 3540
 };
 
 static const short _mr_sentencize2_indicies[] = {
@@ -26518,463 +26535,470 @@ static const short _mr_sentencize2_indicies[] = {
 	13, 16, 13, 59, 60, 17, 13, 16, 
 	13, 13, 13, 13, 13, 14, 13, 13, 
 	13, 14, 13, 61, 19, 13, 18, 13, 
-	13, 13, 17, 13, 16, 63, 65, 63, 
-	66, 67, 64, 62, 64, 64, 69, 70, 
-	68, 62, 68, 68, 71, 72, 73, 71, 
-	68, 68, 68, 71, 68, 71, 68, 64, 
-	62, 74, 75, 62, 64, 64, 68, 62, 
-	64, 62, 64, 69, 70, 64, 68, 62, 
-	64, 63, 62, 76, 77, 62, 64, 68, 
-	63, 63, 62, 63, 62, 79, 80, 81, 
-	80, 82, 80, 84, 85, 86, 87, 88, 
-	89, 90, 91, 92, 93, 94, 95, 96, 
-	97, 79, 80, 83, 78, 80, 81, 80, 
-	82, 80, 98, 85, 86, 87, 88, 89, 
-	90, 91, 92, 93, 94, 99, 96, 97, 
-	80, 83, 78, 80, 78, 80, 78, 83, 
-	38, 83, 38, 83, 80, 83, 78, 83, 
-	83, 78, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 78, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 78, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 78, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 78, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 78, 83, 
-	83, 83, 83, 83, 83, 83, 78, 83, 
-	83, 78, 83, 78, 100, 101, 102, 104, 
-	103, 78, 83, 83, 78, 83, 83, 83, 
-	83, 78, 83, 78, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 78, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 78, 105, 106, 107, 108, 109, 110, 
-	78, 80, 80, 80, 80, 78, 83, 83, 
-	78, 83, 78, 83, 83, 78, 83, 78, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	78, 111, 112, 113, 114, 115, 116, 78, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 78, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 78, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 83, 
-	83, 83, 83, 83, 83, 83, 83, 78, 
-	83, 78, 83, 78, 83, 83, 78, 117, 
-	118, 78, 83, 78, 83, 78, 79, 79, 
-	83, 80, 83, 78, 119, 120, 107, 108, 
-	109, 110, 78, 80, 80, 80, 79, 79, 
-	80, 79, 78, 79, 83, 83, 78, 78, 
-	121, 122, 15, 121, 123, 121, 125, 126, 
-	127, 128, 129, 130, 131, 132, 133, 134, 
-	135, 136, 137, 138, 78, 121, 124, 78, 
-	16, 18, 20, 78, 14, 78, 121, 15, 
-	17, 19, 78, 78, 16, 18, 20, 78, 
-	14, 78, 15, 121, 17, 19, 78, 78, 
-	16, 18, 20, 78, 14, 38, 38, 124, 
-	14, 38, 38, 124, 14, 78, 78, 78, 
-	124, 121, 124, 78, 14, 78, 78, 124, 
-	124, 14, 78, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 78, 124, 14, 78, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 78, 124, 124, 14, 78, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 78, 124, 
-	124, 124, 124, 124, 14, 78, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 78, 124, 
-	124, 14, 78, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 78, 124, 
-	14, 78, 124, 124, 124, 124, 124, 124, 
-	78, 124, 14, 78, 78, 124, 124, 14, 
-	78, 78, 124, 14, 78, 139, 140, 141, 
-	143, 17, 78, 142, 16, 78, 78, 124, 
-	124, 14, 78, 78, 124, 124, 124, 124, 
-	14, 78, 78, 124, 14, 78, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 78, 14, 
-	78, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 78, 124, 14, 78, 
-	144, 145, 146, 147, 148, 149, 17, 78, 
-	16, 78, 121, 121, 121, 78, 121, 78, 
-	78, 78, 14, 78, 78, 124, 124, 78, 
-	14, 78, 78, 124, 14, 78, 124, 78, 
-	124, 14, 78, 124, 78, 14, 78, 124, 
-	124, 124, 124, 124, 78, 124, 124, 124, 
-	14, 78, 150, 151, 152, 153, 154, 155, 
-	17, 78, 16, 78, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 78, 124, 14, 78, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 78, 
-	124, 14, 78, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 124, 124, 
-	124, 124, 124, 124, 124, 124, 78, 124, 
-	14, 78, 78, 124, 14, 78, 78, 124, 
-	14, 78, 78, 124, 124, 14, 78, 156, 
-	157, 17, 78, 16, 78, 78, 124, 14, 
-	78, 78, 124, 14, 78, 158, 15, 17, 
-	19, 78, 78, 16, 18, 20, 78, 14, 
-	78, 79, 79, 124, 121, 124, 158, 78, 
-	14, 78, 159, 160, 146, 147, 148, 149, 
-	17, 78, 16, 78, 121, 158, 158, 79, 
-	78, 79, 121, 158, 78, 79, 121, 14, 
-	78, 79, 124, 124, 78, 14, 162, 161, 
-	163, 161, 164, 161, 79, 80, 164, 81, 
-	80, 82, 80, 84, 85, 86, 87, 88, 
-	89, 90, 91, 92, 93, 94, 95, 96, 
-	97, 79, 80, 83, 78, 165, 78, 79, 
-	79, 83, 80, 83, 165, 78, 166, 120, 
-	107, 108, 109, 110, 78, 80, 165, 165, 
-	79, 79, 80, 165, 79, 80, 78, 161, 
-	167, 15, 17, 19, 161, 161, 16, 18, 
-	20, 161, 14, 161, 161, 161, 167, 161, 
-	14, 161, 168, 60, 17, 161, 16, 161, 
-	167, 167, 161, 167, 161, 161, 161, 14, 
-	15, 171, 172, 174, 175, 176, 177, 178, 
-	179, 14, 14, 14, 169, 14, 170, 14, 
-	170, 14, 16, 173, 16, 18, 20, 13, 
-	13, 13, 13, 170, 170, 13, 14, 13, 
-	13, 170, 170, 170, 14, 13, 13, 170, 
-	14, 13, 13, 170, 14, 13, 13, 170, 
-	14, 38, 38, 170, 14, 13, 180, 181, 
-	182, 17, 13, 173, 16, 13, 13, 170, 
-	170, 14, 13, 13, 170, 170, 170, 170, 
-	14, 13, 13, 170, 14, 13, 59, 183, 
-	184, 185, 186, 187, 188, 17, 13, 16, 
-	13, 13, 170, 170, 13, 14, 13, 13, 
-	170, 14, 13, 170, 13, 170, 14, 13, 
-	170, 13, 170, 14, 13, 13, 170, 14, 
-	13, 13, 170, 14, 13, 189, 173, 190, 
-	191, 192, 193, 17, 13, 16, 13, 13, 
-	170, 14, 13, 13, 170, 170, 170, 14, 
-	13, 13, 170, 14, 13, 13, 170, 14, 
-	13, 13, 170, 170, 14, 13, 194, 195, 
-	196, 17, 13, 16, 13, 13, 170, 14, 
-	13, 13, 170, 14, 13, 13, 170, 14, 
-	197, 15, 200, 201, 203, 204, 205, 206, 
-	207, 208, 14, 14, 14, 198, 14, 199, 
-	14, 199, 14, 16, 202, 16, 18, 20, 
-	62, 197, 15, 200, 201, 203, 204, 209, 
-	205, 206, 207, 208, 14, 14, 14, 198, 
-	14, 199, 14, 199, 14, 16, 202, 16, 
-	18, 20, 62, 62, 62, 62, 199, 199, 
-	62, 14, 62, 62, 199, 199, 199, 14, 
-	62, 62, 199, 14, 62, 62, 199, 14, 
-	62, 62, 199, 14, 62, 62, 199, 14, 
-	62, 210, 211, 212, 17, 62, 202, 16, 
-	62, 62, 199, 199, 14, 62, 62, 199, 
-	199, 199, 199, 14, 62, 62, 199, 14, 
-	62, 59, 213, 214, 215, 216, 217, 218, 
-	17, 62, 16, 62, 62, 199, 199, 62, 
-	14, 62, 62, 199, 14, 62, 199, 62, 
-	199, 14, 62, 199, 62, 199, 14, 62, 
-	62, 199, 14, 62, 62, 199, 14, 62, 
-	219, 202, 220, 221, 222, 223, 17, 62, 
-	16, 62, 62, 199, 14, 62, 62, 199, 
-	199, 199, 14, 62, 62, 199, 14, 62, 
-	62, 199, 14, 62, 62, 199, 199, 14, 
-	62, 224, 225, 226, 17, 62, 16, 62, 
-	62, 199, 14, 62, 62, 199, 14, 62, 
-	62, 199, 14, 62, 227, 15, 17, 19, 
-	62, 62, 16, 18, 20, 62, 14, 62, 
-	228, 15, 17, 19, 62, 62, 16, 18, 
-	20, 62, 14, 62, 230, 232, 234, 62, 
-	62, 231, 233, 235, 62, 229, 230, 232, 
-	234, 229, 229, 229, 236, 229, 236, 229, 
-	236, 229, 231, 233, 235, 13, 240, 242, 
-	237, 237, 237, 238, 237, 238, 237, 238, 
-	237, 239, 241, 243, 13, 244, 240, 242, 
-	237, 237, 237, 238, 237, 238, 237, 238, 
-	237, 239, 241, 243, 13, 244, 246, 247, 
-	249, 250, 251, 252, 253, 254, 237, 237, 
-	237, 238, 237, 245, 237, 245, 237, 239, 
-	248, 239, 241, 243, 13, 13, 13, 237, 
-	13, 13, 13, 13, 237, 13, 240, 13, 
-	239, 13, 255, 256, 240, 13, 239, 13, 
-	13, 13, 13, 13, 237, 13, 13, 13, 
-	237, 13, 257, 242, 13, 241, 13, 13, 
-	13, 240, 13, 239, 13, 13, 13, 245, 
-	245, 13, 237, 13, 13, 245, 245, 245, 
-	237, 13, 13, 245, 237, 13, 13, 245, 
-	237, 13, 13, 245, 237, 38, 38, 245, 
-	237, 13, 258, 259, 260, 240, 13, 248, 
-	239, 13, 13, 245, 245, 237, 13, 13, 
-	245, 245, 245, 245, 237, 13, 13, 245, 
-	237, 13, 255, 261, 262, 263, 264, 265, 
-	266, 240, 13, 239, 13, 13, 245, 245, 
-	13, 237, 13, 13, 245, 237, 13, 245, 
-	13, 245, 237, 13, 245, 13, 245, 237, 
-	13, 13, 245, 237, 13, 13, 245, 237, 
-	13, 267, 248, 268, 269, 270, 271, 240, 
-	13, 239, 13, 13, 245, 237, 13, 13, 
-	245, 245, 245, 237, 13, 13, 245, 237, 
-	13, 13, 245, 237, 13, 13, 245, 245, 
-	237, 13, 272, 273, 274, 240, 13, 239, 
-	13, 13, 245, 237, 13, 13, 245, 237, 
-	13, 13, 245, 237, 13, 13, 229, 13, 
-	13, 13, 13, 229, 13, 232, 13, 231, 
-	13, 275, 276, 232, 13, 231, 13, 13, 
-	13, 13, 13, 229, 13, 13, 13, 229, 
-	13, 277, 234, 13, 233, 13, 13, 13, 
-	232, 13, 231, 197, 278, 15, 200, 201, 
-	203, 204, 209, 205, 206, 207, 208, 14, 
-	14, 14, 198, 14, 279, 14, 279, 14, 
-	16, 202, 16, 18, 20, 62, 197, 278, 
-	15, 280, 280, 200, 201, 203, 204, 209, 
-	205, 206, 207, 208, 14, 14, 14, 198, 
-	14, 279, 14, 279, 14, 16, 202, 16, 
-	18, 20, 62, 281, 278, 15, 200, 201, 
-	203, 204, 209, 205, 206, 207, 208, 14, 
-	14, 14, 198, 14, 279, 14, 279, 14, 
-	16, 202, 16, 18, 20, 62, 284, 287, 
-	288, 290, 291, 293, 294, 295, 296, 282, 
-	282, 282, 283, 282, 285, 282, 285, 282, 
-	286, 289, 286, 292, 297, 62, 13, 298, 
-	284, 299, 300, 13, 13, 286, 292, 297, 
-	13, 282, 298, 284, 299, 300, 282, 282, 
-	282, 301, 282, 301, 282, 286, 292, 297, 
-	13, 13, 303, 305, 307, 13, 13, 304, 
-	306, 308, 13, 302, 13, 309, 305, 307, 
-	13, 13, 304, 306, 308, 13, 302, 309, 
-	310, 311, 313, 314, 315, 316, 317, 318, 
-	302, 302, 302, 301, 302, 301, 302, 304, 
-	312, 304, 306, 308, 13, 38, 38, 301, 
-	38, 38, 38, 38, 301, 38, 320, 38, 
-	319, 38, 321, 322, 320, 38, 319, 38, 
-	38, 38, 38, 38, 301, 38, 38, 38, 
-	301, 38, 324, 325, 38, 323, 38, 38, 
-	38, 320, 38, 319, 13, 13, 302, 13, 
-	13, 13, 326, 326, 13, 302, 13, 13, 
-	326, 326, 326, 302, 13, 13, 326, 302, 
-	13, 13, 326, 302, 13, 13, 326, 302, 
-	38, 38, 326, 302, 13, 305, 13, 304, 
-	13, 13, 13, 13, 302, 13, 327, 328, 
-	329, 305, 13, 312, 304, 13, 13, 326, 
-	326, 302, 13, 13, 326, 326, 326, 326, 
-	302, 13, 13, 326, 302, 13, 330, 331, 
-	332, 333, 334, 335, 336, 305, 13, 304, 
-	13, 13, 13, 13, 13, 302, 13, 13, 
-	326, 326, 13, 302, 13, 13, 326, 302, 
-	13, 326, 13, 326, 302, 13, 326, 13, 
-	326, 302, 13, 13, 326, 302, 13, 13, 
-	326, 302, 13, 337, 312, 338, 339, 340, 
-	341, 305, 13, 304, 13, 13, 326, 302, 
-	13, 13, 326, 326, 326, 302, 13, 13, 
-	326, 302, 13, 13, 326, 302, 13, 13, 
-	326, 326, 302, 13, 342, 343, 344, 305, 
-	13, 304, 13, 13, 326, 302, 13, 13, 
-	326, 302, 13, 13, 326, 302, 13, 345, 
-	307, 13, 306, 13, 13, 13, 305, 13, 
-	304, 13, 330, 346, 305, 13, 304, 13, 
-	13, 13, 302, 309, 305, 307, 302, 302, 
-	302, 301, 302, 301, 302, 304, 306, 308, 
-	13, 13, 13, 282, 13, 13, 13, 13, 
-	282, 13, 299, 13, 286, 13, 347, 348, 
-	299, 13, 286, 13, 13, 13, 13, 13, 
-	282, 13, 13, 13, 282, 13, 349, 300, 
-	13, 292, 13, 13, 13, 299, 13, 286, 
-	298, 284, 287, 288, 290, 291, 293, 294, 
-	295, 296, 282, 282, 282, 283, 282, 301, 
-	282, 301, 282, 286, 289, 286, 292, 297, 
-	38, 13, 13, 13, 285, 285, 13, 282, 
-	13, 13, 285, 285, 285, 282, 13, 13, 
-	285, 282, 13, 13, 285, 282, 13, 13, 
-	285, 282, 38, 38, 285, 282, 13, 350, 
-	351, 352, 299, 13, 289, 286, 13, 13, 
-	285, 285, 282, 13, 13, 285, 285, 285, 
-	285, 282, 13, 13, 285, 282, 13, 347, 
-	353, 354, 355, 356, 357, 358, 299, 13, 
-	286, 13, 13, 285, 285, 13, 282, 13, 
-	13, 285, 282, 13, 285, 13, 285, 282, 
-	13, 285, 13, 285, 282, 13, 13, 285, 
-	282, 13, 13, 285, 282, 13, 359, 289, 
-	360, 361, 362, 363, 299, 13, 286, 13, 
-	13, 285, 282, 13, 13, 285, 285, 285, 
-	282, 13, 13, 285, 282, 13, 13, 285, 
-	282, 13, 13, 285, 285, 282, 13, 364, 
-	365, 366, 299, 13, 286, 13, 13, 285, 
-	282, 13, 13, 285, 282, 13, 13, 285, 
-	282, 197, 278, 15, 280, 280, 200, 201, 
-	203, 204, 209, 205, 206, 207, 208, 14, 
-	14, 14, 198, 14, 279, 14, 279, 14, 
-	16, 202, 16, 18, 20, 62, 62, 158, 
-	64, 68, 63, 62, 63, 14, 62, 63, 
-	199, 199, 62, 14, 3, 368, 370, 368, 
-	371, 372, 374, 376, 377, 376, 377, 380, 
-	381, 383, 384, 386, 387, 388, 389, 367, 
-	369, 367, 373, 367, 375, 367, 375, 367, 
-	379, 382, 379, 385, 390, 378, 391, 15, 
-	17, 19, 391, 391, 16, 18, 20, 391, 
-	14, 27, 29, 30, 32, 33, 393, 34, 
-	35, 36, 37, 21, 21, 21, 28, 21, 
-	28, 21, 22, 31, 22, 24, 26, 392, 
-	63, 65, 63, 66, 67, 64, 391, 68, 
-	395, 396, 68, 394, 64, 64, 69, 70, 
-	68, 391, 64, 69, 70, 64, 68, 391, 
-	79, 371, 158, 121, 122, 398, 15, 121, 
-	158, 123, 121, 158, 399, 126, 127, 128, 
-	129, 130, 131, 132, 133, 134, 135, 400, 
-	137, 138, 79, 158, 124, 397, 16, 18, 
-	20, 397, 14, 401, 402, 392, 79, 158, 
-	121, 122, 398, 15, 121, 158, 123, 121, 
-	158, 399, 126, 127, 128, 129, 130, 131, 
-	132, 133, 134, 135, 400, 137, 138, 79, 
-	158, 124, 397, 16, 18, 20, 397, 14, 
-	392, 15, 17, 403, 404, 19, 392, 392, 
-	16, 18, 20, 392, 14, 406, 167, 167, 
-	167, 407, 408, 15, 167, 167, 409, 410, 
-	405, 405, 16, 18, 20, 405, 14, 411, 
-	165, 80, 81, 412, 80, 165, 82, 80, 
-	165, 413, 85, 86, 87, 88, 89, 90, 
-	91, 92, 93, 94, 414, 96, 97, 79, 
-	165, 83, 397, 79, 165, 80, 81, 412, 
-	80, 165, 82, 80, 165, 413, 85, 86, 
-	87, 88, 89, 90, 91, 92, 93, 94, 
-	414, 96, 97, 79, 165, 83, 397, 405, 
-	167, 167, 167, 408, 15, 167, 167, 409, 
-	410, 405, 405, 16, 18, 20, 405, 14, 
-	79, 158, 121, 407, 122, 398, 15, 121, 
-	158, 123, 121, 158, 399, 126, 127, 128, 
-	129, 130, 131, 132, 133, 134, 135, 400, 
-	137, 138, 79, 158, 124, 397, 16, 18, 
-	20, 397, 14, 197, 15, 200, 201, 203, 
-	204, 205, 206, 207, 208, 14, 14, 14, 
+	13, 13, 17, 13, 16, 62, 64, 62, 
+	65, 66, 63, 38, 63, 63, 68, 69, 
+	67, 38, 67, 67, 70, 71, 72, 70, 
+	67, 67, 67, 70, 67, 70, 67, 63, 
+	38, 73, 74, 38, 63, 63, 67, 38, 
+	63, 38, 63, 68, 69, 63, 67, 38, 
+	63, 62, 38, 75, 76, 38, 63, 67, 
+	62, 62, 38, 62, 38, 78, 79, 80, 
+	79, 81, 79, 83, 84, 85, 86, 87, 
+	88, 89, 90, 91, 92, 93, 94, 95, 
+	96, 78, 79, 82, 77, 79, 80, 79, 
+	81, 79, 97, 84, 85, 86, 87, 88, 
+	89, 90, 91, 92, 93, 98, 95, 96, 
+	79, 82, 77, 79, 77, 79, 77, 82, 
+	38, 82, 38, 82, 79, 82, 77, 82, 
+	82, 77, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 77, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 77, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 77, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 77, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 77, 82, 
+	82, 82, 82, 82, 82, 82, 77, 82, 
+	82, 77, 82, 77, 99, 100, 101, 103, 
+	102, 77, 82, 82, 77, 82, 82, 82, 
+	82, 77, 82, 77, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 77, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 77, 104, 105, 106, 107, 108, 109, 
+	77, 79, 79, 79, 79, 77, 82, 82, 
+	77, 82, 77, 82, 82, 77, 82, 77, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	77, 110, 111, 112, 113, 114, 115, 77, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 77, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 77, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 82, 
+	82, 82, 82, 82, 82, 82, 82, 77, 
+	82, 77, 82, 77, 82, 82, 77, 116, 
+	117, 77, 82, 77, 82, 77, 78, 78, 
+	82, 79, 82, 77, 118, 119, 106, 107, 
+	108, 109, 77, 79, 79, 79, 78, 78, 
+	79, 78, 77, 78, 82, 82, 77, 77, 
+	120, 121, 15, 120, 122, 120, 124, 125, 
+	126, 127, 128, 129, 130, 131, 132, 133, 
+	134, 135, 136, 137, 77, 120, 123, 77, 
+	16, 18, 20, 77, 14, 77, 120, 15, 
+	17, 19, 77, 77, 16, 18, 20, 77, 
+	14, 77, 15, 120, 17, 19, 77, 77, 
+	16, 18, 20, 77, 14, 38, 38, 123, 
+	14, 38, 38, 123, 14, 77, 77, 77, 
+	123, 120, 123, 77, 14, 77, 77, 123, 
+	123, 14, 77, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 77, 123, 14, 77, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 77, 123, 123, 14, 77, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 77, 123, 
+	123, 123, 123, 123, 14, 77, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 77, 123, 
+	123, 14, 77, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 77, 123, 
+	14, 77, 123, 123, 123, 123, 123, 123, 
+	77, 123, 14, 77, 77, 123, 123, 14, 
+	77, 77, 123, 14, 77, 138, 139, 140, 
+	142, 17, 77, 141, 16, 77, 77, 123, 
+	123, 14, 77, 77, 123, 123, 123, 123, 
+	14, 77, 77, 123, 14, 77, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 77, 14, 
+	77, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 77, 123, 14, 77, 
+	143, 144, 145, 146, 147, 148, 17, 77, 
+	16, 77, 120, 120, 120, 77, 120, 77, 
+	77, 77, 14, 77, 77, 123, 123, 77, 
+	14, 77, 77, 123, 14, 77, 123, 77, 
+	123, 14, 77, 123, 77, 14, 77, 123, 
+	123, 123, 123, 123, 77, 123, 123, 123, 
+	14, 77, 149, 150, 151, 152, 153, 154, 
+	17, 77, 16, 77, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 77, 123, 14, 77, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 77, 
+	123, 14, 77, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 123, 123, 
+	123, 123, 123, 123, 123, 123, 77, 123, 
+	14, 77, 77, 123, 14, 77, 77, 123, 
+	14, 77, 77, 123, 123, 14, 77, 155, 
+	156, 17, 77, 16, 77, 77, 123, 14, 
+	77, 77, 123, 14, 77, 157, 15, 17, 
+	19, 77, 77, 16, 18, 20, 77, 14, 
+	77, 78, 78, 123, 120, 123, 157, 77, 
+	14, 77, 158, 159, 145, 146, 147, 148, 
+	17, 77, 16, 77, 120, 157, 157, 78, 
+	77, 78, 120, 157, 77, 78, 120, 14, 
+	77, 78, 123, 123, 77, 14, 161, 160, 
+	162, 160, 163, 160, 78, 79, 163, 80, 
+	79, 81, 79, 83, 84, 85, 86, 87, 
+	88, 89, 90, 91, 92, 93, 94, 95, 
+	96, 78, 79, 82, 77, 164, 77, 78, 
+	78, 82, 79, 82, 164, 77, 165, 119, 
+	106, 107, 108, 109, 77, 79, 164, 164, 
+	78, 78, 79, 164, 78, 79, 77, 160, 
+	166, 15, 17, 19, 160, 160, 16, 18, 
+	20, 160, 14, 160, 160, 160, 166, 160, 
+	14, 160, 167, 60, 17, 160, 16, 160, 
+	166, 166, 160, 166, 160, 160, 160, 14, 
+	168, 15, 171, 172, 174, 175, 176, 177, 
+	178, 179, 14, 14, 14, 169, 14, 170, 
+	14, 170, 14, 16, 173, 16, 18, 20, 
+	38, 15, 171, 172, 174, 175, 176, 177, 
+	178, 179, 14, 14, 14, 169, 14, 170, 
+	14, 170, 14, 16, 173, 16, 18, 20, 
+	38, 38, 38, 38, 170, 170, 38, 14, 
+	38, 38, 170, 170, 170, 14, 38, 38, 
+	170, 14, 38, 38, 170, 14, 38, 38, 
+	170, 14, 38, 38, 170, 14, 38, 180, 
+	181, 182, 17, 38, 173, 16, 38, 38, 
+	170, 170, 14, 38, 38, 170, 170, 170, 
+	170, 14, 38, 38, 170, 14, 38, 59, 
+	183, 184, 185, 186, 187, 188, 17, 38, 
+	16, 38, 38, 170, 170, 38, 14, 38, 
+	38, 170, 14, 38, 170, 38, 170, 14, 
+	38, 170, 38, 170, 14, 38, 38, 170, 
+	14, 38, 38, 170, 14, 38, 189, 173, 
+	190, 191, 192, 193, 17, 38, 16, 38, 
+	38, 170, 14, 38, 38, 170, 170, 170, 
+	14, 38, 38, 170, 14, 38, 38, 170, 
+	14, 38, 38, 170, 170, 14, 38, 194, 
+	195, 196, 17, 38, 16, 38, 38, 170, 
+	14, 38, 38, 170, 14, 38, 38, 170, 
+	14, 197, 15, 200, 201, 203, 204, 205, 
+	206, 207, 208, 14, 14, 14, 198, 14, 
+	199, 14, 199, 14, 16, 202, 16, 18, 
+	20, 38, 197, 15, 200, 201, 203, 204, 
+	209, 205, 206, 207, 208, 14, 14, 14, 
 	198, 14, 199, 14, 199, 14, 16, 202, 
-	16, 18, 20, 391, 197, 15, 171, 172, 
-	174, 175, 176, 177, 178, 179, 14, 14, 
-	14, 169, 14, 170, 14, 170, 14, 16, 
-	173, 16, 18, 20, 392, 197, 15, 171, 
-	172, 174, 175, 415, 176, 177, 178, 179, 
-	14, 14, 14, 169, 14, 170, 14, 170, 
-	14, 16, 173, 16, 18, 20, 392, 79, 
-	158, 121, 122, 398, 374, 15, 121, 158, 
-	123, 121, 158, 399, 126, 127, 128, 129, 
-	130, 131, 132, 133, 134, 135, 400, 137, 
-	138, 79, 158, 124, 397, 16, 18, 20, 
-	397, 14, 197, 278, 15, 200, 201, 203, 
-	204, 209, 205, 206, 207, 208, 14, 14, 
-	14, 198, 14, 279, 14, 279, 14, 16, 
-	202, 16, 18, 20, 391, 230, 232, 234, 
-	229, 229, 229, 236, 229, 236, 229, 236, 
-	229, 231, 233, 235, 392, 244, 240, 242, 
-	237, 237, 237, 238, 237, 238, 237, 238, 
-	237, 239, 241, 243, 392, 244, 246, 247, 
-	249, 250, 416, 251, 252, 253, 254, 237, 
+	16, 18, 20, 38, 38, 38, 38, 199, 
+	199, 38, 14, 38, 38, 199, 199, 199, 
+	14, 38, 38, 199, 14, 38, 38, 199, 
+	14, 38, 38, 199, 14, 38, 38, 199, 
+	14, 38, 210, 211, 212, 17, 38, 202, 
+	16, 38, 38, 199, 199, 14, 38, 38, 
+	199, 199, 199, 199, 14, 38, 38, 199, 
+	14, 38, 59, 213, 214, 215, 216, 217, 
+	218, 17, 38, 16, 38, 38, 199, 199, 
+	38, 14, 38, 38, 199, 14, 38, 199, 
+	38, 199, 14, 38, 199, 38, 199, 14, 
+	38, 38, 199, 14, 38, 38, 199, 14, 
+	38, 219, 202, 220, 221, 222, 223, 17, 
+	38, 16, 38, 38, 199, 14, 38, 38, 
+	199, 199, 199, 14, 38, 38, 199, 14, 
+	38, 38, 199, 14, 38, 38, 199, 199, 
+	14, 38, 224, 225, 226, 17, 38, 16, 
+	38, 38, 199, 14, 38, 38, 199, 14, 
+	38, 38, 199, 14, 38, 227, 15, 17, 
+	19, 38, 38, 16, 18, 20, 38, 14, 
+	38, 228, 15, 17, 19, 38, 38, 16, 
+	18, 20, 38, 14, 38, 230, 232, 234, 
+	38, 38, 231, 233, 235, 38, 229, 230, 
+	232, 234, 229, 229, 229, 236, 229, 236, 
+	229, 236, 229, 231, 233, 235, 38, 240, 
+	242, 237, 237, 237, 238, 237, 238, 237, 
+	238, 237, 239, 241, 243, 38, 244, 240, 
+	242, 237, 237, 237, 238, 237, 238, 237, 
+	238, 237, 239, 241, 243, 38, 244, 246, 
+	247, 249, 250, 251, 252, 253, 254, 237, 
 	237, 237, 238, 237, 245, 237, 245, 237, 
-	239, 248, 239, 241, 243, 392, 197, 278, 
-	15, 417, 417, 200, 201, 203, 204, 209, 
-	205, 206, 207, 208, 14, 14, 14, 198, 
-	14, 279, 14, 279, 14, 16, 202, 16, 
-	18, 20, 391, 392, 320, 325, 392, 392, 
-	319, 323, 418, 392, 301, 309, 310, 311, 
-	313, 314, 419, 315, 316, 317, 318, 302, 
-	302, 302, 326, 302, 326, 302, 304, 312, 
-	304, 306, 308, 392, 420, 284, 287, 288, 
-	290, 291, 293, 294, 295, 296, 282, 282, 
-	282, 283, 282, 285, 282, 285, 282, 286, 
-	289, 286, 292, 297, 392, 420, 284, 287, 
-	288, 290, 291, 421, 293, 294, 295, 296, 
-	282, 282, 282, 283, 282, 285, 282, 285, 
-	282, 286, 289, 286, 292, 297, 392, 197, 
-	278, 15, 422, 422, 200, 201, 203, 204, 
+	239, 248, 239, 241, 243, 38, 38, 38, 
+	237, 38, 38, 38, 38, 237, 38, 240, 
+	38, 239, 38, 255, 256, 240, 38, 239, 
+	38, 38, 38, 38, 38, 237, 38, 38, 
+	38, 237, 38, 257, 242, 38, 241, 38, 
+	38, 38, 240, 38, 239, 38, 38, 38, 
+	245, 245, 38, 237, 38, 38, 245, 245, 
+	245, 237, 38, 38, 245, 237, 38, 38, 
+	245, 237, 38, 38, 245, 237, 38, 38, 
+	245, 237, 38, 258, 259, 260, 240, 38, 
+	248, 239, 38, 38, 245, 245, 237, 38, 
+	38, 245, 245, 245, 245, 237, 38, 38, 
+	245, 237, 38, 255, 261, 262, 263, 264, 
+	265, 266, 240, 38, 239, 38, 38, 245, 
+	245, 38, 237, 38, 38, 245, 237, 38, 
+	245, 38, 245, 237, 38, 245, 38, 245, 
+	237, 38, 38, 245, 237, 38, 38, 245, 
+	237, 38, 267, 248, 268, 269, 270, 271, 
+	240, 38, 239, 38, 38, 245, 237, 38, 
+	38, 245, 245, 245, 237, 38, 38, 245, 
+	237, 38, 38, 245, 237, 38, 38, 245, 
+	245, 237, 38, 272, 273, 274, 240, 38, 
+	239, 38, 38, 245, 237, 38, 38, 245, 
+	237, 38, 38, 245, 237, 38, 38, 229, 
+	38, 38, 38, 38, 229, 38, 232, 38, 
+	231, 38, 275, 276, 232, 38, 231, 38, 
+	38, 38, 38, 38, 229, 38, 38, 38, 
+	229, 38, 277, 234, 38, 233, 38, 38, 
+	38, 232, 38, 231, 197, 278, 15, 200, 
+	201, 203, 204, 209, 205, 206, 207, 208, 
+	14, 14, 14, 198, 14, 279, 14, 279, 
+	14, 16, 202, 16, 18, 20, 38, 197, 
+	278, 15, 280, 280, 200, 201, 203, 204, 
 	209, 205, 206, 207, 208, 14, 14, 14, 
 	198, 14, 279, 14, 279, 14, 16, 202, 
-	16, 18, 20, 391, 391, 391, 14, 391, 
-	64, 63, 199, 199, 391, 14, 391, 391, 
-	199, 199, 199, 14, 391, 391, 199, 14, 
-	391, 391, 199, 14, 391, 391, 199, 14, 
-	391, 17, 391, 16, 391, 210, 211, 212, 
-	17, 391, 202, 16, 391, 423, 424, 214, 
-	215, 216, 217, 218, 17, 391, 16, 391, 
-	219, 202, 220, 221, 222, 223, 17, 391, 
-	16, 391, 224, 225, 226, 17, 391, 16, 
-	391, 61, 19, 391, 18, 0
+	16, 18, 20, 38, 281, 278, 15, 200, 
+	201, 203, 204, 209, 205, 206, 207, 208, 
+	14, 14, 14, 198, 14, 279, 14, 279, 
+	14, 16, 202, 16, 18, 20, 38, 283, 
+	285, 288, 289, 291, 292, 294, 295, 296, 
+	297, 282, 282, 282, 284, 282, 286, 282, 
+	286, 282, 287, 290, 287, 293, 298, 38, 
+	38, 299, 285, 300, 301, 38, 38, 287, 
+	293, 298, 38, 282, 299, 285, 300, 301, 
+	282, 282, 282, 302, 282, 302, 282, 287, 
+	293, 298, 38, 38, 304, 306, 308, 38, 
+	38, 305, 307, 309, 38, 303, 38, 310, 
+	306, 308, 38, 38, 305, 307, 309, 38, 
+	303, 310, 311, 312, 314, 315, 316, 317, 
+	318, 319, 303, 303, 303, 302, 303, 302, 
+	303, 305, 313, 305, 307, 309, 38, 38, 
+	38, 302, 38, 38, 38, 38, 302, 38, 
+	321, 38, 320, 38, 322, 323, 321, 38, 
+	320, 38, 38, 38, 38, 38, 302, 38, 
+	38, 38, 302, 38, 325, 326, 38, 324, 
+	38, 38, 38, 321, 38, 320, 38, 38, 
+	303, 38, 38, 38, 327, 327, 38, 303, 
+	38, 38, 327, 327, 327, 303, 38, 38, 
+	327, 303, 38, 38, 327, 303, 38, 38, 
+	327, 303, 38, 38, 327, 303, 38, 306, 
+	38, 305, 38, 38, 38, 38, 303, 38, 
+	328, 329, 330, 306, 38, 313, 305, 38, 
+	38, 327, 327, 303, 38, 38, 327, 327, 
+	327, 327, 303, 38, 38, 327, 303, 38, 
+	331, 332, 333, 334, 335, 336, 337, 306, 
+	38, 305, 38, 38, 38, 38, 38, 303, 
+	38, 38, 327, 327, 38, 303, 38, 38, 
+	327, 303, 38, 327, 38, 327, 303, 38, 
+	327, 38, 327, 303, 38, 38, 327, 303, 
+	38, 38, 327, 303, 38, 338, 313, 339, 
+	340, 341, 342, 306, 38, 305, 38, 38, 
+	327, 303, 38, 38, 327, 327, 327, 303, 
+	38, 38, 327, 303, 38, 38, 327, 303, 
+	38, 38, 327, 327, 303, 38, 343, 344, 
+	345, 306, 38, 305, 38, 38, 327, 303, 
+	38, 38, 327, 303, 38, 38, 327, 303, 
+	38, 346, 308, 38, 307, 38, 38, 38, 
+	306, 38, 305, 38, 331, 347, 306, 38, 
+	305, 38, 38, 38, 303, 310, 306, 308, 
+	303, 303, 303, 302, 303, 302, 303, 305, 
+	307, 309, 38, 38, 38, 282, 38, 38, 
+	38, 38, 282, 38, 300, 38, 287, 38, 
+	348, 349, 300, 38, 287, 38, 38, 38, 
+	38, 38, 282, 38, 38, 38, 282, 38, 
+	350, 301, 38, 293, 38, 38, 38, 300, 
+	38, 287, 299, 285, 288, 289, 291, 292, 
+	294, 295, 296, 297, 282, 282, 282, 284, 
+	282, 286, 282, 286, 282, 287, 290, 287, 
+	293, 298, 38, 283, 299, 285, 288, 289, 
+	291, 292, 294, 295, 296, 297, 282, 282, 
+	282, 284, 282, 302, 282, 302, 282, 287, 
+	290, 287, 293, 298, 38, 38, 38, 38, 
+	286, 286, 38, 282, 38, 38, 286, 286, 
+	286, 282, 38, 38, 286, 282, 38, 38, 
+	286, 282, 38, 38, 286, 282, 38, 38, 
+	286, 282, 38, 351, 352, 353, 300, 38, 
+	290, 287, 38, 38, 286, 286, 282, 38, 
+	38, 286, 286, 286, 286, 282, 38, 38, 
+	286, 282, 38, 348, 354, 355, 356, 357, 
+	358, 359, 300, 38, 287, 38, 38, 286, 
+	286, 38, 282, 38, 38, 286, 282, 38, 
+	286, 38, 286, 282, 38, 286, 38, 286, 
+	282, 38, 38, 286, 282, 38, 38, 286, 
+	282, 38, 360, 290, 361, 362, 363, 364, 
+	300, 38, 287, 38, 38, 286, 282, 38, 
+	38, 286, 286, 286, 282, 38, 38, 286, 
+	282, 38, 38, 286, 282, 38, 38, 286, 
+	286, 282, 38, 365, 366, 367, 300, 38, 
+	287, 38, 38, 286, 282, 38, 38, 286, 
+	282, 38, 38, 286, 282, 197, 278, 15, 
+	280, 280, 200, 201, 203, 204, 209, 205, 
+	206, 207, 208, 14, 14, 14, 198, 14, 
+	279, 14, 279, 14, 16, 202, 16, 18, 
+	20, 38, 38, 157, 63, 67, 62, 38, 
+	62, 14, 38, 62, 199, 199, 38, 14, 
+	3, 369, 371, 369, 372, 373, 375, 377, 
+	378, 377, 378, 381, 382, 384, 385, 387, 
+	388, 389, 390, 368, 370, 368, 374, 368, 
+	376, 368, 376, 368, 380, 383, 380, 386, 
+	391, 379, 392, 15, 17, 19, 392, 392, 
+	16, 18, 20, 392, 14, 27, 29, 30, 
+	32, 33, 393, 34, 35, 36, 37, 21, 
+	21, 21, 28, 21, 28, 21, 22, 31, 
+	22, 24, 26, 392, 62, 64, 62, 65, 
+	66, 63, 392, 67, 395, 396, 67, 394, 
+	63, 63, 68, 69, 67, 392, 63, 68, 
+	69, 63, 67, 392, 78, 372, 157, 120, 
+	121, 398, 15, 120, 157, 122, 120, 157, 
+	399, 125, 126, 127, 128, 129, 130, 131, 
+	132, 133, 134, 400, 136, 137, 78, 157, 
+	123, 397, 16, 18, 20, 397, 14, 401, 
+	402, 392, 78, 157, 120, 121, 398, 15, 
+	120, 157, 122, 120, 157, 399, 125, 126, 
+	127, 128, 129, 130, 131, 132, 133, 134, 
+	400, 136, 137, 78, 157, 123, 397, 16, 
+	18, 20, 397, 14, 392, 15, 17, 403, 
+	404, 19, 392, 392, 16, 18, 20, 392, 
+	14, 406, 166, 166, 166, 407, 408, 15, 
+	166, 166, 409, 410, 405, 405, 16, 18, 
+	20, 405, 14, 411, 164, 79, 80, 412, 
+	79, 164, 81, 79, 164, 413, 84, 85, 
+	86, 87, 88, 89, 90, 91, 92, 93, 
+	414, 95, 96, 78, 164, 82, 397, 78, 
+	164, 79, 80, 412, 79, 164, 81, 79, 
+	164, 413, 84, 85, 86, 87, 88, 89, 
+	90, 91, 92, 93, 414, 95, 96, 78, 
+	164, 82, 397, 405, 166, 166, 166, 408, 
+	15, 166, 166, 409, 410, 405, 405, 16, 
+	18, 20, 405, 14, 78, 157, 120, 407, 
+	121, 398, 15, 120, 157, 122, 120, 157, 
+	399, 125, 126, 127, 128, 129, 130, 131, 
+	132, 133, 134, 400, 136, 137, 78, 157, 
+	123, 397, 16, 18, 20, 397, 14, 197, 
+	15, 200, 201, 203, 204, 205, 206, 207, 
+	208, 14, 14, 14, 198, 14, 199, 14, 
+	199, 14, 16, 202, 16, 18, 20, 392, 
+	197, 15, 171, 172, 174, 175, 176, 177, 
+	178, 179, 14, 14, 14, 169, 14, 170, 
+	14, 170, 14, 16, 173, 16, 18, 20, 
+	392, 197, 15, 171, 172, 174, 175, 415, 
+	176, 177, 178, 179, 14, 14, 14, 169, 
+	14, 170, 14, 170, 14, 16, 173, 16, 
+	18, 20, 392, 78, 157, 120, 121, 398, 
+	375, 15, 120, 157, 122, 120, 157, 399, 
+	125, 126, 127, 128, 129, 130, 131, 132, 
+	133, 134, 400, 136, 137, 78, 157, 123, 
+	397, 16, 18, 20, 397, 14, 197, 278, 
+	15, 200, 201, 203, 204, 209, 205, 206, 
+	207, 208, 14, 14, 14, 198, 14, 279, 
+	14, 279, 14, 16, 202, 16, 18, 20, 
+	392, 230, 232, 234, 229, 229, 229, 236, 
+	229, 236, 229, 236, 229, 231, 233, 235, 
+	392, 244, 240, 242, 237, 237, 237, 238, 
+	237, 238, 237, 238, 237, 239, 241, 243, 
+	392, 244, 246, 247, 249, 250, 416, 251, 
+	252, 253, 254, 237, 237, 237, 238, 237, 
+	245, 237, 245, 237, 239, 248, 239, 241, 
+	243, 392, 197, 278, 15, 417, 417, 200, 
+	201, 203, 204, 209, 205, 206, 207, 208, 
+	14, 14, 14, 198, 14, 279, 14, 279, 
+	14, 16, 202, 16, 18, 20, 392, 392, 
+	321, 326, 392, 392, 320, 324, 418, 392, 
+	302, 310, 311, 312, 314, 315, 419, 316, 
+	317, 318, 319, 303, 303, 303, 327, 303, 
+	327, 303, 305, 313, 305, 307, 309, 392, 
+	420, 285, 288, 289, 291, 292, 294, 295, 
+	296, 297, 282, 282, 282, 284, 282, 286, 
+	282, 286, 282, 287, 290, 287, 293, 298, 
+	392, 420, 285, 288, 289, 291, 292, 421, 
+	294, 295, 296, 297, 282, 282, 282, 284, 
+	282, 286, 282, 286, 282, 287, 290, 287, 
+	293, 298, 392, 197, 278, 15, 422, 422, 
+	200, 201, 203, 204, 209, 205, 206, 207, 
+	208, 14, 14, 14, 198, 14, 279, 14, 
+	279, 14, 16, 202, 16, 18, 20, 392, 
+	392, 392, 14, 392, 63, 62, 199, 199, 
+	392, 14, 392, 392, 199, 199, 199, 14, 
+	392, 392, 199, 14, 392, 392, 199, 14, 
+	392, 392, 199, 14, 392, 17, 392, 16, 
+	392, 210, 211, 212, 17, 392, 202, 16, 
+	392, 423, 424, 214, 215, 216, 217, 218, 
+	17, 392, 16, 392, 219, 202, 220, 221, 
+	222, 223, 17, 392, 16, 392, 224, 225, 
+	226, 17, 392, 16, 392, 61, 19, 392, 
+	18, 0
 };
 
 static const short _mr_sentencize2_trans_targs[] = {
-	368, 1, 2, 0, 3, 4, 5, 8, 
-	368, 2, 6, 7, 4, 369, 9, 10, 
+	370, 1, 2, 0, 3, 4, 5, 8, 
+	370, 2, 6, 7, 4, 371, 9, 10, 
 	48, 49, 50, 51, 54, 11, 13, 21, 
-	20, 46, 44, 12, 371, 14, 15, 16, 
-	17, 18, 22, 26, 34, 40, 369, 23, 
+	20, 46, 44, 12, 373, 14, 15, 16, 
+	17, 18, 22, 26, 34, 40, 371, 23, 
 	24, 25, 27, 28, 29, 30, 31, 32, 
 	33, 35, 36, 37, 38, 39, 41, 42, 
-	43, 45, 47, 52, 53, 55, 369, 56, 
-	57, 66, 67, 68, 373, 62, 63, 369, 
-	60, 61, 64, 65, 69, 70, 369, 71, 
-	72, 73, 74, 377, 110, 78, 79, 80, 
-	81, 82, 83, 84, 85, 86, 87, 111, 
-	100, 107, 77, 93, 88, 89, 90, 91, 
-	92, 94, 95, 96, 97, 98, 99, 101, 
-	102, 103, 104, 105, 106, 108, 109, 112, 
-	113, 114, 115, 116, 379, 119, 120, 121, 
-	122, 123, 124, 125, 126, 127, 128, 129, 
-	135, 142, 149, 130, 131, 132, 133, 134, 
-	136, 137, 138, 139, 140, 141, 143, 144, 
-	145, 146, 147, 148, 150, 151, 378, 155, 
-	156, 369, 158, 159, 381, 382, 164, 383, 
-	168, 386, 387, 170, 171, 172, 173, 174, 
-	176, 180, 187, 193, 177, 178, 179, 181, 
-	182, 183, 184, 185, 186, 188, 189, 190, 
-	191, 192, 194, 195, 196, 169, 197, 198, 
-	199, 200, 201, 202, 203, 205, 209, 216, 
-	222, 204, 206, 207, 208, 210, 211, 212, 
-	213, 214, 215, 217, 218, 219, 220, 221, 
-	223, 224, 225, 227, 228, 229, 230, 268, 
-	269, 270, 271, 274, 390, 231, 391, 233, 
-	234, 235, 236, 239, 232, 392, 241, 242, 
-	243, 244, 245, 247, 251, 258, 264, 237, 
-	238, 240, 248, 249, 250, 252, 253, 254, 
-	255, 256, 257, 259, 260, 261, 262, 263, 
-	265, 266, 267, 272, 273, 275, 226, 276, 
-	278, 279, 280, 396, 282, 397, 329, 338, 
-	339, 340, 341, 342, 331, 344, 348, 355, 
-	361, 335, 281, 330, 332, 394, 283, 328, 
-	293, 301, 300, 326, 324, 284, 294, 295, 
-	296, 297, 298, 302, 306, 314, 320, 285, 
-	286, 289, 290, 287, 292, 288, 395, 303, 
-	304, 305, 307, 308, 309, 310, 311, 312, 
-	313, 315, 316, 317, 318, 319, 321, 322, 
-	323, 325, 327, 333, 334, 336, 345, 346, 
-	347, 349, 350, 351, 352, 353, 354, 356, 
-	357, 358, 359, 360, 362, 363, 364, 370, 
-	372, 374, 375, 376, 380, 385, 388, 389, 
-	393, 398, 369, 399, 400, 401, 402, 403, 
-	404, 405, 406, 407, 408, 409, 410, 369, 
-	369, 19, 369, 58, 59, 369, 152, 153, 
-	154, 75, 76, 117, 118, 369, 157, 384, 
-	165, 166, 167, 160, 161, 162, 163, 175, 
-	246, 277, 291, 299, 337, 343, 365, 366, 
-	367
+	43, 45, 47, 52, 53, 55, 56, 57, 
+	66, 67, 68, 375, 62, 63, 371, 60, 
+	61, 64, 65, 69, 70, 371, 71, 72, 
+	73, 74, 379, 110, 78, 79, 80, 81, 
+	82, 83, 84, 85, 86, 87, 111, 100, 
+	107, 77, 93, 88, 89, 90, 91, 92, 
+	94, 95, 96, 97, 98, 99, 101, 102, 
+	103, 104, 105, 106, 108, 109, 112, 113, 
+	114, 115, 116, 381, 119, 120, 121, 122, 
+	123, 124, 125, 126, 127, 128, 129, 135, 
+	142, 149, 130, 131, 132, 133, 134, 136, 
+	137, 138, 139, 140, 141, 143, 144, 145, 
+	146, 147, 148, 150, 151, 380, 155, 156, 
+	371, 158, 159, 383, 384, 164, 385, 168, 
+	170, 388, 389, 171, 172, 173, 174, 175, 
+	177, 181, 188, 194, 178, 179, 180, 182, 
+	183, 184, 185, 186, 187, 189, 190, 191, 
+	192, 193, 195, 196, 197, 169, 198, 199, 
+	200, 201, 202, 203, 204, 206, 210, 217, 
+	223, 205, 207, 208, 209, 211, 212, 213, 
+	214, 215, 216, 218, 219, 220, 221, 222, 
+	224, 225, 226, 228, 229, 230, 231, 269, 
+	270, 271, 272, 275, 392, 232, 393, 234, 
+	235, 236, 237, 240, 233, 394, 242, 243, 
+	244, 245, 246, 248, 252, 259, 265, 238, 
+	239, 241, 249, 250, 251, 253, 254, 255, 
+	256, 257, 258, 260, 261, 262, 263, 264, 
+	266, 267, 268, 273, 274, 276, 227, 277, 
+	279, 280, 281, 338, 398, 283, 399, 330, 
+	340, 341, 342, 343, 344, 332, 346, 350, 
+	357, 363, 336, 282, 331, 333, 396, 284, 
+	329, 294, 302, 301, 327, 325, 285, 295, 
+	296, 297, 298, 299, 303, 307, 315, 321, 
+	286, 287, 290, 291, 288, 293, 289, 397, 
+	304, 305, 306, 308, 309, 310, 311, 312, 
+	313, 314, 316, 317, 318, 319, 320, 322, 
+	323, 324, 326, 328, 334, 335, 337, 347, 
+	348, 349, 351, 352, 353, 354, 355, 356, 
+	358, 359, 360, 361, 362, 364, 365, 366, 
+	372, 374, 376, 377, 378, 382, 387, 390, 
+	391, 395, 400, 371, 401, 402, 403, 404, 
+	405, 406, 407, 408, 409, 410, 411, 412, 
+	371, 19, 371, 58, 59, 371, 152, 153, 
+	154, 75, 76, 117, 118, 371, 157, 386, 
+	165, 166, 167, 160, 161, 162, 163, 176, 
+	247, 278, 292, 300, 339, 345, 367, 368, 
+	369
 };
 
 static const char _mr_sentencize2_trans_actions[] = {
@@ -26985,20 +27009,20 @@ static const char _mr_sentencize2_trans_actions[] = {
 	0, 0, 0, 0, 0, 0, 7, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 8, 0, 
-	0, 0, 0, 0, 9, 0, 0, 10, 
-	0, 0, 0, 0, 0, 0, 11, 0, 
-	0, 0, 0, 9, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 8, 0, 0, 9, 0, 
+	0, 0, 0, 0, 0, 10, 0, 0, 
+	0, 0, 8, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 6, 0, 0, 0, 
+	0, 0, 0, 6, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 12, 0, 
-	0, 13, 0, 0, 9, 9, 0, 14, 
+	0, 0, 0, 0, 0, 11, 0, 0, 
+	12, 0, 0, 8, 8, 0, 13, 0, 
 	0, 6, 6, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -27007,28 +27031,28 @@ static const char _mr_sentencize2_trans_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 6, 0, 6, 0, 
-	0, 0, 0, 0, 0, 6, 0, 0, 
+	0, 0, 0, 0, 8, 0, 8, 0, 
+	0, 0, 0, 0, 0, 8, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 6, 0, 6, 0, 0, 
+	0, 0, 0, 0, 8, 0, 8, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 9, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 6, 0, 
+	0, 0, 0, 0, 0, 0, 8, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 8, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 16, 
-	9, 9, 9, 12, 14, 16, 12, 16, 
-	16, 16, 17, 16, 16, 16, 16, 16, 
-	16, 16, 16, 16, 16, 16, 16, 18, 
-	19, 0, 20, 0, 0, 21, 0, 0, 
-	0, 0, 0, 0, 0, 22, 0, 12, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	6, 8, 8, 8, 11, 13, 6, 11, 
+	6, 6, 6, 15, 6, 6, 6, 6, 
+	6, 6, 6, 6, 6, 6, 6, 6, 
+	16, 0, 17, 0, 0, 18, 0, 0, 
+	0, 0, 0, 0, 0, 19, 0, 11, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0
@@ -27081,12 +27105,12 @@ static const char _mr_sentencize2_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	1, 1, 0, 0, 0, 0, 0, 0, 
+	0, 0, 1, 1, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0
+	0, 0, 0, 0, 0
 };
 
 static const char _mr_sentencize2_from_state_actions[] = {
@@ -27136,12 +27160,12 @@ static const char _mr_sentencize2_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 15, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 14, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0
+	0, 0, 0, 0, 0
 };
 
 static const short _mr_sentencize2_eof_trans[] = {
@@ -27152,62 +27176,62 @@ static const short _mr_sentencize2_eof_trans[] = {
 	14, 14, 14, 14, 14, 14, 14, 14, 
 	14, 14, 14, 14, 14, 14, 14, 14, 
 	14, 14, 14, 14, 14, 14, 14, 14, 
-	63, 63, 72, 72, 72, 72, 63, 63, 
-	63, 63, 63, 63, 63, 63, 63, 79, 
-	79, 79, 79, 39, 39, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 39, 39, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 79, 79, 79, 
-	79, 79, 79, 79, 79, 162, 162, 162, 
-	79, 79, 79, 79, 79, 162, 162, 162, 
-	162, 14, 14, 14, 14, 14, 14, 39, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 63, 63, 63, 
-	63, 63, 63, 63, 63, 63, 63, 63, 
-	63, 63, 63, 63, 63, 63, 63, 63, 
-	63, 63, 63, 63, 63, 63, 63, 63, 
-	63, 63, 63, 63, 63, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 39, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 63, 63, 63, 63, 
-	14, 14, 14, 14, 14, 39, 39, 39, 
-	39, 39, 39, 39, 39, 14, 14, 14, 
-	14, 14, 14, 39, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 39, 14, 14, 14, 14, 14, 39, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 14, 14, 14, 
-	14, 14, 14, 14, 14, 63, 63, 63, 
-	0, 0, 392, 393, 392, 395, 392, 392, 
-	398, 393, 398, 393, 406, 398, 398, 406, 
-	398, 392, 393, 393, 398, 392, 393, 393, 
-	393, 392, 393, 393, 393, 393, 392, 392, 
-	392, 392, 392, 392, 392, 392, 392, 392, 
-	392, 392, 392
+	39, 39, 71, 71, 71, 71, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 78, 
+	78, 78, 78, 39, 39, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 39, 39, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 78, 78, 78, 
+	78, 78, 78, 78, 78, 161, 161, 161, 
+	78, 78, 78, 78, 78, 161, 161, 161, 
+	161, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 39, 39, 39, 39, 39, 39, 
+	39, 39, 0, 0, 393, 393, 393, 395, 
+	393, 393, 398, 393, 398, 393, 406, 398, 
+	398, 406, 398, 393, 393, 393, 398, 393, 
+	393, 393, 393, 393, 393, 393, 393, 393, 
+	393, 393, 393, 393, 393, 393, 393, 393, 
+	393, 393, 393, 393, 393
 };
 
 static const int mr_sentencize2_start = 1;
 
-static const int mr_sentencize2_en_find_eos = 369;
+static const int mr_sentencize2_en_find_eos = 371;
 static const int mr_sentencize2_en_main = 1;
 
 
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 
-static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token **tks)
+static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
    int cs, act, top, stack[1];
    const unsigned char *ts, *te;
@@ -27218,7 +27242,7 @@ static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token *
    const unsigned char *start = NULL;
 
    
-#line 1503 "gen/sentencize2.ic"
+#line 1520 "gen/sentencize2.ic"
 	{
 	cs = mr_sentencize2_start;
 	top = 0;
@@ -27227,9 +27251,9 @@ static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token *
 	act = 0;
 	}
 
-#line 94 "fsm/sentencize2.rl"
+#line 103 "fsm/sentencize2.rl"
    
-#line 1514 "gen/sentencize2.ic"
+#line 1531 "gen/sentencize2.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -27241,11 +27265,11 @@ static size_t mr_sentencize2_next(struct mr_sentencizer2 *tkr, struct mr_token *
 		goto _out;
 _resume:
 	switch ( _mr_sentencize2_from_state_actions[cs] ) {
-	case 15:
+	case 14:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 1530 "gen/sentencize2.ic"
+#line 1547 "gen/sentencize2.ic"
 	}
 
 	_keys = _mr_sentencize2_trans_keys + _mr_sentencize2_key_offsets[cs];
@@ -27306,85 +27330,91 @@ _eof_trans:
 
 	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 76 "fsm/sentencize2.rl"
+#line 85 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 77 "fsm/sentencize2.rl"
-	{ {p = (( start))-1;} {stack[top++] = cs; cs = 369; goto _again;} }
+#line 86 "fsm/sentencize2.rl"
+	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
-	case 9:
+	case 8:
 #line 1 "NONE"
 	{te = p+1;}
 	break;
-	case 17:
-#line 72 "fsm/sentencize2.rl"
+	case 15:
+#line 82 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
-	case 22:
+	case 19:
 #line 56 "fsm/sentencize2.rl"
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
-      if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
+      if (!rhs) {
+         /* Sentence has grown too large. */
+         goto fini;
+      } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
+         /* Mismatch in tokenization (should not happen). FIXME log? */
+         ;
+      } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      } else {
+         reattach_period(tkr);
       }
-      reattach_period(tkr);
-   }}
-	break;
-	case 21:
-#line 64 "fsm/sentencize2.rl"
-	{te = p;p--;{
-      fetch_tokens(tkr, te);
-      goto fini;
-   }}
-	break;
-	case 20:
-#line 68 "fsm/sentencize2.rl"
-	{te = p;p--;{
-      fetch_tokens(tkr, ts);
-      goto fini;
    }}
 	break;
 	case 18:
 #line 72 "fsm/sentencize2.rl"
+	{te = p;p--;{
+      fetch_tokens(tkr, te);
+      goto fini;
+   }}
+	break;
+	case 17:
+#line 77 "fsm/sentencize2.rl"
+	{te = p;p--;{
+      fetch_tokens(tkr, ts);
+      goto fini;
+   }}
+	break;
+	case 16:
+#line 82 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
-	case 19:
-#line 73 "fsm/sentencize2.rl"
-	{te = p;p--;}
-	break;
-	case 13:
+	case 12:
 #line 56 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
-      if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
+      if (!rhs) {
+         /* Sentence has grown too large. */
+         goto fini;
+      } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
+         /* Mismatch in tokenization (should not happen). FIXME log? */
+         ;
+      } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      } else {
+         reattach_period(tkr);
       }
-      reattach_period(tkr);
    }}
 	break;
-	case 11:
-#line 64 "fsm/sentencize2.rl"
+	case 10:
+#line 72 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
-	case 10:
-#line 68 "fsm/sentencize2.rl"
+	case 9:
+#line 77 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
-	case 8:
-#line 72 "fsm/sentencize2.rl"
-	{{p = ((te))-1;}}
-	break;
 	case 7:
-#line 73 "fsm/sentencize2.rl"
+#line 82 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -27393,11 +27423,18 @@ _eof_trans:
 	case 1:
 	{{p = ((te))-1;}
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
-      if (tkr->at_eos(tkr->bayes, rhs - 2, rhs)) {
+      if (!rhs) {
+         /* Sentence has grown too large. */
+         goto fini;
+      } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
+         /* Mismatch in tokenization (should not happen). FIXME log? */
+         ;
+      } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      } else {
+         reattach_period(tkr);
       }
-      reattach_period(tkr);
    }
 	break;
 	case 2:
@@ -27413,36 +27450,30 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 76 "fsm/sentencize2.rl"
+#line 85 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 77 "fsm/sentencize2.rl"
-	{ {p = (( start))-1;} {stack[top++] = cs; cs = 369; goto _again;} }
+#line 86 "fsm/sentencize2.rl"
+	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
-	case 14:
+	case 13:
 #line 1 "NONE"
 	{te = p+1;}
 #line 56 "fsm/sentencize2.rl"
 	{act = 1;}
 	break;
-	case 12:
-#line 1 "NONE"
-	{te = p+1;}
-#line 64 "fsm/sentencize2.rl"
-	{act = 2;}
-	break;
-	case 16:
+	case 11:
 #line 1 "NONE"
 	{te = p+1;}
 #line 72 "fsm/sentencize2.rl"
-	{act = 4;}
+	{act = 2;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 73 "fsm/sentencize2.rl"
-	{act = 5;}
+#line 82 "fsm/sentencize2.rl"
+	{act = 4;}
 	break;
-#line 1727 "gen/sentencize2.ic"
+#line 1751 "gen/sentencize2.ic"
 	}
 
 _again:
@@ -27451,7 +27482,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 1736 "gen/sentencize2.ic"
+#line 1760 "gen/sentencize2.ic"
 	}
 
 	if ( cs == 0 )
@@ -27470,66 +27501,64 @@ _again:
 	_out: {}
 	}
 
-#line 95 "fsm/sentencize2.rl"
-   
-   if (!start) {
-      *tks = NULL;
-      return 0;
-   }
+#line 104 "fsm/sentencize2.rl"
 
-   /* Last sentence. */
+   /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
 
-fini:
+fini: {
+   const size_t len = tkr->len - 2;
    tkr->p = te;
-   *tks = tkr->tokens + 1;
-   return tkr->len - 2;
+   *tks = len ? &tkr->tokens[1] : NULL;
+   return len;
 
    (void)stack;
    (void)mr_sentencize2_en_main;
    (void)mr_sentencize2_en_find_eos;
 }
-#line 288 "sentencize2.c"
+}
+#line 296 "sentencize2.c"
 
-static size_t mr_sentencizer2_next(struct mascara *imp, struct mr_token **tks)
+static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
-   struct mr_sentencizer2 *szr = (void *)imp;
+   struct sentencizer2 *szr = (void *)imp;
    assert(szr->p && "text no set");
 
-   if (!szr->first) {
+   /* Pending tokens? */
+   if (szr->len) {
       szr->tokens[0] = szr->tokens[szr->len - 2];
       szr->tokens[1] = szr->tokens[szr->len - 1];
       szr->len = 2;
    } else {
-      szr->len = 1;
-      szr->first = false;
+      add_token(szr, &(struct mr_token){
+         .str = (const char *)szr->p,
+         .type = MR_UNK,
+      });
    }
    return mr_sentencize2_next(szr, tks);
 }
 #line 1 "tokenize.c"
 
 const struct mr_imp mr_tokenizer_imp = {
-   .set_text = mr_tokenizer_set_text,
-   .next = mr_tokenizer_next,
+   .set_text = tokenizer_set_text,
+   .next = tokenizer_next,
 };
 
-MR_LOCAL
-void mr_tokenizer_init(struct mr_tokenizer *tkr,
-                       const struct mr_tokenizer_vtab *vtab)
+local void tokenizer_init(struct tokenizer *tkr,
+                          const struct tokenizer_vtab *vtab)
 {
-   *tkr = (struct mr_tokenizer){
+   *tkr = (struct tokenizer){
       .base.imp = &mr_tokenizer_imp,
       .vtab = vtab,
    };
 }
 
-MR_LOCAL
-void mr_tokenizer_set_text(struct mascara *imp,
-                           const unsigned char *s, size_t len,
-                           size_t offset_incr)
+local void tokenizer_set_text(struct mascara *imp,
+                              const unsigned char *s, size_t len,
+                              size_t offset_incr)
 {
-   struct mr_tokenizer *tkr = (struct mr_tokenizer *)imp;
+   struct tokenizer *tkr = (void *)imp;
 
    tkr->str = tkr->p = s;
    tkr->pe = tkr->eof = &s[len];
@@ -27538,10 +27567,9 @@ void mr_tokenizer_set_text(struct mascara *imp,
    tkr->vtab->init(tkr);
 }
 
-MR_LOCAL
-size_t mr_tokenizer_next(struct mascara *imp, struct mr_token **tkp)
+local size_t tokenizer_next(struct mascara *imp, struct mr_token **tkp)
 {
-   struct mr_tokenizer *tkr = (struct mr_tokenizer *)imp;
+   struct tokenizer *tkr = (void *)imp;
    assert(tkr->str && "text no set");
 
    struct mr_token *tk = &tkr->token;

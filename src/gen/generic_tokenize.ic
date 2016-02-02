@@ -4162,7 +4162,7 @@ static const int tokenize_generic_en_main = 949;
 
 #line 93 "gen/generic_tokenize.rl"
 
-static void generic_init(struct mr_tokenizer *tkr)
+static void generic_init(struct tokenizer *tkr)
 {
    
 #line 4169 "gen/generic_tokenize.ic"
@@ -4176,7 +4176,7 @@ static void generic_init(struct mr_tokenizer *tkr)
 #line 97 "gen/generic_tokenize.rl"
 }
 
-static void generic_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void generic_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
 #line 4183 "gen/generic_tokenize.ic"

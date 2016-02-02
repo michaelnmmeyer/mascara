@@ -90,12 +90,12 @@ main := |*
 
 %% write data noerror nofinal;
 
-static void $LANG_init(struct mr_tokenizer *tkr)
+static void $LANG_init(struct tokenizer *tkr)
 {
    %% write init;
 }
 
-static void $LANG_exec(struct mr_tokenizer *tkr, struct mr_token *tk)
+static void $LANG_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    %% write exec;
    (void)tokenize_$LANG_en_main;

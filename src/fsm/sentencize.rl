@@ -117,7 +117,7 @@ main := whitespace* %{ start = fpc; }
 
 %% write data noerror nofinal;
 
-static const unsigned char *next_sentence(struct mr_sentencizer *tkr,
+static const unsigned char *next_sentence(struct sentencizer *tkr,
                                           size_t *len,
                                           const unsigned char **period)
 {

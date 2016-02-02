@@ -2,26 +2,24 @@
 #include "tokenize.h"
 
 const struct mr_imp mr_tokenizer_imp = {
-   .set_text = mr_tokenizer_set_text,
-   .next = mr_tokenizer_next,
+   .set_text = tokenizer_set_text,
+   .next = tokenizer_next,
 };
 
-MR_LOCAL
-void mr_tokenizer_init(struct mr_tokenizer *tkr,
-                       const struct mr_tokenizer_vtab *vtab)
+local void tokenizer_init(struct tokenizer *tkr,
+                          const struct tokenizer_vtab *vtab)
 {
-   *tkr = (struct mr_tokenizer){
+   *tkr = (struct tokenizer){
       .base.imp = &mr_tokenizer_imp,
       .vtab = vtab,
    };
 }
 
-MR_LOCAL
-void mr_tokenizer_set_text(struct mascara *imp,
-                           const unsigned char *s, size_t len,
-                           size_t offset_incr)
+local void tokenizer_set_text(struct mascara *imp,
+                              const unsigned char *s, size_t len,
+                              size_t offset_incr)
 {
-   struct mr_tokenizer *tkr = (struct mr_tokenizer *)imp;
+   struct tokenizer *tkr = (void *)imp;
 
    tkr->str = tkr->p = s;
    tkr->pe = tkr->eof = &s[len];
@@ -30,10 +28,9 @@ void mr_tokenizer_set_text(struct mascara *imp,
    tkr->vtab->init(tkr);
 }
 
-MR_LOCAL
-size_t mr_tokenizer_next(struct mascara *imp, struct mr_token **tkp)
+local size_t tokenizer_next(struct mascara *imp, struct mr_token **tkp)
 {
-   struct mr_tokenizer *tkr = (struct mr_tokenizer *)imp;
+   struct tokenizer *tkr = (void *)imp;
    assert(tkr->str && "text no set");
 
    struct mr_token *tk = &tkr->token;

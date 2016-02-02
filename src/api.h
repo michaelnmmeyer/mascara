@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 /* Location of the directory that contains model files. Should be set at
- * startup. Defaults to "models".
+ * startup and not changed afterwards. Defaults to "models".
  */
 extern const char *mr_home;
 
@@ -47,11 +47,10 @@ const char *mr_token_type_name(enum mr_token_type);
 
 struct mascara;
 
-/* Tokenization mode. */
+/* Tokenization modes. */
 enum mr_mode {
    MR_TOKEN,      /* Iterate over tokens. */
-   MR_SENTENCE,   /* Iterate over sentences, where a sentence is an array of
-                   * tokens. */
+   MR_SENTENCE,   /* Iterate over sentences (arrays of tokens). */
 };
 
 /* Returns an array containing the names of the supported languages.
@@ -61,9 +60,10 @@ const char *const *mr_langs(void);
 
 /* Allocates a new tokenizer.
  * If there is no specific support for the provided language name, chooses a
- * generic tokenizer. Available languages are "en", "fr", and "it". On success,
- * makes the provided structure pointer point to an allocated tokenizer, and
- * returns MR_OK. Otherwise, makes it point to NULL, and returns an error code.
+ * generic tokenizer.
+ * On success, makes the provided structure pointer point to an allocated
+ * tokenizer, and returns MR_OK. Otherwise, makes it point to NULL, and returns
+ * an error code.
  */
 int mr_alloc(struct mascara **, const char *lang, enum mr_mode);
 
