@@ -28,8 +28,7 @@ struct sentencizer2 {
     * starts at 1, and ends at -2 included. The token at -1 is the first token
     * of the next sentence, or a dummy one if at the end of the text.
     */
-   struct mr_token *tokens;
-   size_t len, alloc;
+   struct sentence sent;
 };
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang);

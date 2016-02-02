@@ -15,8 +15,7 @@ struct sentencizer {
    const unsigned char *p;
    const unsigned char *pe;
 
-   struct mr_token *tokens;
-   size_t len, alloc;
+   struct sentence sent;
 };
 
 local void sentencizer_init(struct sentencizer *,

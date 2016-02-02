@@ -6,7 +6,7 @@
 static void sentencizer_fini(struct mascara *imp)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
-   free(tkr->tokens);
+   free(tkr->sent.tokens);
 }
 
 static void sentencizer_set_text(struct mascara *imp,
@@ -20,30 +20,52 @@ static void sentencizer_set_text(struct mascara *imp,
    tkr->pe = &str[len];
 }
 
-static void sentencizer_add_token(struct sentencizer *tkr, const struct mr_token *tk)
+local void sentence_add(struct sentence *sent, const struct mr_token *tk)
 {
-   if (tkr->len == tkr->alloc) {
-      tkr->alloc = tkr->alloc * 2 + 4;
-      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
+   if (sent->len == sent->alloc) {
+      sent->alloc = sent->alloc * 2 + 4;
+      sent->tokens = mr_realloc(sent->tokens, sent->alloc * sizeof *sent->tokens);
    }
-   tkr->tokens[tkr->len++] = *tk;
+   sent->tokens[sent->len++] = *tk;
 }
 
-static bool sentencizer_reattach_period(struct sentencizer *szr, const struct mr_token *tk)
+local void sentence_clear(struct sentence *sent)
 {
-   /* Conditions for reattaching a period are:
-    * - There must be a single period (no ellipsis).
-    * - This must not be the last period in the input text.
-    * - The previous token is a likely abbreviation (type latin or abbr), not a
-    *   symbol, etc.
-    * - The period immediately follows the previous token.
-    */
-   if (*tk->str == '.' && tk->len == 1 && szr->len) {
-      struct mr_token *prev = &szr->tokens[szr->len - 1];
-      if (prev->offset + prev->len == tk->offset &&
-          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
-            prev->len++;
-            return true;
+   sent->len = 0;
+}
+
+/* Conditions for reattaching a period to the token that precedes it are:
+ * - There must be a single period (no ellipsis).
+ * - This must not be the last period in the input text.
+ * - The previous token must be a likely abbreviation (type latin or abbr), not
+ *   a symbol, etc.
+ * - The period immediately follows the previous token.
+ */
+local bool can_reattach_period(const struct mr_token *lhs,
+                               const struct mr_token *period)
+{
+   assert(period->len == 1 && *period->str == '.');
+   
+   if (lhs->offset + lhs->len != period->offset)
+      return false;
+   
+   switch (lhs->type) {
+   case MR_ABBR:
+   case MR_LATIN:
+      return true;
+   default:
+      return false;
+   }
+}
+
+static bool sentencizer_reattach_period(struct sentence *sent,
+                                        const struct mr_token *tk)
+{
+   if (tk->len == 1 && *tk->str == '.' && sent->len) {
+      struct mr_token *lhs = &sent->tokens[sent->len - 1];
+      if (can_reattach_period(lhs, tk)) {
+         lhs->len++;
+         return true;
       }
    }
    return false;
@@ -54,9 +76,10 @@ static bool sentencizer_reattach_period(struct sentencizer *szr, const struct mr
 static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer *szr = (struct sentencizer *)imp;
-   assert(szr->str && "text no set");
+   struct sentence *sent = &szr->sent;
 
-   szr->len = 0;
+   assert(szr->str && "text no set");
+   sentence_clear(sent);
 
    size_t len;
    const unsigned char *last_period;
@@ -73,16 +96,16 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 
    struct mr_token *tk;
    while (tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(szr, tk)) {
-         sentencizer_add_token(szr, tk);
-         if (szr->len == MR_MAX_SENTENCE_LEN) {
+      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(sent, tk)) {
+         sentence_add(sent, tk);
+         if (sent->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;
          }
       }
    }
-   *tks = szr->tokens;
-   return szr->len;
+   *tks = sent->tokens;
+   return sent->len;
 }
 
 static const struct mr_imp sentencizer_imp = {

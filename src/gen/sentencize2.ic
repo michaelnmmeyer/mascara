@@ -1,7 +1,7 @@
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 88 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 
 
 
@@ -1503,7 +1503,7 @@ static const int mr_sentencize2_en_find_eos = 371;
 static const int mr_sentencize2_en_main = 1;
 
 
-#line 91 "fsm/sentencize2.rl"
+#line 100 "fsm/sentencize2.rl"
 
 static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
@@ -1525,7 +1525,7 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
 	act = 0;
 	}
 
-#line 103 "fsm/sentencize2.rl"
+#line 112 "fsm/sentencize2.rl"
    
 #line 1531 "gen/sentencize2.ic"
 	{
@@ -1604,11 +1604,11 @@ _eof_trans:
 
 	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 85 "fsm/sentencize2.rl"
+#line 94 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 86 "fsm/sentencize2.rl"
+#line 95 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
 	case 8:
@@ -1616,79 +1616,97 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 15:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
 	case 19:
 #line 56 "fsm/sentencize2.rl"
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }}
 	break;
 	case 18:
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 17:
-#line 77 "fsm/sentencize2.rl"
+#line 86 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 16:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 12:
 #line 56 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }}
 	break;
 	case 10:
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 9:
-#line 77 "fsm/sentencize2.rl"
+#line 86 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 7:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -1697,17 +1715,26 @@ _eof_trans:
 	case 1:
 	{{p = ((te))-1;}
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }
 	break;
@@ -1724,9 +1751,9 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 85 "fsm/sentencize2.rl"
+#line 94 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 86 "fsm/sentencize2.rl"
+#line 95 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
 	case 13:
@@ -1738,16 +1765,16 @@ _eof_trans:
 	case 11:
 #line 1 "NONE"
 	{te = p+1;}
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{act = 2;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{act = 4;}
 	break;
-#line 1751 "gen/sentencize2.ic"
+#line 1778 "gen/sentencize2.ic"
 	}
 
 _again:
@@ -1756,7 +1783,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 1760 "gen/sentencize2.ic"
+#line 1787 "gen/sentencize2.ic"
 	}
 
 	if ( cs == 0 )
@@ -1775,16 +1802,16 @@ _again:
 	_out: {}
 	}
 
-#line 104 "fsm/sentencize2.rl"
+#line 113 "fsm/sentencize2.rl"
 
    /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
 
 fini: {
-   const size_t len = tkr->len - 2;
+   const size_t len = tkr->sent.len - 2;
    tkr->p = te;
-   *tks = len ? &tkr->tokens[1] : NULL;
+   *tks = len ? &tkr->sent.tokens[1] : NULL;
    return len;
 
    (void)stack;

@@ -55,17 +55,26 @@ find_eos := |*
 
    "." sent_trail* => {
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    };
 
@@ -107,9 +116,9 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
    fetch_tokens(tkr, te);
 
 fini: {
-   const size_t len = tkr->len - 2;
+   const size_t len = tkr->sent.len - 2;
    tkr->p = te;
-   *tks = len ? &tkr->tokens[1] : NULL;
+   *tks = len ? &tkr->sent.tokens[1] : NULL;
    return len;
 
    (void)stack;

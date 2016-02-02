@@ -115,6 +115,8 @@ size_t mr_next(struct mascara *, struct mr_token **);
 #ifndef MR_IMP_H
 #define MR_IMP_H
 
+#include <stdbool.h>
+
 #define local static
 
 struct mascara;
@@ -129,6 +131,17 @@ struct mr_imp {
 struct mascara {
    const struct mr_imp *imp;
 };
+
+local bool can_reattach_period(const struct mr_token *lhs,
+                               const struct mr_token *period);
+
+struct sentence {
+   struct mr_token *tokens;
+   size_t len, alloc;
+};
+
+local void sentence_add(struct sentence *sent, const struct mr_token *tk);
+local void sentence_clear(struct sentence *sent);
 
 #endif
 #line 8 "api.c"
@@ -194,8 +207,7 @@ struct sentencizer {
    const unsigned char *p;
    const unsigned char *pe;
 
-   struct mr_token *tokens;
-   size_t len, alloc;
+   struct sentence sent;
 };
 
 local void sentencizer_init(struct sentencizer *,
@@ -270,8 +282,7 @@ struct sentencizer2 {
     * starts at 1, and ends at -2 included. The token at -1 is the first token
     * of the next sentence, or a dummy one if at the end of the text.
     */
-   struct mr_token *tokens;
-   size_t len, alloc;
+   struct sentence sent;
 };
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang);
@@ -21330,7 +21341,7 @@ local void *mr_realloc(void *mem, size_t size)
 static void sentencizer_fini(struct mascara *imp)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
-   free(tkr->tokens);
+   free(tkr->sent.tokens);
 }
 
 static void sentencizer_set_text(struct mascara *imp,
@@ -21344,30 +21355,52 @@ static void sentencizer_set_text(struct mascara *imp,
    tkr->pe = &str[len];
 }
 
-static void sentencizer_add_token(struct sentencizer *tkr, const struct mr_token *tk)
+local void sentence_add(struct sentence *sent, const struct mr_token *tk)
 {
-   if (tkr->len == tkr->alloc) {
-      tkr->alloc = tkr->alloc * 2 + 4;
-      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
+   if (sent->len == sent->alloc) {
+      sent->alloc = sent->alloc * 2 + 4;
+      sent->tokens = mr_realloc(sent->tokens, sent->alloc * sizeof *sent->tokens);
    }
-   tkr->tokens[tkr->len++] = *tk;
+   sent->tokens[sent->len++] = *tk;
 }
 
-static bool sentencizer_reattach_period(struct sentencizer *szr, const struct mr_token *tk)
+local void sentence_clear(struct sentence *sent)
 {
-   /* Conditions for reattaching a period are:
-    * - There must be a single period (no ellipsis).
-    * - This must not be the last period in the input text.
-    * - The previous token is a likely abbreviation (type latin or abbr), not a
-    *   symbol, etc.
-    * - The period immediately follows the previous token.
-    */
-   if (*tk->str == '.' && tk->len == 1 && szr->len) {
-      struct mr_token *prev = &szr->tokens[szr->len - 1];
-      if (prev->offset + prev->len == tk->offset &&
-          (prev->type == MR_ABBR || prev->type == MR_LATIN)) {
-            prev->len++;
-            return true;
+   sent->len = 0;
+}
+
+/* Conditions for reattaching a period to the token that precedes it are:
+ * - There must be a single period (no ellipsis).
+ * - This must not be the last period in the input text.
+ * - The previous token must be a likely abbreviation (type latin or abbr), not
+ *   a symbol, etc.
+ * - The period immediately follows the previous token.
+ */
+local bool can_reattach_period(const struct mr_token *lhs,
+                               const struct mr_token *period)
+{
+   assert(period->len == 1 && *period->str == '.');
+   
+   if (lhs->offset + lhs->len != period->offset)
+      return false;
+   
+   switch (lhs->type) {
+   case MR_ABBR:
+   case MR_LATIN:
+      return true;
+   default:
+      return false;
+   }
+}
+
+static bool sentencizer_reattach_period(struct sentence *sent,
+                                        const struct mr_token *tk)
+{
+   if (tk->len == 1 && *tk->str == '.' && sent->len) {
+      struct mr_token *lhs = &sent->tokens[sent->len - 1];
+      if (can_reattach_period(lhs, tk)) {
+         lhs->len++;
+         return true;
       }
    }
    return false;
@@ -24632,14 +24665,15 @@ found:
    (void)sentencize_en_main;
    (void)sentencize_en_find_eos;
 }
-#line 53 "sentencize.c"
+#line 75 "sentencize.c"
 
 static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer *szr = (struct sentencizer *)imp;
-   assert(szr->str && "text no set");
+   struct sentence *sent = &szr->sent;
 
-   szr->len = 0;
+   assert(szr->str && "text no set");
+   sentence_clear(sent);
 
    size_t len;
    const unsigned char *last_period;
@@ -24656,16 +24690,16 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 
    struct mr_token *tk;
    while (tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(szr, tk)) {
-         sentencizer_add_token(szr, tk);
-         if (szr->len == MR_MAX_SENTENCE_LEN) {
+      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(sent, tk)) {
+         sentence_add(sent, tk);
+         if (sent->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
             break;
          }
       }
    }
-   *tks = szr->tokens;
-   return szr->len;
+   *tks = sent->tokens;
+   return sent->len;
 }
 
 static const struct mr_imp sentencizer_imp = {
@@ -25633,16 +25667,7 @@ static void sentencizer2_fini(struct mascara *imp)
 {
    struct sentencizer2 *tkr = (void *)imp;
    bayes_dealloc(tkr->bayes);
-   free(tkr->tokens);
-}
-
-static void add_token(struct sentencizer2 *tkr, const struct mr_token *tk)
-{
-   if (tkr->len == tkr->alloc) {
-      tkr->alloc = tkr->alloc * 2 + 4;
-      tkr->tokens = mr_realloc(tkr->tokens, tkr->alloc * sizeof *tkr->tokens);
-   }
-   tkr->tokens[tkr->len++] = *tk;
+   free(tkr->sent.tokens);
 }
 
 static void sentencizer2_set_text(struct mascara *imp,
@@ -25655,55 +25680,38 @@ static void sentencizer2_set_text(struct mascara *imp,
    tkr->p = str;
    tkr->pe = &str[len];
 
-   tkr->len = 0;
+   sentence_clear(&tkr->sent);
 }
 
 static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
                                      const unsigned char *end)
 {
-   struct mr_token *tk = &szr->tokens[szr->len - 1];
+   struct sentence *sent = &szr->sent;
+   struct mr_token *tk = &sent->tokens[sent->len - 1];
 
-   while (szr->len < MR_MAX_SENTENCE_LEN + 2) {
+   while (sent->len < MR_MAX_SENTENCE_LEN + 2) {
       if (tk->str >= (const char *)end)
-         return &szr->tokens[szr->len - 1];
+         return &sent->tokens[sent->len - 1];
       if (!tokenizer_next(&szr->tkr.base, &tk)) {
-         add_token(szr, &(struct mr_token){
+         sentence_add(sent, &(struct mr_token){
             .str = (const char *)szr->pe,
             .type = MR_UNK,
          });
-         return &szr->tokens[szr->len - 1];
+         return &sent->tokens[sent->len - 1];
       }
-      add_token(szr, tk);
+      sentence_add(sent, tk);
    };
    return NULL;
 }
 
-/* Conditions for reattaching a period are:
- * - There must be a single period (no ellipsis).
- * - This must not be the last period in the input sentence.
- * - The previous token is a likely abbreviation (type latin or abbr), not a
- *   symbol, etc.
- * - The period immediately follows the previous token.
- */
-static void reattach_period(struct sentencizer2 *szr)
+static void sentencizer2_reattach_period(struct sentence *sent)
 {
-   struct mr_token *period = &szr->tokens[szr->len - 2];
+   struct mr_token *period = &sent->tokens[sent->len - 2];
 
-   assert(period->len == 1 && *period->str == '.');
-   
-   struct mr_token *prev = period - 1;
-   if (prev->offset + prev->len != period->offset)
-      return;
-   
-   switch (prev->type) {
-   case MR_ABBR:
-   case MR_LATIN:
-      prev->len++;
+   if (can_reattach_period(&period[-1], period)) {
+      period[-1].len++;
       *period = period[1];
-      szr->len--;
-      break;
-   default:
-      break;
+      sent->len--;
    }
 }
 
@@ -25716,7 +25724,7 @@ static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 88 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 
 
 
@@ -27218,7 +27226,7 @@ static const int mr_sentencize2_en_find_eos = 371;
 static const int mr_sentencize2_en_main = 1;
 
 
-#line 91 "fsm/sentencize2.rl"
+#line 100 "fsm/sentencize2.rl"
 
 static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
@@ -27240,7 +27248,7 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
 	act = 0;
 	}
 
-#line 103 "fsm/sentencize2.rl"
+#line 112 "fsm/sentencize2.rl"
    
 #line 1531 "gen/sentencize2.ic"
 	{
@@ -27319,11 +27327,11 @@ _eof_trans:
 
 	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 85 "fsm/sentencize2.rl"
+#line 94 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 86 "fsm/sentencize2.rl"
+#line 95 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
 	case 8:
@@ -27331,79 +27339,97 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 15:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
 	case 19:
 #line 56 "fsm/sentencize2.rl"
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }}
 	break;
 	case 18:
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 17:
-#line 77 "fsm/sentencize2.rl"
+#line 86 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 16:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 12:
 #line 56 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }}
 	break;
 	case 10:
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 9:
-#line 77 "fsm/sentencize2.rl"
+#line 86 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 7:
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -27412,17 +27438,26 @@ _eof_trans:
 	case 1:
 	{{p = ((te))-1;}
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
+      
+      /* If the sentence has grown too large, stop there. */
       if (!rhs) {
-         /* Sentence has grown too large. */
          goto fini;
+      /* If there is tokenization mismatch between ourselves and the tokenizer,
+       * (should not happen!), don't do anything.
+       */
       } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
-         /* Mismatch in tokenization (should not happen). FIXME log? */
          ;
+      /* If we're at eos, fetch the tokens trailing the current sentence and
+       * stop there.
+       */
       } else if (at_eos(tkr, rhs)) {
          fetch_tokens(tkr, te);
          goto fini;
+      /* Otherwise, attempt to reattach the period to the token that precedes
+       * it.
+       */
       } else {
-         reattach_period(tkr);
+         sentencizer2_reattach_period(&tkr->sent);
       }
    }
 	break;
@@ -27439,9 +27474,9 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 85 "fsm/sentencize2.rl"
+#line 94 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 86 "fsm/sentencize2.rl"
+#line 95 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 371; goto _again;} }
 	break;
 	case 13:
@@ -27453,16 +27488,16 @@ _eof_trans:
 	case 11:
 #line 1 "NONE"
 	{te = p+1;}
-#line 72 "fsm/sentencize2.rl"
+#line 81 "fsm/sentencize2.rl"
 	{act = 2;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 82 "fsm/sentencize2.rl"
+#line 91 "fsm/sentencize2.rl"
 	{act = 4;}
 	break;
-#line 1751 "gen/sentencize2.ic"
+#line 1778 "gen/sentencize2.ic"
 	}
 
 _again:
@@ -27471,7 +27506,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 1760 "gen/sentencize2.ic"
+#line 1787 "gen/sentencize2.ic"
 	}
 
 	if ( cs == 0 )
@@ -27490,16 +27525,16 @@ _again:
 	_out: {}
 	}
 
-#line 104 "fsm/sentencize2.rl"
+#line 113 "fsm/sentencize2.rl"
 
    /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
 
 fini: {
-   const size_t len = tkr->len - 2;
+   const size_t len = tkr->sent.len - 2;
    tkr->p = te;
-   *tks = len ? &tkr->tokens[1] : NULL;
+   *tks = len ? &tkr->sent.tokens[1] : NULL;
    return len;
 
    (void)stack;
@@ -27507,20 +27542,21 @@ fini: {
    (void)mr_sentencize2_en_find_eos;
 }
 }
-#line 258 "sentencize2.c"
+#line 232 "sentencize2.c"
 
 static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer2 *szr = (void *)imp;
+   struct sentence *sent = &szr->sent;
    assert(szr->p && "text no set");
 
    /* Pending tokens? */
-   if (szr->len) {
-      szr->tokens[0] = szr->tokens[szr->len - 2];
-      szr->tokens[1] = szr->tokens[szr->len - 1];
-      szr->len = 2;
+   if (sent->len) {
+      sent->tokens[0] = sent->tokens[sent->len - 2];
+      sent->tokens[1] = sent->tokens[sent->len - 1];
+      sent->len = 2;
    } else {
-      add_token(szr, &(struct mr_token){
+      sentence_add(sent, &(struct mr_token){
          .str = (const char *)szr->p,
          .type = MR_UNK,
       });
