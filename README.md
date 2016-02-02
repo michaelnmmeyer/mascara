@@ -5,9 +5,9 @@ A natural language tokenizer.
 ## Purpose
 
 This is a C library and command-line tool for performing Treebank-style
-tokenization of written texts. It has explicit support for English, French, and
-Italian, and also includes a generic tokenizer that can be used for, e.g.,
-German.
+tokenization and sentence boundary detection on written texts. It has specific
+support for English, French, Italian and German. A generic tokenizer is also
+available.
 
 
 ## Building
@@ -16,7 +16,7 @@ The library is available in source form, as an
 [amalgamation](https://www.sqlite.org/amalgamation.html). Compile `mascara.c`
 together with your source code, and use the interface described in
 [`mascara.h`](https://github.com/michaelnmmeyer/mascara/blob/master/mascara.h).
-A C11 compiler is required, which means either GCC or CLang on Unix.
+You'll need a C11 compiler, which means either GCC or CLang on Unix.
 
 A command-line tool `mascara` is included. To compile and install it:
 
@@ -24,6 +24,8 @@ A command-line tool `mascara` is included. To compile and install it:
 
 
 ## Usage
+
+### Examples
 
 The [`examples`](https://github.com/michaelnmmeyer/mascara/tree/master/examples)
 directory contains concrete usage examples. Compile these files with `make`, and
@@ -53,10 +55,9 @@ use them like so:
         Pierre Vinken , 61 years old , will join the board as a nonexecutive director Nov. 29 .  
         Mr. Vinken is chairman of Elsevier N.V. , the Dutch publishing group .
 
-The library API is described in `mascara.h`. The following are auxiliary notes.
+The library API is fully described in `mascara.h`.
 
-
-## Tokenization mode
+### Tokenization mode
 
 Before allocating a tokenizer, you must choose whether you want to iterate over
 tokens or over sentences. Segmentation is slightly different depending on which
@@ -73,7 +74,7 @@ mode you choose:
       Mr. and Mrs. Smith have two children .
 
 
-## Token types
+### Token types
 
 During tokenization, each token is annotated with a type. This information is
 sometimes useful for its own sake, but it is intended to be used as feature for
@@ -155,7 +156,9 @@ You can check wich type is assigned to which token with the command-line tool:
 
 ## Implementation
 
-From what I gathered by reading the relevant literature, there are two main
+### Tokenization
+
+There are two main
 approaches for implementing a tokenizer: a) using finite-state automata, and b)
 using a supervised sequence model. The second solution is much heavier than its
 alternative and doesn't seem to be worth the extra work for such a light task as
@@ -166,3 +169,31 @@ Each tokenizer uses two finite-state machines, written in
 text from left to right, in the usual way. The second one reads it from right to
 left, and is used to recognize contractions at the end of a word. Using two
 separate machines helps to disambiguate the role of single quotes.
+
+In my first attempt at the task, I performed a preliminary segmentation of the
+text on whitespace characters, and then repeatedly attempted to trim tokens
+(punctuation, prefixes, suffixes) from the left and the right of the delimited
+text chunk. I changed that because this cannot deal with tokens that contain
+internal whitespace characters, such as numbers in French.
+
+### Sentence boundary detection
+
+Two sentence boundary detection modules are implemented.
+
+The first one is a simple finite-state machine. It uses a fixed list of rules
+and abbreviations. It cannot disambiguate the role of cardinal numbers and
+abbreviations.
+
+The second one is a finite-state machine that uses a Naive Bayes classifier to
+disambiguate the role of periods. Only periods that are seemingly not
+token-internal are examined by the classifier. Question marks, etc., are deemed
+not to be ambiguous. We use one feature set per language, obtained through
+semi-automatic optimization with the help of my [feature selection
+tool`](https://github.com/michaelnmmeyer/bayes_fss).
+
+### References
+
+* [Grefenstette and Tapanainen (1994), What is a word, What is a sentence?
+  Problems of
+  Tokenization](http://www.delph-in.net/courses/07/nlp/Gre:Tap:94.pdf).
+* [Gillick (2009), Sentence Boundary Detection and the Problem with the U.S.](http://www.dgillick.com/resource/sbd_naacl_2009.pdf)
