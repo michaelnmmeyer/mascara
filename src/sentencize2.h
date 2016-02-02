@@ -30,9 +30,6 @@ struct sentencizer2 {
     */
    struct mr_token *tokens;
    size_t len, alloc;
-   
-   /* Whether we're at the start of the text. */
-   bool first;
 };
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang);
