@@ -25631,7 +25631,7 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
 
 static void sentencizer2_fini(struct mascara *imp)
 {
-   struct sentencizer2 *tkr = (struct sentencizer2 *)imp;
+   struct sentencizer2 *tkr = (void *)imp;
    bayes_dealloc(tkr->bayes);
    free(tkr->tokens);
 }

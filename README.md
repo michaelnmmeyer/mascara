@@ -169,6 +169,7 @@ You can check wich type is assigned to which token with the command-line tool:
     And/LATIN now/LATIN ,/SYM Laertes/LATIN ,/SYM what/LATIN 's/SUFFIX the/LATIN
     news/LATIN with/LATIN you/LATIN ?/SYM
 
+
 ## Implementation
 
 ### Tokenization
@@ -188,7 +189,7 @@ separate machines helps to disambiguate the role of single quotes.
 In my first attempt at the task, I performed a preliminary segmentation of the
 text on whitespace characters, and then repeatedly attempted to trim tokens
 (punctuation, prefixes, suffixes) from the left and the right of the delimited
-text chunk. I changed that because this cannot deal with tokens that contain
+text chunks. I changed that because this cannot deal with tokens that contain
 internal whitespace characters, such as numbers in French.
 
 ### Sentence boundary detection
@@ -204,7 +205,7 @@ disambiguate the role of periods. Only periods that are seemingly not
 token-internal are examined by the classifier. Question marks, etc., are deemed
 not to be ambiguous. We use one feature set per language, obtained through
 semi-automatic optimization with the help of my [feature selection
-tool`](https://github.com/michaelnmmeyer/bayes_fss).
+tool](https://github.com/michaelnmmeyer/bayes_fss).
 
 ### References
 
