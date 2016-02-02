@@ -18,9 +18,22 @@ together with your source code, and use the interface described in
 [`mascara.h`](https://github.com/michaelnmmeyer/mascara/blob/master/mascara.h).
 You'll need a C11 compiler, which means either GCC or CLang on Unix.
 
-A command-line tool `mascara` is included. To compile and install it:
+A command-line tool `mascara` is included, plus a set of sentence boundary
+detection models for English, French, and German. To install all these:
 
     $ make && sudo make install
+
+Although the library itself is BSD-licensed and can thus be used for free in
+commercial software, sentence boundary detection models are derived from corpora
+covered by more restrictive licenses. Here are the corpora used for creating
+each model:
+
+* `en_amalg`: [Brown corpus](http://clu.uni.no/icame/brown/bcm.html), excerpts
+  from the [Penn Treebank](http://www.cis.upenn.edu/~treebank/home.html)
+  distributed with NLTK, [BNC 1000 Gold
+  Trees](http://nclt.computing.dcu.ie/~jfoster/resources/bnc1000.html)
+* `fr_sequoia`: [Sequoia corpus](https://www.rocq.inria.fr/alpage-wiki/tiki-index.php?page=CorpusSequoia)
+* `de_tiger`: [Tiger corpus](http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.en.html)
 
 
 ## Usage
