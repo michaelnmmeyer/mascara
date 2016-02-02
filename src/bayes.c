@@ -211,7 +211,7 @@ fail:
 }
 
 local int bayes_load(struct bayes **mdl, const char *path,
-                           const struct bayes_config *cfg)
+                     const struct bayes_config *cfg)
 {
    FILE *fp = fopen(path, "r");
    if (!fp)

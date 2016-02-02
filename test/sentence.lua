@@ -105,6 +105,7 @@ check{
 check{
    input = "seit M.-S. Samain",
    lang = "de",
+   impl = "fsm",  -- Not recognized as sentence boundary by the classifier.
    output = {{"seit", "M.-S.", "Samain"}},
 }
 check{

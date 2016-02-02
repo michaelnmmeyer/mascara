@@ -65,9 +65,9 @@ local sentencizers = setmetatable({}, {__index = function(t, lang)
    return szr
 end})
 
-local function check_sentence(test)
+local function check_sentence_impl(config, test)
    local sents = {}
-   local szr = sentencizers[test.lang or "en"]
+   local szr = sentencizers[config]
    szr:set_text(test.input)
    while true do
       local sent = szr:next()
@@ -91,10 +91,18 @@ local function check_sentence(test)
    end
 end
 
+local function check_sentence(test)
+   local lang = test.lang or "en"
+   local impls = test.impl and {test.impl} or {"fsm", "bayes"}
+   for _, impl in ipairs(impls) do
+      check_sentence_impl(lang .. " " .. impl, test)
+   end
+end
+
 check = check_token
 dofile("token.lua")
 
 check = check_sentence
 dofile("sentence.lua")
 
-os.exit(all_good)
+if not all_good then error("fail!") end
