@@ -217,7 +217,6 @@ local int bayes_load(struct bayes **mdl, const char *path,
    if (!fp)
       return MR_EOPEN;
 
-   *mdl = NULL;
    int ret = load_fp(mdl, fp, cfg);
    int err = ferror(fp);
    fclose(fp);
@@ -251,7 +250,7 @@ local void bayes_init(const struct bayes *mdl, double v[static 2])
 }
 
 local void bayes_feed(const struct bayes *mdl, double v[static 2],
-                            const void *val)
+                      const void *val)
 {
    const double *restrict x = bayes_probs(mdl, val);
    v[0] += x[0];

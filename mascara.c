@@ -21232,7 +21232,6 @@ local int bayes_load(struct bayes **mdl, const char *path,
    if (!fp)
       return MR_EOPEN;
 
-   *mdl = NULL;
    int ret = load_fp(mdl, fp, cfg);
    int err = ferror(fp);
    fclose(fp);
@@ -21266,7 +21265,7 @@ local void bayes_init(const struct bayes *mdl, double v[static 2])
 }
 
 local void bayes_feed(const struct bayes *mdl, double v[static 2],
-                            const void *val)
+                      const void *val)
 {
    const double *restrict x = bayes_probs(mdl, val);
    v[0] += x[0];
@@ -25630,44 +25629,6 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
  * Interface.
  ******************************************************************************/
 
-static void sentencizer2_set_text(struct mascara *,
-                                     const unsigned char *str, size_t len,
-                                     size_t offset_incr);
-
-static size_t sentencizer2_next(struct mascara *, struct mr_token **);
-
-static void sentencizer2_fini(struct mascara *);
-
-static const struct mr_imp sentencizer2_imp = {
-   .set_text = sentencizer2_set_text,
-   .next = sentencizer2_next,
-   .fini = sentencizer2_fini,
-};
-
-local int sentencizer2_init(struct sentencizer2 *tkr,
-                               const struct tokenizer_vtab *vtab,
-                               const struct sentencizer2_config *cfg)
-{
-   *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
-
-   const char *home = mr_home;
-   if (!home)
-      return MR_EHOME;
-
-   char path[4096];
-   int len = snprintf(path, sizeof path, "%s/%s.mdl", home, cfg->bayes_config.name);
-   if (len < 0 || (size_t)len >= sizeof path)
-      return MR_EHOME;
-
-   int ret = bayes_load(&tkr->bayes, path, &cfg->bayes_config);
-   if (ret)
-      return ret;
-
-   tkr->at_eos = cfg->at_eos;
-   tokenizer_init(&tkr->tkr, vtab);
-   return MR_OK;
-}
-
 static void sentencizer2_fini(struct mascara *imp)
 {
    struct sentencizer2 *tkr = (struct sentencizer2 *)imp;
@@ -27546,7 +27507,7 @@ fini: {
    (void)mr_sentencize2_en_find_eos;
 }
 }
-#line 296 "sentencize2.c"
+#line 258 "sentencize2.c"
 
 static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
@@ -27565,6 +27526,36 @@ static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
       });
    }
    return mr_sentencize2_next(szr, tks);
+}
+
+static const struct mr_imp sentencizer2_imp = {
+   .set_text = sentencizer2_set_text,
+   .next = sentencizer2_next,
+   .fini = sentencizer2_fini,
+};
+
+local int sentencizer2_init(struct sentencizer2 *tkr,
+                               const struct tokenizer_vtab *vtab,
+                               const struct sentencizer2_config *cfg)
+{
+   *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
+
+   const char *home = mr_home;
+   if (!home)
+      return MR_EHOME;
+
+   char path[4096];
+   int len = snprintf(path, sizeof path, "%s/%s.mdl", home, cfg->bayes_config.name);
+   if (len < 0 || (size_t)len >= sizeof path)
+      return MR_EHOME;
+
+   int ret = bayes_load(&tkr->bayes, path, &cfg->bayes_config);
+   if (ret)
+      return ret;
+
+   tkr->at_eos = cfg->at_eos;
+   tokenizer_init(&tkr->tkr, vtab);
+   return MR_OK;
 }
 #line 1 "tokenize.c"
 

@@ -16,7 +16,9 @@ The library is available in source form, as an
 [amalgamation](https://www.sqlite.org/amalgamation.html). Compile `mascara.c`
 together with your source code, and use the interface described in
 [`mascara.h`](https://github.com/michaelnmmeyer/mascara/blob/master/mascara.h).
-You'll need a C11 compiler, which means either GCC or CLang on Unix.
+You'll need a C11 compiler, which means either GCC or CLang on Unix. You'll also
+need to link the compiled code to the [utf8proc
+library](https://github.com/JuliaLang/utf8proc).
 
 A command-line tool `mascara` is included, plus a set of sentence boundary
 detection models for English, French, and German. To install all these:
