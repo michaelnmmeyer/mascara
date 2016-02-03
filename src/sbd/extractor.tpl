@@ -1,13 +1,13 @@
 /* Generated code, don't edit! */
 
-static const char *const {{name}}_features[] = {
+local const char *const {{name}}_features[] = {
 % for fs in features:
    "{{FEATURE_JOIN_STRING.join(fs)}}",
 % end
    NULL
 };
 
-static bool {{name}}_at_eos(const struct bayes *mdl,
+local bool {{name}}_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
@@ -28,7 +28,7 @@ static bool {{name}}_at_eos(const struct bayes *mdl,
    return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const struct sentencizer2_config {{name}}_config = {
+local const struct sentencizer2_config {{name}}_config = {
    .bayes_config = {
       .name = "{{name}}",
       .version = {{version}},

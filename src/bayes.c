@@ -26,7 +26,7 @@ struct bayes {
 #define MAX_VALUES 10000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
-static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
+local int read_name(FILE *fp, const char *name, double unk_probs[local 2])
 {
    char buf[MAX_STRING_LEN + 1];
    size_t len;
@@ -44,7 +44,7 @@ static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
 }
 
 /* <feature_no> <feature_value> <eos_prob> <not_eos_prob> */
-static int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
+local int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
 {
    unsigned feat_no;
    size_t len;
@@ -74,7 +74,7 @@ fail:
    return MR_EMODEL;
 }
 
-static int match_signature(FILE *fp, const char *str)
+local int match_signature(FILE *fp, const char *str)
 {
    char buf[MAX_STRING_LEN + 1 + 1];   /* signature, '\n', '\0' */
    size_t len;
@@ -88,14 +88,14 @@ static int match_signature(FILE *fp, const char *str)
    return strcmp(buf, str) ? MR_EMAGIC : MR_OK;
 }
 
-static size_t pad(size_t n, size_t align)
+local size_t pad(size_t n, size_t align)
 {
    return n + ((n + align - 1) & ~(align - 1));
 }
 #define pad(n, type) pad(n, alignof(type))
 
 /* http://graphics.stanford.edu/~seander/bithacks.html */
-static uint32_t roundup_pow2(uint32_t num)
+local uint32_t roundup_pow2(uint32_t num)
 {
    num--;
    num |= num >> 1;
@@ -107,7 +107,7 @@ static uint32_t roundup_pow2(uint32_t num)
    return num ? num : 1;
 }
 
-static struct feature **table_chain(const struct bayes *mdl, const void *val)
+local struct feature **table_chain(const struct bayes *mdl, const void *val)
 {
    uint32_t h = 1315423911;
    const uint8_t *v = val;
@@ -122,7 +122,7 @@ static struct feature **table_chain(const struct bayes *mdl, const void *val)
    return (void *)f;
 }
 
-static void bayes_clear(struct bayes *mdl)
+local void bayes_clear(struct bayes *mdl)
 {
    for (size_t i = 0; i < mdl->table_mask + 1; i++) {
       struct feature *f = mdl->table[i];
@@ -134,7 +134,7 @@ static void bayes_clear(struct bayes *mdl)
    }
 }
 
-static unsigned array_len(const char *const *xs)
+local unsigned array_len(const char *const *xs)
 {
    unsigned i;
    for (i = 0; xs[i]; i++)
@@ -142,7 +142,7 @@ static unsigned array_len(const char *const *xs)
    return i;
 }
 
-static int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
+local int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
 {
    if (match_signature(fp, "mr_bayes 1"))
       return MR_EMAGIC;
@@ -230,14 +230,14 @@ local void bayes_dealloc(struct bayes *mdl)
    free(mdl);
 }
 
-static const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
+local const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
 {
    assert(*val > 0);
    const struct feature *f = *table_chain(mdl, val);
    return f ? f->probs : &mdl->unknown_probs[(*val - 1) * 2];
 }
 
-static const bool bayes_debug = false;
+local const bool bayes_debug = false;
 
 local void bayes_init(const struct bayes *mdl, double v[static 2])
 {

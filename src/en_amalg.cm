@@ -1,6 +1,6 @@
 /* Generated code, don't edit! */
 
-static const char *const en_amalg_features[] = {
+local const char *const en_amalg_features[] = {
    "l_mask",
    "l_suffix3",
    "r_prefix4",
@@ -8,7 +8,7 @@ static const char *const en_amalg_features[] = {
    NULL
 };
 
-static bool en_amalg_at_eos(const struct bayes *mdl,
+local bool en_amalg_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
@@ -43,7 +43,7 @@ static bool en_amalg_at_eos(const struct bayes *mdl,
    return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const struct sentencizer2_config en_amalg_config = {
+local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
       .version = 1,

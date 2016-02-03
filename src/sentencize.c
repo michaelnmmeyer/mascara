@@ -3,15 +3,15 @@
 #include "sentencize.h"
 #include "mem.h"
 
-static void sentencizer_fini(struct mascara *imp)
+local void sentencizer_fini(struct mascara *imp)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
    free(tkr->sent.tokens);
 }
 
-static void sentencizer_set_text(struct mascara *imp,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr)
+local void sentencizer_set_text(struct mascara *imp,
+                                const unsigned char *str, size_t len,
+                                size_t offset_incr)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
 
@@ -58,8 +58,8 @@ local bool can_reattach_period(const struct mr_token *lhs,
    }
 }
 
-static bool sentencizer_reattach_period(struct sentence *sent,
-                                        const struct mr_token *tk)
+local bool sentencizer_reattach_period(struct sentence *sent,
+                                       const struct mr_token *tk)
 {
    if (tk->len == 1 && *tk->str == '.' && sent->len) {
       struct mr_token *lhs = &sent->tokens[sent->len - 1];
@@ -73,7 +73,7 @@ static bool sentencizer_reattach_period(struct sentence *sent,
 
 #include "gen/sentencize.ic"
 
-static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
+local size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer *szr = (struct sentencizer *)imp;
    struct sentence *sent = &szr->sent;
@@ -96,7 +96,8 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 
    struct mr_token *tk;
    while (tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(sent, tk)) {
+      if (tk->str == (const char *)last_period ||
+         !sentencizer_reattach_period(sent, tk)) {
          sentence_add(sent, tk);
          if (sent->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
@@ -108,7 +109,7 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
    return sent->len;
 }
 
-static const struct mr_imp sentencizer_imp = {
+local const struct mr_imp sentencizer_imp = {
    .set_text = sentencizer_set_text,
    .next = sentencizer_next,
    .fini = sentencizer_fini,

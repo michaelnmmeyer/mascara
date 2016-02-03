@@ -20866,7 +20866,7 @@ _again:
 
 const char *mr_home = "models";
 
-static const struct tokenizer_vtab *find_tokenizer(const char *name)
+local const struct tokenizer_vtab *find_tokenizer(const char *name)
 {
    static const struct tokenizer_vtab tbl[] = {
    #define _(name) {#name, name##_init, name##_exec},
@@ -20927,7 +20927,7 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-static const char *split_cfg(char lang[static 3], const char *cfg)
+local const char *split_cfg(char lang[local 3], const char *cfg)
 {
    const char *sbd = "bayes";
    const char *sep = strchr(cfg, ' ');
@@ -20942,7 +20942,7 @@ static const char *split_cfg(char lang[static 3], const char *cfg)
    return sbd;
 }
 
-static int alloc_sentencizer2(struct mascara **mrp,
+local int alloc_sentencizer2(struct mascara **mrp,
                               const struct tokenizer_vtab *tk,
                               const char *sbd, const char *lang)
 {
@@ -21052,7 +21052,7 @@ struct bayes {
 #define MAX_VALUES 10000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
-static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
+local int read_name(FILE *fp, const char *name, double unk_probs[local 2])
 {
    char buf[MAX_STRING_LEN + 1];
    size_t len;
@@ -21070,7 +21070,7 @@ static int read_name(FILE *fp, const char *name, double unk_probs[static 2])
 }
 
 /* <feature_no> <feature_value> <eos_prob> <not_eos_prob> */
-static int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
+local int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
 {
    unsigned feat_no;
    size_t len;
@@ -21100,7 +21100,7 @@ fail:
    return MR_EMODEL;
 }
 
-static int match_signature(FILE *fp, const char *str)
+local int match_signature(FILE *fp, const char *str)
 {
    char buf[MAX_STRING_LEN + 1 + 1];   /* signature, '\n', '\0' */
    size_t len;
@@ -21114,14 +21114,14 @@ static int match_signature(FILE *fp, const char *str)
    return strcmp(buf, str) ? MR_EMAGIC : MR_OK;
 }
 
-static size_t pad(size_t n, size_t align)
+local size_t pad(size_t n, size_t align)
 {
    return n + ((n + align - 1) & ~(align - 1));
 }
 #define pad(n, type) pad(n, alignof(type))
 
 /* http://graphics.stanford.edu/~seander/bithacks.html */
-static uint32_t roundup_pow2(uint32_t num)
+local uint32_t roundup_pow2(uint32_t num)
 {
    num--;
    num |= num >> 1;
@@ -21133,7 +21133,7 @@ static uint32_t roundup_pow2(uint32_t num)
    return num ? num : 1;
 }
 
-static struct feature **table_chain(const struct bayes *mdl, const void *val)
+local struct feature **table_chain(const struct bayes *mdl, const void *val)
 {
    uint32_t h = 1315423911;
    const uint8_t *v = val;
@@ -21148,7 +21148,7 @@ static struct feature **table_chain(const struct bayes *mdl, const void *val)
    return (void *)f;
 }
 
-static void bayes_clear(struct bayes *mdl)
+local void bayes_clear(struct bayes *mdl)
 {
    for (size_t i = 0; i < mdl->table_mask + 1; i++) {
       struct feature *f = mdl->table[i];
@@ -21160,7 +21160,7 @@ static void bayes_clear(struct bayes *mdl)
    }
 }
 
-static unsigned array_len(const char *const *xs)
+local unsigned array_len(const char *const *xs)
 {
    unsigned i;
    for (i = 0; xs[i]; i++)
@@ -21168,7 +21168,7 @@ static unsigned array_len(const char *const *xs)
    return i;
 }
 
-static int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
+local int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
 {
    if (match_signature(fp, "mr_bayes 1"))
       return MR_EMAGIC;
@@ -21256,14 +21256,14 @@ local void bayes_dealloc(struct bayes *mdl)
    free(mdl);
 }
 
-static const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
+local const double *bayes_probs(const struct bayes *mdl, const uint8_t *val)
 {
    assert(*val > 0);
    const struct feature *f = *table_chain(mdl, val);
    return f ? f->probs : &mdl->unknown_probs[(*val - 1) * 2];
 }
 
-static const bool bayes_debug = false;
+local const bool bayes_debug = false;
 
 local void bayes_init(const struct bayes *mdl, double v[static 2])
 {
@@ -21297,7 +21297,7 @@ local void bayes_feed(const struct bayes *mdl, double v[static 2],
 #include <limits.h>
 
 #define $(name)                                                                \
-local char *mr_ft_##name(char [restrict static MAX_FEATURE_LEN + 1],           \
+local char *mr_ft_##name(char [restrict local MAX_FEATURE_LEN + 1],           \
                          const struct mr_token *);
 
 $(prefix4)
@@ -21312,7 +21312,7 @@ $(mask)
 
 #define NORM_FAILURE SIZE_MAX
 
-local size_t normalize(char [restrict static MAX_FEATURE_LEN],
+local size_t normalize(char [restrict local MAX_FEATURE_LEN],
                        const struct mr_token *);
 
 #endif
@@ -21920,7 +21920,7 @@ UTF8PROC_DLLEXPORT utf8proc_uint8_t *utf8proc_NFKC(const utf8proc_uint8_t *str);
 #endif
 #line 5 "features.c"
 
-static bool first_upper(const struct mr_token *tk)
+local bool first_upper(const struct mr_token *tk)
 {
    const ssize_t len = tk->len < 4 ? tk->len : 4;
    int32_t c;
@@ -21930,13 +21930,13 @@ static bool first_upper(const struct mr_token *tk)
 }
 
 /* A feature that won't match. */
-static char *mr_ft_void(char *buf)
+local char *mr_ft_void(char *buf)
 {
    *buf = 0xff;
    return buf + 1;
 }
 
-static char *strzcat(char *restrict buf, const char *restrict str)
+local char *strzcat(char *restrict buf, const char *restrict str)
 {
    while (*str)
       *buf++ = *str++;
@@ -21978,7 +21978,7 @@ local char *mr_ft_suffix3(char *buf, const struct mr_token *tk)
 
 local char *mr_ft_len(char *buf, const struct mr_token *tk)
 {
-   static const char *const tbl[] = {
+   local const char *const tbl[] = {
       [0] = "0",
       [1] = "1",
       [2] = "2..3",
@@ -22182,15 +22182,15 @@ local void *mr_realloc(void *mem, size_t size)
 #line 1 "sentencize.c"
 #include <stdbool.h>
 
-static void sentencizer_fini(struct mascara *imp)
+local void sentencizer_fini(struct mascara *imp)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
    free(tkr->sent.tokens);
 }
 
-static void sentencizer_set_text(struct mascara *imp,
-                                    const unsigned char *str, size_t len,
-                                    size_t offset_incr)
+local void sentencizer_set_text(struct mascara *imp,
+                                const unsigned char *str, size_t len,
+                                size_t offset_incr)
 {
    struct sentencizer *tkr = (struct sentencizer *)imp;
 
@@ -22237,8 +22237,8 @@ local bool can_reattach_period(const struct mr_token *lhs,
    }
 }
 
-static bool sentencizer_reattach_period(struct sentence *sent,
-                                        const struct mr_token *tk)
+local bool sentencizer_reattach_period(struct sentence *sent,
+                                       const struct mr_token *tk)
 {
    if (tk->len == 1 && *tk->str == '.' && sent->len) {
       struct mr_token *lhs = &sent->tokens[sent->len - 1];
@@ -25511,7 +25511,7 @@ found:
 }
 #line 75 "sentencize.c"
 
-static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
+local size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer *szr = (struct sentencizer *)imp;
    struct sentence *sent = &szr->sent;
@@ -25534,7 +25534,8 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
 
    struct mr_token *tk;
    while (tokenizer_next(&tkr.base, &tk)) {
-      if (tk->str == (const char *)last_period || !sentencizer_reattach_period(sent, tk)) {
+      if (tk->str == (const char *)last_period ||
+         !sentencizer_reattach_period(sent, tk)) {
          sentence_add(sent, tk);
          if (sent->len == MR_MAX_SENTENCE_LEN) {
             szr->p = (const unsigned char *)tk->str + tk->len;
@@ -25546,7 +25547,7 @@ static size_t sentencizer_next(struct mascara *imp, struct mr_token **tks)
    return sent->len;
 }
 
-static const struct mr_imp sentencizer_imp = {
+local const struct mr_imp sentencizer_imp = {
    .set_text = sentencizer_set_text,
    .next = sentencizer_next,
    .fini = sentencizer_fini,
@@ -25566,14 +25567,14 @@ local void sentencizer_init(struct sentencizer *tkr,
 #line 1 "de_tiger.cm"
 /* Generated code, don't edit! */
 
-static const char *const de_tiger_features[] = {
+local const char *const de_tiger_features[] = {
    "l_case",
    "l_suffix3",
    "r_shape",
    NULL
 };
 
-static bool de_tiger_at_eos(const struct bayes *mdl,
+local bool de_tiger_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
@@ -25602,7 +25603,7 @@ static bool de_tiger_at_eos(const struct bayes *mdl,
    return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const struct sentencizer2_config de_tiger_config = {
+local const struct sentencizer2_config de_tiger_config = {
    .bayes_config = {
       .name = "de_tiger",
       .version = 1,
@@ -25614,7 +25615,7 @@ static const struct sentencizer2_config de_tiger_config = {
 #line 1 "en_amalg.cm"
 /* Generated code, don't edit! */
 
-static const char *const en_amalg_features[] = {
+local const char *const en_amalg_features[] = {
    "l_mask",
    "l_suffix3",
    "r_prefix4",
@@ -25622,7 +25623,7 @@ static const char *const en_amalg_features[] = {
    NULL
 };
 
-static bool en_amalg_at_eos(const struct bayes *mdl,
+local bool en_amalg_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
@@ -25657,7 +25658,7 @@ static bool en_amalg_at_eos(const struct bayes *mdl,
    return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const struct sentencizer2_config en_amalg_config = {
+local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
       .version = 1,
@@ -25669,13 +25670,13 @@ static const struct sentencizer2_config en_amalg_config = {
 #line 1 "fr_sequoia.cm"
 /* Generated code, don't edit! */
 
-static const char *const fr_sequoia_features[] = {
+local const char *const fr_sequoia_features[] = {
    "l_shape+l_len",
    "l_word+r_shape",
    NULL
 };
 
-static bool fr_sequoia_at_eos(const struct bayes *mdl,
+local bool fr_sequoia_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
@@ -25702,7 +25703,7 @@ static bool fr_sequoia_at_eos(const struct bayes *mdl,
    return vec[EOS] >= vec[NOT_EOS];
 }
 
-static const struct sentencizer2_config fr_sequoia_config = {
+local const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
       .version = 1,
@@ -25729,28 +25730,27 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
    return NULL;
 }
 
-static void sentencizer2_fini(struct mascara *imp)
+local void sentencizer2_fini(struct mascara *imp)
 {
    struct sentencizer2 *tkr = (void *)imp;
    bayes_dealloc(tkr->bayes);
    free(tkr->sent.tokens);
 }
 
-static void sentencizer2_set_text(struct mascara *imp,
-                                  const unsigned char *str, size_t len,
-                                  size_t offset_incr)
+local void sentencizer2_set_text(struct mascara *imp,
+                                 const unsigned char *str, size_t len,
+                                 size_t offset_incr)
 {
    struct sentencizer2 *tkr = (void *)imp;
 
    tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
    tkr->p = str;
    tkr->pe = &str[len];
-
    sentence_clear(&tkr->sent);
 }
 
-static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
-                                     const unsigned char *end)
+local struct mr_token *fetch_tokens(struct sentencizer2 *szr,
+                                    const unsigned char *end)
 {
    struct sentence *sent = &szr->sent;
    struct mr_token *tk = &sent->tokens[sent->len - 1];
@@ -25770,7 +25770,7 @@ static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
    return NULL;
 }
 
-static void sentencizer2_reattach_period(struct sentence *sent)
+local void sentencizer2_reattach_period(struct sentence *sent)
 {
    struct mr_token *period = &sent->tokens[sent->len - 2];
 
@@ -25781,7 +25781,7 @@ static void sentencizer2_reattach_period(struct sentence *sent)
    }
 }
 
-static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
+local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
    const struct mr_token *lhs = &rhs[-2];
 
@@ -27632,9 +27632,9 @@ fini: {
    (void)mr_sentencize2_en_find_eos;
 }
 }
-#line 110 "sentencize2.c"
+#line 109 "sentencize2.c"
 
-static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
+local size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer2 *szr = (void *)imp;
    struct sentence *sent = &szr->sent;
@@ -27654,15 +27654,15 @@ static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
    return mr_sentencize2_next(szr, tks);
 }
 
-static const struct mr_imp sentencizer2_imp = {
+local const struct mr_imp sentencizer2_imp = {
    .set_text = sentencizer2_set_text,
    .next = sentencizer2_next,
    .fini = sentencizer2_fini,
 };
 
 local int sentencizer2_init(struct sentencizer2 *tkr,
-                               const struct tokenizer_vtab *vtab,
-                               const struct sentencizer2_config *cfg)
+                            const struct tokenizer_vtab *vtab,
+                            const struct sentencizer2_config *cfg)
 {
    *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
 

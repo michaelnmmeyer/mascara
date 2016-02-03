@@ -25,28 +25,27 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
    return NULL;
 }
 
-static void sentencizer2_fini(struct mascara *imp)
+local void sentencizer2_fini(struct mascara *imp)
 {
    struct sentencizer2 *tkr = (void *)imp;
    bayes_dealloc(tkr->bayes);
    free(tkr->sent.tokens);
 }
 
-static void sentencizer2_set_text(struct mascara *imp,
-                                  const unsigned char *str, size_t len,
-                                  size_t offset_incr)
+local void sentencizer2_set_text(struct mascara *imp,
+                                 const unsigned char *str, size_t len,
+                                 size_t offset_incr)
 {
    struct sentencizer2 *tkr = (void *)imp;
 
    tokenizer_set_text(&tkr->tkr.base, str, len, offset_incr);
    tkr->p = str;
    tkr->pe = &str[len];
-
    sentence_clear(&tkr->sent);
 }
 
-static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
-                                     const unsigned char *end)
+local struct mr_token *fetch_tokens(struct sentencizer2 *szr,
+                                    const unsigned char *end)
 {
    struct sentence *sent = &szr->sent;
    struct mr_token *tk = &sent->tokens[sent->len - 1];
@@ -66,7 +65,7 @@ static struct mr_token *fetch_tokens(struct sentencizer2 *szr,
    return NULL;
 }
 
-static void sentencizer2_reattach_period(struct sentence *sent)
+local void sentencizer2_reattach_period(struct sentence *sent)
 {
    struct mr_token *period = &sent->tokens[sent->len - 2];
 
@@ -77,7 +76,7 @@ static void sentencizer2_reattach_period(struct sentence *sent)
    }
 }
 
-static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
+local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
    const struct mr_token *lhs = &rhs[-2];
 
@@ -108,7 +107,7 @@ fail:
 
 #include "gen/sentencize2.ic"
 
-static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
+local size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {
    struct sentencizer2 *szr = (void *)imp;
    struct sentence *sent = &szr->sent;
@@ -128,15 +127,15 @@ static size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
    return mr_sentencize2_next(szr, tks);
 }
 
-static const struct mr_imp sentencizer2_imp = {
+local const struct mr_imp sentencizer2_imp = {
    .set_text = sentencizer2_set_text,
    .next = sentencizer2_next,
    .fini = sentencizer2_fini,
 };
 
 local int sentencizer2_init(struct sentencizer2 *tkr,
-                               const struct tokenizer_vtab *vtab,
-                               const struct sentencizer2_config *cfg)
+                            const struct tokenizer_vtab *vtab,
+                            const struct sentencizer2_config *cfg)
 {
    *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
 

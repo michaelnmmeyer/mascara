@@ -6,7 +6,7 @@
 #include "bayes.h"
 
 #define $(name)                                                                \
-local char *mr_ft_##name(char [restrict static MAX_FEATURE_LEN + 1],           \
+local char *mr_ft_##name(char [restrict local MAX_FEATURE_LEN + 1],           \
                          const struct mr_token *);
 
 $(prefix4)
@@ -21,7 +21,7 @@ $(mask)
 
 #define NORM_FAILURE SIZE_MAX
 
-local size_t normalize(char [restrict static MAX_FEATURE_LEN],
+local size_t normalize(char [restrict local MAX_FEATURE_LEN],
                        const struct mr_token *);
 
 #endif

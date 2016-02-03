@@ -3,7 +3,7 @@
 #include "bayes.h"
 #include "lib/utf8proc.h"
 
-static bool first_upper(const struct mr_token *tk)
+local bool first_upper(const struct mr_token *tk)
 {
    const ssize_t len = tk->len < 4 ? tk->len : 4;
    int32_t c;
@@ -13,13 +13,13 @@ static bool first_upper(const struct mr_token *tk)
 }
 
 /* A feature that won't match. */
-static char *mr_ft_void(char *buf)
+local char *mr_ft_void(char *buf)
 {
    *buf = 0xff;
    return buf + 1;
 }
 
-static char *strzcat(char *restrict buf, const char *restrict str)
+local char *strzcat(char *restrict buf, const char *restrict str)
 {
    while (*str)
       *buf++ = *str++;
@@ -61,7 +61,7 @@ local char *mr_ft_suffix3(char *buf, const struct mr_token *tk)
 
 local char *mr_ft_len(char *buf, const struct mr_token *tk)
 {
-   static const char *const tbl[] = {
+   local const char *const tbl[] = {
       [0] = "0",
       [1] = "1",
       [2] = "2..3",
