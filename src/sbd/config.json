@@ -1,11 +1,11 @@
 [
 {
    "name": "fr_sequoia",
-   "features": [["l_unimask","l_shape"]],
-   "accuracy": 99.250493,
-   "precision": 97.929150,
-   "recall": 91.857616,
-   "F1": 94.670392
+   "features": ["l_unimask"],
+   "accuracy": 98.893281,
+   "precision": 98.943089,
+   "recall": 99.917898,
+   "F1": 99.428105
 },
 {
    "name": "de_tiger",

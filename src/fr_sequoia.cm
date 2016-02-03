@@ -1,7 +1,7 @@
 /* Generated code, don't edit! */
 
 local const char *const fr_sequoia_features[] = {
-   "l_unimask+l_shape",
+   "l_unimask",
    NULL
 };
 
@@ -9,15 +9,13 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
-   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
+   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
 
    bayes_init(mdl, vec);
 
    buf = stack;
    *buf++ = 1;
    buf = ft_unimask(buf, l);
-   *buf++ = '+';
-   buf = ft_shape(buf, l);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
@@ -27,7 +25,7 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
-      .version = "a0f3caae85624fc5489efbc2ec939baf164c4c37",
+      .version = "d09c0d9d8a932749a4bf0f5416a38c3ee5260280",
       .features = fr_sequoia_features,
    },
    .at_eos = fr_sequoia_at_eos,
