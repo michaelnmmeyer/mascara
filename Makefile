@@ -46,7 +46,7 @@ cmd/%.ic: cmd/%.rl
 mascara.h: src/api.h
 	cp $< $@
 
-mascara.c: $(wildcard src/*.h src/*.c src/gen/*.ic)
+mascara.c: $(wildcard src/*.h src/*.c src/*.cm src/gen/*.ic)
 	src/scripts/mkamalg.py src/*.c > $@
 
 mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
