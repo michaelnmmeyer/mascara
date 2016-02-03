@@ -79,7 +79,31 @@ static void sentencizer2_reattach_period(struct sentence *sent)
 
 static bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
-   return szr->at_eos(szr->bayes, rhs - 2, rhs);
+   const struct mr_token *lhs = &rhs[-2];
+
+   char lstr[MAX_FEATURE_LEN + 1];
+   const struct mr_token ltk = {
+      .str = lstr,
+      .len = normalize(lstr, lhs),
+      .type = lhs->type,
+   };
+   if (ltk.len == NORM_FAILURE)
+      goto fail;
+
+   char rstr[MAX_FEATURE_LEN + 1];
+   const struct mr_token rtk = {
+      .str = rstr,
+      .len = normalize(rstr, rhs),
+      .type = rhs->type,
+   };
+   if (rtk.len == NORM_FAILURE)
+      goto fail;
+
+   return szr->at_eos(szr->bayes, &ltk, &rtk);
+
+fail:
+   /* We cannot proceed, so choose the most likely solution. */
+   return true;
 }
 
 #include "gen/sentencize2.ic"

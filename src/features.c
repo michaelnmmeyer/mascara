@@ -1,5 +1,6 @@
 #include "features.h"
 #include "api.h"
+#include "bayes.h"
 #include "lib/utf8proc.h"
 
 static bool first_upper(const struct mr_token *tk)
@@ -133,4 +134,55 @@ local char *mr_ft_mask(char *buf, const struct mr_token *tk)
       }
    }
    return buf;
+}
+
+/* None of the following characters are longer when normalized (if we count
+ * in bytes).
+ */
+local char *normalize_char(char *buf, int32_t c)
+{
+#define $1(c) *buf++ = c; break;
+#define $2(s) *buf++ = s[0]; *buf++ = s[1]; assert(!s[2]); break;
+
+   switch (c) {
+   case U'Œ':
+      $2("Oe")
+   case U'œ': case U'ꟹ':
+      $2("oe")
+   case U'Æ':
+      $2("Ae")
+   case U'ᴭ': case U'æ':
+      $2("ae")
+   case U'“': case U'”': case U'„': case U'«': case U'»': case U'‹': case U'›':
+      $1('"')
+   case U'‘': case U'’': case U'‚': /* Not a comma! */
+      $1('\'')
+   default:
+      buf += utf8proc_encode_char(c, (uint8_t *)buf);
+      break;
+   }
+   return buf;
+
+#undef $1
+#undef $2
+}
+
+local size_t normalize(char *buf, const struct mr_token *tk)
+{
+   const uint8_t *str = (const void *)tk->str;
+   const size_t len = tk->len;
+   const char *const buf_orig = buf;
+
+   if (len > MAX_FEATURE_LEN)
+      return SIZE_MAX;
+
+   ssize_t clen;
+   for (size_t i = 0; i < len; i += clen) {
+      int32_t c;
+      clen = utf8proc_iterate(&str[i], len - i, &c);
+      if (clen <= 0)
+         return SIZE_MAX;
+      buf = normalize_char(buf, c);
+   }
+   return buf - buf_orig;
 }

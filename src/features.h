@@ -1,14 +1,27 @@
 #ifndef MR_FEATURES_H
 #define MR_FEATURES_H
 
+#include <limits.h>
 #include "imp.h"
+#include "bayes.h"
 
-local char *mr_ft_prefix4(char *, const struct mr_token *);
-local char *mr_ft_suffix3(char *, const struct mr_token *);
-local char *mr_ft_len(char *, const struct mr_token *);
-local char *mr_ft_word(char *, const struct mr_token *);
-local char *mr_ft_case(char *, const struct mr_token *);
-local char *mr_ft_shape(char *, const struct mr_token *);
-local char *mr_ft_mask(char *, const struct mr_token *);
+#define $(name)                                                                \
+local char *mr_ft_##name(char [restrict static MAX_FEATURE_LEN + 1],           \
+                         const struct mr_token *);
+
+$(prefix4)
+$(suffix3)
+$(len)
+$(word)
+$(case)
+$(shape)
+$(mask)
+
+#undef $
+
+#define NORM_FAILURE SIZE_MAX
+
+local size_t normalize(char [restrict static MAX_FEATURE_LEN],
+                       const struct mr_token *);
 
 #endif
