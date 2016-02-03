@@ -58,7 +58,7 @@ const char *mr_strerror(int err)
    return "unknown error";
 }
 
-const char *mr_token_type_name(enum mr_token_type t)
+const char *mr_type_name(enum mr_type t)
 {
    static const char *const tbl[] = {
       [MR_UNK] = "UNK",
