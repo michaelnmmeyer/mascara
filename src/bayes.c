@@ -26,7 +26,7 @@ struct bayes {
 #define MAX_VALUES 10000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
-local int read_name(FILE *fp, const char *name, double unk_probs[local 2])
+local int read_name(FILE *fp, const char *name, double unk_probs[static 2])
 {
    char buf[MAX_STRING_LEN + 1];
    size_t len;
@@ -52,7 +52,7 @@ local int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
 
    if (fscanf(fp, "%u %zu:", &feat_no, &len) != 2)
       goto fail;
-   if (feat_no > feat_nr || len > MAX_FEATURE_LEN)
+   if (feat_no >= feat_nr || len > MAX_FEATURE_LEN)
       goto fail;
 
    f = mr_malloc(sizeof *f + 1 + len + 1);

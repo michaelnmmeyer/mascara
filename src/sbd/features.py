@@ -71,7 +71,7 @@ EXTRACTORS = {
    "l_suffix3": lambda ctx: ctx[CONTEXT_SIZE-1][0][-3:],
    "l_suffix2": lambda ctx: ctx[CONTEXT_SIZE-1][0][-2:],
    "r_prefix2": lambda ctx: ctx[CONTEXT_SIZE+1][0][:2],
-   "r_prefix3": lambda ctx: ctx[CONTEXT_SIZE+1][0][:2],
+   "r_prefix3": lambda ctx: ctx[CONTEXT_SIZE+1][0][:3],
    "r_prefix4": lambda ctx: ctx[CONTEXT_SIZE+1][0][:4],
    "l_shape": lambda ctx: ft_shape(*ctx[CONTEXT_SIZE-1]),
    "r_shape": lambda ctx: ft_shape(*ctx[CONTEXT_SIZE+1]),
