@@ -79,7 +79,7 @@ local char *ft_word(char *buf, const struct mr_token *tk)
 
 local char *ft_case(char *buf, const struct mr_token *tk)
 {
-   memcpy(buf, first_upper(tk) ? "LCAP" : "LLOW", 4);
+   memcpy(buf, tk->len == 0 || first_upper(tk) ? "LCAP" : "LLOW", 4);
    return &buf[4];
 }
 
