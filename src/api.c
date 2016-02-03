@@ -78,7 +78,7 @@ const char *mr_token_type_name(enum mr_token_type t)
    return *tbl;
 }
 
-local const char *split_cfg(char lang[local 3], const char *cfg)
+local const char *split_cfg(char lang[static 3], const char *cfg)
 {
    const char *sbd = "bayes";
    const char *sep = strchr(cfg, ' ');
@@ -94,8 +94,8 @@ local const char *split_cfg(char lang[local 3], const char *cfg)
 }
 
 local int alloc_sentencizer2(struct mascara **mrp,
-                              const struct tokenizer_vtab *tk,
-                              const char *sbd, const char *lang)
+                             const struct tokenizer_vtab *tk,
+                             const char *sbd, const char *lang)
 {
    const struct sentencizer2_config *cfg = find_sentencizer2(lang);
    if (!cfg)

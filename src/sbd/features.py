@@ -50,7 +50,7 @@ def ft_mask(token):
          mask += "V"
       elif c.isalpha():
          mask += "C"
-      elif c.isdigit():
+      elif c.isnumeric():
          mask += "D"
       else:
          mask += "P"

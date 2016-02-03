@@ -6,7 +6,7 @@
 #define MR_VOWEL_MAX 363
 #define MR_VOWELS U"aeiouyáéíóúàèìòùäëïöüâêîôûāēīōūAEIOUYÁÉÍÓÚÀÈÌÒÙÄËÏÖÜÂÊÎÔÛĀĒĪŌŪ"
 
-static bool mr_is_vowel(char32_t c)
+local bool mr_is_vowel(char32_t c)
 {
    static const uint32_t tbl[] = {
       17842449,

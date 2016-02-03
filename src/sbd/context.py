@@ -37,7 +37,6 @@ def iter_lines(fp):
          yield line
 
 def read_token(itor):
-   # Multiword token?
    token = []
    type = None
    while True:
@@ -60,8 +59,6 @@ def tokenize_line(line):
       i, token, type = read_token(itor)
       if not token:
          break
-      # Correct internal-token whitespace.
-
       # In some corpora, the terminal period is duplicated if part of an
       # abbreviation:
       #     Foobar Ltd. .
