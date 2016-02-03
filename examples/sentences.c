@@ -1,7 +1,6 @@
 /* Shows how to split a text into sentences.
  * Input strings must be passed as argument on the command-line.
  * Outputs one sentence per line, tokens being separated with whitespace.
- * Error handling is omitted for brevity!
  */
 
 #include <stdio.h>
@@ -11,7 +10,11 @@
 int main(int argc, char **argv)
 {
    struct mascara *mr;
-   mr_alloc(&mr, "en", MR_SENTENCE);
+   int ret = mr_alloc(&mr, "en", MR_SENTENCE);
+   if (ret) {
+      fprintf(stderr, "cannot create tokenizer: %s\n", mr_strerror(ret));
+      return 1;
+   }
 
    while (*++argv) {
       struct mr_token *sent;

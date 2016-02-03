@@ -11,7 +11,11 @@
 int main(int argc, char **argv)
 {
    struct mascara *mr;
-   mr_alloc(&mr, "en", MR_TOKEN);
+   int ret = mr_alloc(&mr, "en", MR_TOKEN);
+   if (ret) {
+      fprintf(stderr, "cannot create tokenizer: %s\n", mr_strerror(ret));
+      return 1;
+   }
    
    while (*++argv) {
       struct mr_token *token;
