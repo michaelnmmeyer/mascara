@@ -240,3 +240,7 @@ periods.
   Problems of
   Tokenization](http://www.delph-in.net/courses/07/nlp/Gre:Tap:94.pdf).
 * [Gillick (2009), Sentence Boundary Detection and the Problem with the U.S.](http://www.dgillick.com/resource/sbd_naacl_2009.pdf)
+* [Maršík and Bojar (2012), TrTok: A Fast and Trainable Tokenizer for Natural
+  Languages](https://ufal.mff.cuni.cz/pbml/98/art-marsik-bojar.pdf)
+* [Evang et al. (2013), Elephant: Sequence Labeling for Word and Sentence
+  Segmentation](http://www.aclweb.org/anthology/D13-1146)
