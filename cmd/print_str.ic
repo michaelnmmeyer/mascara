@@ -3,89 +3,73 @@
 /* Drops excessive whitespace inside multi-word tokens. */
 
 
-#line 16 "cmd/print_str.rl"
+#line 13 "cmd/print_str.rl"
 
 
 
 #line 11 "cmd/print_str.ic"
 static const char _print_str_key_offsets[] = {
-	0, 2, 4, 9, 10, 15, 20, 22
+	0, 5, 12, 19, 29
 };
 
 static const unsigned char _print_str_trans_keys[] = {
-	133u, 160u, 128u, 129u, 175u, 128u, 139u, 168u, 
-	169u, 159u, 32u, 194u, 226u, 9u, 13u, 32u, 
-	194u, 226u, 9u, 13u, 133u, 160u, 128u, 129u, 
-	0
+	32u, 194u, 226u, 9u, 13u, 32u, 133u, 160u, 
+	194u, 226u, 9u, 13u, 32u, 128u, 129u, 194u, 
+	226u, 9u, 13u, 32u, 175u, 194u, 226u, 9u, 
+	13u, 128u, 139u, 168u, 169u, 32u, 159u, 194u, 
+	226u, 9u, 13u, 0
 };
 
 static const char _print_str_single_lengths[] = {
-	2, 2, 1, 1, 3, 3, 2, 2
+	3, 5, 5, 4, 4
 };
 
 static const char _print_str_range_lengths[] = {
-	0, 0, 2, 0, 1, 1, 0, 0
+	1, 1, 1, 3, 1
 };
 
 static const char _print_str_index_offsets[] = {
-	0, 3, 6, 10, 12, 17, 22, 25
+	0, 5, 12, 19, 27
 };
 
 static const char _print_str_indicies[] = {
-	1, 1, 0, 2, 3, 0, 1, 1, 
-	1, 4, 1, 4, 1, 6, 7, 1, 
-	5, 1, 9, 10, 1, 8, 1, 1, 
-	11, 2, 3, 11, 0
+	1, 2, 3, 1, 0, 1, 1, 1, 
+	2, 3, 1, 0, 1, 4, 5, 2, 
+	3, 1, 0, 1, 1, 2, 3, 1, 
+	1, 1, 0, 1, 1, 2, 3, 1, 
+	0, 0
 };
 
 static const char _print_str_trans_targs[] = {
-	4, 5, 2, 3, 4, 4, 6, 7, 
-	4, 0, 1, 4
+	0, 0, 1, 2, 3, 4
 };
 
 static const char _print_str_trans_actions[] = {
-	1, 2, 0, 0, 3, 6, 0, 7, 
-	8, 0, 0, 9
+	1, 2, 1, 1, 1, 1
 };
 
-static const char _print_str_to_state_actions[] = {
-	0, 0, 0, 0, 4, 0, 0, 0
-};
+static const int print_str_start = 0;
 
-static const char _print_str_from_state_actions[] = {
-	0, 0, 0, 0, 5, 0, 0, 0
-};
-
-static const char _print_str_eof_trans[] = {
-	1, 1, 5, 5, 0, 9, 12, 12
-};
-
-static const int print_str_start = 4;
-
-static const int print_str_en_main = 4;
+static const int print_str_en_main = 0;
 
 
-#line 19 "cmd/print_str.rl"
+#line 16 "cmd/print_str.rl"
 
 static void print_str(const unsigned char *p, size_t len)
 {
-   int cs, act;
-   const unsigned char *ts, *te;
+   int cs;
    const unsigned char *const pe = &p[len];
    const unsigned char *const eof = pe;
 
    
-#line 79 "cmd/print_str.ic"
+#line 66 "cmd/print_str.ic"
 	{
 	cs = print_str_start;
-	ts = 0;
-	te = 0;
-	act = 0;
 	}
 
-#line 28 "cmd/print_str.rl"
+#line 24 "cmd/print_str.rl"
    
-#line 89 "cmd/print_str.ic"
+#line 73 "cmd/print_str.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -94,14 +78,6 @@ static void print_str(const unsigned char *p, size_t len)
 	if ( p == pe )
 		goto _test_eof;
 _resume:
-	switch ( _print_str_from_state_actions[cs] ) {
-	case 5:
-#line 1 "NONE"
-	{ts = p;}
-	break;
-#line 103 "cmd/print_str.ic"
-	}
-
 	_keys = _print_str_trans_keys + _print_str_key_offsets[cs];
 	_trans = _print_str_index_offsets[cs];
 
@@ -152,79 +128,32 @@ _resume:
 
 _match:
 	_trans = _print_str_indicies[_trans];
-_eof_trans:
 	cs = _print_str_trans_targs[_trans];
 
 	if ( _print_str_trans_actions[_trans] == 0 )
 		goto _again;
 
 	switch ( _print_str_trans_actions[_trans] ) {
-	case 6:
-#line 13 "cmd/print_str.rl"
-	{te = p+1;{ putchar((*p)); }}
-	break;
-	case 8:
-#line 12 "cmd/print_str.rl"
-	{te = p;p--;{ putchar(' '); }}
-	break;
-	case 9:
-#line 13 "cmd/print_str.rl"
-	{te = p;p--;{ putchar((*p)); }}
-	break;
 	case 1:
-#line 12 "cmd/print_str.rl"
-	{{p = ((te))-1;}{ putchar(' '); }}
-	break;
-	case 3:
-#line 1 "NONE"
-	{	switch( act ) {
-	case 1:
-	{{p = ((te))-1;} putchar(' '); }
+#line 11 "cmd/print_str.rl"
+	{ putchar((*p)); }
 	break;
 	case 2:
-	{{p = ((te))-1;} putchar((*p)); }
+#line 11 "cmd/print_str.rl"
+	{ putchar(' '); }
+#line 11 "cmd/print_str.rl"
+	{ putchar((*p)); }
 	break;
-	}
-	}
-	break;
-	case 2:
-#line 1 "NONE"
-	{te = p+1;}
-#line 12 "cmd/print_str.rl"
-	{act = 1;}
-	break;
-	case 7:
-#line 1 "NONE"
-	{te = p+1;}
-#line 13 "cmd/print_str.rl"
-	{act = 2;}
-	break;
-#line 203 "cmd/print_str.ic"
+#line 148 "cmd/print_str.ic"
 	}
 
 _again:
-	switch ( _print_str_to_state_actions[cs] ) {
-	case 4:
-#line 1 "NONE"
-	{ts = 0;}
-	break;
-#line 212 "cmd/print_str.ic"
-	}
-
 	if ( ++p != pe )
 		goto _resume;
 	_test_eof: {}
-	if ( p == eof )
-	{
-	if ( _print_str_eof_trans[cs] > 0 ) {
-		_trans = _print_str_eof_trans[cs] - 1;
-		goto _eof_trans;
-	}
 	}
 
-	}
-
-#line 29 "cmd/print_str.rl"
+#line 25 "cmd/print_str.rl"
    
-   (void)ts;
+   (void)eof;
 }
