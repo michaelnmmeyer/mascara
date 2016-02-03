@@ -8,7 +8,10 @@ include whitespace "../src/fsm/whitespace.rl";
 
 alphtype unsigned char;
 
-main := (whitespace+ @ { putchar(' '); } | any @ { putchar(fc); })*;
+main := |*
+   whitespace+ => { putchar(' '); };
+   any => { putchar(fc); };
+*|;
 
 }%%
 
@@ -16,12 +19,13 @@ main := (whitespace+ @ { putchar(' '); } | any @ { putchar(fc); })*;
 
 static void print_str(const unsigned char *p, size_t len)
 {
-   int cs;
+   int cs, act;
+   const unsigned char *ts, *te;
    const unsigned char *const pe = &p[len];
    const unsigned char *const eof = pe;
 
    %% write init;
    %% write exec;
    
-   (void)eof;
+   (void)ts;
 }

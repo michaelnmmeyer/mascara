@@ -41,12 +41,12 @@ local char *ft_prefix4(char *buf, const struct mr_token *tk)
    return &buf[pfx_len];
 }
 
-local char *ft_suffix3(char *buf, const struct mr_token *tk)
+local char *ft_suffix(char *buf, const struct mr_token *tk, size_t nr)
 {
    const char *str = tk->str;
    size_t len = tk->len;
 
-   size_t nr = 3;
+   assert(nr > 0);
    while (len)
       if (((uint8_t)str[--len] & 0xc0) != 0x80 && !--nr)
          break;
@@ -54,6 +54,16 @@ local char *ft_suffix3(char *buf, const struct mr_token *tk)
    const size_t sfx_len = tk->len - len;
    memcpy(buf, &str[len], sfx_len);
    return &buf[sfx_len];
+}
+
+local char *ft_suffix2(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 2);
+}
+
+local char *ft_suffix3(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 3);
 }
 
 local char *ft_len(char *buf, const struct mr_token *tk)

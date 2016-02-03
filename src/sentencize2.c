@@ -7,6 +7,7 @@
 #include "de_tiger.cm"
 #include "en_amalg.cm"
 #include "fr_sequoia.cm"
+#include "it_tut.cm"
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang)
 {
@@ -17,6 +18,7 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
       {"de", &de_tiger_config},
       {"en", &en_amalg_config},
       {"fr", &fr_sequoia_config},
+      {"it", &it_tut_config},
    };
    
    for (size_t i = 0; i < sizeof tbl / sizeof *tbl; i++)

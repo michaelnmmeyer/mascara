@@ -10,15 +10,17 @@ CORPORA_DIR="data"
 dump() {
    CORPUS=$1
    LANG=$2
+   echo $CORPUS
    cat $CORPORA_DIR/$LANG'_'$CORPUS.txt | while read sent; do
       echo $sent | mascara -l $LANG -e '' -f '%s/%t '
       echo
    done > $CORPORA_DIR/$LANG'_'$CORPUS.tok
 }
 
+dump sequoia fr
+dump tut it
 dump bnc1000gold en
 dump brown en
 dump amalg en
-dump sequoia fr
 dump tiger de
 dump treebank en

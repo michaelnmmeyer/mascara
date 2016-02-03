@@ -34,6 +34,7 @@ def iter_lines(fp):
       if line:
          line = re.sub(" +", " ", line)
          line = unicodedata.normalize("NFKC", line)
+         line = line.replace("«", '"').replace("»", '"')
          yield line
 
 def read_token(itor):

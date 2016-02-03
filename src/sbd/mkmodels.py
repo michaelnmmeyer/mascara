@@ -132,4 +132,5 @@ if __name__ == "__main__":
    path = os.path.join(os.path.dirname(__file__), "config.json")
    with open(path) as fp:
       for config in json.load(fp):
+         print(config["name"])
          mkmodel(config)

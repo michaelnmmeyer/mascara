@@ -21311,6 +21311,7 @@ local char *ft_##name(char [restrict static MAX_FEATURE_LEN + 1],              \
                       const struct mr_token *);
 
 $(prefix4)
+$(suffix2)
 $(suffix3)
 $(len)
 $(word)
@@ -21964,12 +21965,12 @@ local char *ft_prefix4(char *buf, const struct mr_token *tk)
    return &buf[pfx_len];
 }
 
-local char *ft_suffix3(char *buf, const struct mr_token *tk)
+local char *ft_suffix(char *buf, const struct mr_token *tk, size_t nr)
 {
    const char *str = tk->str;
    size_t len = tk->len;
 
-   size_t nr = 3;
+   assert(nr > 0);
    while (len)
       if (((uint8_t)str[--len] & 0xc0) != 0x80 && !--nr)
          break;
@@ -21977,6 +21978,16 @@ local char *ft_suffix3(char *buf, const struct mr_token *tk)
    const size_t sfx_len = tk->len - len;
    memcpy(buf, &str[len], sfx_len);
    return &buf[sfx_len];
+}
+
+local char *ft_suffix2(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 2);
+}
+
+local char *ft_suffix3(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 3);
 }
 
 local char *ft_len(char *buf, const struct mr_token *tk)
@@ -22043,7 +22054,7 @@ local bool mr_is_vowel(char32_t c)
    }
    return false;
 }
-#line 94 "features.c"
+#line 104 "features.c"
 
 local char *ft_mask(char *buf, const struct mr_token *tk)
 {
@@ -25712,6 +25723,56 @@ local const struct sentencizer2_config fr_sequoia_config = {
    .at_eos = fr_sequoia_at_eos,
 };
 #line 10 "sentencize2.c"
+#line 1 "it_tut.cm"
+/* Generated code, don't edit! */
+
+local const char *const it_tut_features[] = {
+   "l_case",
+   "l_suffix2",
+   "r_prefix4+r_unimask",
+   NULL
+};
+
+local bool it_tut_at_eos(const struct bayes *mdl,
+                            const struct mr_token *l, const struct mr_token *r)
+{
+   double vec[2];
+   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
+
+   bayes_init(mdl, vec);
+
+   buf = stack;
+   *buf++ = 1;
+   buf = ft_case(buf, l);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 2;
+   buf = ft_suffix2(buf, l);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   buf = stack;
+   *buf++ = 3;
+   buf = ft_prefix4(buf, r);
+   *buf++ = '+';
+   buf = ft_unimask(buf, r);
+   *buf++ = '\0';
+   bayes_feed(mdl, vec, stack);
+
+   return vec[EOS] >= vec[NOT_EOS];
+}
+
+local const struct sentencizer2_config it_tut_config = {
+   .bayes_config = {
+      .name = "it_tut",
+      .version = "5ab6c2ba7d5343df502b9153e6ba784cc1d382e2",
+      .features = it_tut_features,
+   },
+   .at_eos = it_tut_at_eos,
+};
+#line 11 "sentencize2.c"
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang)
 {
@@ -25722,6 +25783,7 @@ local const struct sentencizer2_config *find_sentencizer2(const char *lang)
       {"de", &de_tiger_config},
       {"en", &en_amalg_config},
       {"fr", &fr_sequoia_config},
+      {"it", &it_tut_config},
    };
    
    for (size_t i = 0; i < sizeof tbl / sizeof *tbl; i++)
@@ -27632,7 +27694,7 @@ fini: {
    (void)mr_sentencize2_en_find_eos;
 }
 }
-#line 109 "sentencize2.c"
+#line 111 "sentencize2.c"
 
 local size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {

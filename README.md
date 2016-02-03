@@ -21,7 +21,7 @@ need to link the compiled code to the [utf8proc
 library](https://github.com/JuliaLang/utf8proc).
 
 A command-line tool `mascara` is included, plus a set of sentence boundary
-detection models for English, French, and German. To install all these:
+detection models. To install all these:
 
     $ make && sudo make install
 
@@ -36,6 +36,7 @@ each model:
   Trees](http://nclt.computing.dcu.ie/~jfoster/resources/bnc1000.html)
 * `fr_sequoia`: [Sequoia corpus](https://www.rocq.inria.fr/alpage-wiki/tiki-index.php?page=CorpusSequoia)
 * `de_tiger`: [Tiger corpus](http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.en.html)
+* `it_tut`: [Turin University Treebank corpus](http://www.di.unito.it/~tutreeb/)
 
 
 ## Usage
@@ -212,7 +213,7 @@ a window of three tokens, centered on the period to classify.
 
 Despite the simplicity of this approach, its performance is close to
 state-of-the-art. The following tables show the performance of our classifier on
-three corpora. We use five-fold cross-validation, and only classify ambiguous
+four corpora. We use five-fold cross-validation, and only classify ambiguous
 periods.
 
 * Brown
@@ -227,12 +228,17 @@ periods.
         bayes      98.89       98.94       99.92       99.43
         baseline   96.28       96.28       100.00      98.11
 
-*  Tiger
+* Tiger
 
                    accuracy    precision   recall      F1
         bayes      99.48       99.65       99.79       99.72
         baseline   93.34       93.34       100.00      96.58
 
+* Turin University Treebank
+
+                   accuracy    precision   recall      F1
+        bayes      98.22       99.53       98.38       98.95
+        baseline   85.58       85.58       100.00      92.23
 
 ### References
 

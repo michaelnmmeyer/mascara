@@ -20,6 +20,7 @@ local char *ft_##name(char [restrict static MAX_FEATURE_LEN + 1],              \
                       const struct mr_token *);
 
 $(prefix4)
+$(suffix2)
 $(suffix3)
 $(len)
 $(word)

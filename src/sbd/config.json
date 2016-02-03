@@ -1,5 +1,13 @@
 [
 {
+   "name": "it_tut",
+   "features": ["l_case","l_suffix2",["r_prefix4","r_unimask"]],
+   "accuracy": 98.217822,
+   "precision": 99.531799,
+   "recall": 98.380255,
+   "F1": 98.952676
+},
+{
    "name": "fr_sequoia",
    "features": ["l_unimask"],
    "accuracy": 98.893281,
