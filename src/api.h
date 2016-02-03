@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.7"
+#define MR_VERSION "0.8"
 
 #include <stddef.h>
 
@@ -29,7 +29,7 @@ const char *mr_strerror(int err);
 #define MR_MAX_SENTENCE_LEN 1000
 
 /* See the readme file for informations about these. */
-enum mr_token_type {
+enum mr_type {
    MR_UNK,
    MR_LATIN,
    MR_PREFIX,
@@ -43,7 +43,7 @@ enum mr_token_type {
 };
 
 /* String representation of a token type. */
-const char *mr_token_type_name(enum mr_token_type);
+const char *mr_type_name(enum mr_type);
 
 struct mascara;
 
@@ -54,7 +54,7 @@ enum mr_mode {
 };
 
 /* Returns an array containing the names of the supported languages.
- * The array is NULL-terminated.
+ * The array is NULL-terminated and lexicographically sorted.
  */
 const char *const *mr_langs(void);
 
@@ -85,7 +85,7 @@ struct mr_token {
    const char *str;           /* Not nul-terminated! */
    size_t len;                /* Length, in bytes. */
    size_t offset;             /* Offset from the start of the text, in bytes. */
-   enum mr_token_type type;
+   enum mr_type type;
 };
 
 /* Fetch the next token or sentence.

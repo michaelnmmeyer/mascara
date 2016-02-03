@@ -1,7 +1,6 @@
 /* Shows how to split a text into tokens.
  * Input strings must be passed as argument on the command-line.
  * Outputs one token per line.
- * Error handling is omitted for brevity!
  */
 
 #include <stdio.h>

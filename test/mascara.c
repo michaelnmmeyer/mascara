@@ -49,7 +49,7 @@ static void mr_lua_put_token(lua_State *lua, const struct mr_token *tk)
    lua_setfield(lua, -2, "str");
    lua_pushinteger(lua, tk->offset);
    lua_setfield(lua, -2, "offset");
-   lua_pushstring(lua, mr_token_type_name(tk->type));
+   lua_pushstring(lua, mr_type_name(tk->type));
    lua_setfield(lua, -2, "type");
 }
 

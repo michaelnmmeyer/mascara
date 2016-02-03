@@ -24,6 +24,7 @@ local const struct tokenizer_vtab *find_tokenizer(const char *name)
       _(en)
       _(fr)
       _(it)
+      /* No specific model is required for German tokenization. */
       _(generic)
    #undef _
    };
@@ -38,7 +39,7 @@ local const struct tokenizer_vtab *find_tokenizer(const char *name)
 
 const char *const *mr_langs(void)
 {
-   static const char *const lst[] = {"en", "fr", "it", "generic", NULL};
+   static const char *const lst[] = {"de", "en", "fr", "it", NULL};
    return lst;
 }
 
@@ -58,7 +59,7 @@ const char *mr_strerror(int err)
    return "unknown error";
 }
 
-const char *mr_token_type_name(enum mr_token_type t)
+const char *mr_type_name(enum mr_type t)
 {
    static const char *const tbl[] = {
       [MR_UNK] = "UNK",

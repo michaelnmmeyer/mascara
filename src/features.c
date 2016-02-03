@@ -97,7 +97,7 @@ local char *ft_shape(char *buf, const struct mr_token *tk)
 {
    if (tk->type == MR_LATIN)
       return ft_case(buf, tk);
-   return strzcat(buf, mr_token_type_name(tk->type));
+   return strzcat(buf, mr_type_name(tk->type));
 }
 
 #include "gen/vowel.ic"

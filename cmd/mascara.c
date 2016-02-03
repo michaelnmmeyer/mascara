@@ -9,7 +9,7 @@ static void print_format(const char *fmt, const struct mr_token *tk)
 {
    switch (*fmt) {
    case 't':
-      fputs(mr_token_type_name(tk->type), stdout);
+      fputs(mr_type_name(tk->type), stdout);
       break;
    case 's':
       print_str((const unsigned char *)tk->str, tk->len);
