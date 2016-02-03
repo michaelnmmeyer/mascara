@@ -15,7 +15,7 @@ optionally, sentences.
 .SS Options
 
 .TP
-.B \-l, \-\-lang=<language> [en]
+.B \-l, \-\-lang=<string> [en]
 Language of the text to tokenize. Use the
 .B \-L
 option to obtain a list of the supported languages. If a language for which
@@ -23,17 +23,15 @@ there is no specific support is given, a generic tokenizer will be used.
 
 .TP
 .B \-f, \-\-format=<string> [%s\\\\n]
-Token format string. Substitutions are performed in a manner similar to
-.B printf(1).
-The following are supported:
+Token format string. The following substitutions are performed:
 
    %s    token string
    %t    token type
    %l    token length, in bytes
    %o    token offset, in bytes
-   \\n    Newline
-   \\t    Tabulation
-   \\\\    Backslash
+   \\n    newline
+   \\t    tabulation
+   \\\\    backslash
 
 Unknown escape sequences are emitted as is.
 
@@ -55,6 +53,13 @@ Display a short help message.
 .TP
 .B \-\-version
 Display the library version.
+
+.SS Note
+The variable
+.B MR_HOME
+can be defined to change the directory where model files are looked up. Per
+default, model files are searched in $PREFIX/share/mascara, the value of $PREFIX
+being defined before installation and defaulting to /usr/local.
 
 .SH COPYRIGHT
 Copyright (c) 2016 Michaël Meyer
