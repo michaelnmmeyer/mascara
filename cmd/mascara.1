@@ -1,0 +1,60 @@
+.TH mascara 1
+
+.SH NAME
+mascara - tokenize a text file
+
+.SH SYNOPSIS
+.B mascara
+.RB [-l\ <lang>]\ [-f\ <format>]\ [-e\ <eos>]\ [--]\ [<file>]
+
+.SH DESCRIPTION
+.SS Overview
+Mascara is a natural language tokenizer. It segments a text into tokens, and,
+optionally, sentences.
+
+.SS Options
+
+.TP
+.B \-l, \-\-lang=<language> [en]
+Language of the text to tokenize. Use the
+.B \-L
+option to obtain a list of the supported languages. If a language for which
+there is no specific support is given, a generic tokenizer will be used.
+
+.TP
+.B \-L, \-\-list
+Display a list of the supported languages. Language names are abbreviated to an
+ISO 639-1 two-letters code.
+
+.TP
+.B \-f, \-\-format=<string> [%s\\\\n]
+Token format string. Substitutions are performed in a manner similar to
+.B printf(1).
+The following are supported:
+
+   %s    token string
+   %t    token type
+   %l    token length, in bytes
+   %o    token offset, in bytes
+   \\n    Newline
+   \\t    Tabulation
+   \\\\    Backslash
+
+Unknown escape sequences are emitted as is.
+
+.TP
+.B \-e, \-\-eos=<string> [\\\\n]
+String to display at the end of a sentence. Passing the empty string disables
+sentence segmentation. Supports the same escape sequences as the
+.B \-f
+option.
+
+.TP
+.B \-h, \-\-help
+Display a short help message.
+.TP
+.B \-\-version
+Display the current version.
+
+.SH COPYRIGHT
+Copyright (c) 2016 Michaël Meyer
