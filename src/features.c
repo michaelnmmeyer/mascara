@@ -125,6 +125,20 @@ local char *ft_mask(char *buf, const struct mr_token *tk)
    return buf;
 }
 
+local char *ft_unimask(char *buf, const struct mr_token *tk)
+{
+   const char *str = tk->str;
+   const size_t len = tk->len;
+   
+   size_t clen;
+   for (size_t i = 0; i < len; i += clen) {
+      int32_t c;
+      clen = pick_char(&c, &str[i]);
+      *buf++ = utf8proc_get_property(c)->category + '0';
+   }
+   return buf;
+}
+
 /* None of the following characters are longer when normalized (if we count
  * in bytes).
  */
@@ -174,4 +188,6 @@ local size_t normalize(char *buf, const struct mr_token *tk)
       buf = normalize_char(buf, c);
    }
    return buf - buf_orig;
+
+   (void)ft_len; (void)ft_word;  /* Unused functions. */
 }

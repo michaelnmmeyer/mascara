@@ -26,6 +26,7 @@ $(word)
 $(case)
 $(shape)
 $(mask)
+$(unimask)
 
 #undef $
 

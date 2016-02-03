@@ -197,15 +197,42 @@ internal whitespace characters, such as numbers in French.
 Two sentence boundary detection modules are implemented.
 
 The first one is a simple finite-state machine. It uses a fixed list of rules
-and abbreviations. It cannot disambiguate the role of cardinal numbers and
-abbreviations.
+and abbreviations. It cannot disambiguate the most ambiguous use of periods
+(cardinal numbers, abbreviation at the end of a sentence, etc.). It is currently
+only used as a fallback, when no language-specific model is available.
 
 The second one is a finite-state machine that uses a Naive Bayes classifier to
 disambiguate the role of periods. Only periods that are seemingly not
-token-internal are examined by the classifier. Question marks, etc., are deemed
-not to be ambiguous. We use one feature set per language, obtained through
+token-internal are examined by the classifier. The remaining ones, as well as
+question marks, etc., are deemed to be unambiguous, and are always classified as
+end-of-sentence markers. We use one feature set per language, obtained through
 semi-automatic optimization with the help of my [feature selection
-tool](https://github.com/michaelnmmeyer/bayes_fss).
+tool](https://github.com/michaelnmmeyer/bayes_fss). Features are extracted from
+a window of three tokens, centered on the period to classify.
+
+Despite the simplicity of this approach, its performance is close to
+state-of-the-art. The following tables show the performance of our classifier on
+three corpora. We use five-fold cross-validation, and only classify ambiguous
+periods.
+
+* Brown
+
+                   accuracy    precision   recall      F1
+        bayes      98.83       99.61       99.11       99.35
+        baseline   90.83       90.83       100.00      95.19
+
+* Sequoia
+
+                   accuracy    precision   recall      F1
+        bayes      98.89       98.94       99.92       99.43
+        baseline   96.28       96.28       100.00      98.11
+
+*  Tiger
+
+                   accuracy    precision   recall      F1
+        bayes      99.48       99.65       99.79       99.72
+        baseline   93.34       93.34       100.00      96.58
+
 
 ### References
 

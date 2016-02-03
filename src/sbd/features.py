@@ -1,5 +1,6 @@
 import unicodedata
 from context import CONTEXT_SIZE
+from collections import defaultdict
 
 # Keep that in sync with the C code.
 MAX_FEATURE_LEN = 128
@@ -56,10 +57,36 @@ def ft_mask(token):
          mask += "P"
    return mask
 
+# We could directly use the category name as feature, but this would complicate
+# buffer management on the C side because this would double the length of each
+# feature.
+def mkuni_cat_table():
+   import re, sys, string
+   from os.path import dirname, abspath, join
+   
+   parent_dir = dirname(dirname(abspath(__file__)))
+   utf8proc_h = join(parent_dir, "lib", "utf8proc.h")
+   with open(utf8proc_h) as fp:
+      code = fp.read()
+   cats = re.findall(r"UTF8PROC_CATEGORY_([A-Z]{2})\s*=\s*(\d+)", code)
+   assert len(cats) == 30
+   tbl = {}
+   for cat, num in cats:
+      cat, num = cat.lower(), int(num)
+      assert not cat in tbl
+      c = chr(num + ord('0'))
+      assert c != '\0' and not c.isspace() and c in string.printable
+      tbl[cat] = c
+   #print(tbl,file=sys.stderr)
+   return tbl
+
+_unimask_tbl = mkuni_cat_table()
 def ft_unimask(token):
+   # Tried to add categories for vowels and consonants on Sequoia, doesn't help.
    mask = ""
    for c in token:
-      mask += unicodedata.category(c)
+      C = _unimask_tbl[unicodedata.category(c).lower()]
+      mask += C
    return mask
 
 EXTRACTORS = {

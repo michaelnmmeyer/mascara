@@ -21052,7 +21052,7 @@ struct bayes {
 #define MAX_VALUES 10000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
-local int read_name(FILE *fp, const char *name, double unk_probs[local 2])
+local int read_name(FILE *fp, const char *name, double unk_probs[static 2])
 {
    char buf[MAX_STRING_LEN + 1];
    size_t len;
@@ -21078,7 +21078,7 @@ local int read_feature(struct feature **ff, FILE *fp, unsigned feat_nr)
 
    if (fscanf(fp, "%u %zu:", &feat_no, &len) != 2)
       goto fail;
-   if (feat_no > feat_nr || len > MAX_FEATURE_LEN)
+   if (feat_no >= feat_nr || len > MAX_FEATURE_LEN)
       goto fail;
 
    f = mr_malloc(sizeof *f + 1 + len + 1);
@@ -21317,6 +21317,7 @@ $(word)
 $(case)
 $(shape)
 $(mask)
+$(unimask)
 
 #undef $
 
@@ -22077,6 +22078,20 @@ local char *ft_mask(char *buf, const struct mr_token *tk)
    return buf;
 }
 
+local char *ft_unimask(char *buf, const struct mr_token *tk)
+{
+   const char *str = tk->str;
+   const size_t len = tk->len;
+   
+   size_t clen;
+   for (size_t i = 0; i < len; i += clen) {
+      int32_t c;
+      clen = pick_char(&c, &str[i]);
+      *buf++ = utf8proc_get_property(c)->category + '0';
+   }
+   return buf;
+}
+
 /* None of the following characters are longer when normalized (if we count
  * in bytes).
  */
@@ -22126,6 +22141,8 @@ local size_t normalize(char *buf, const struct mr_token *tk)
       buf = normalize_char(buf, c);
    }
    return buf - buf_orig;
+
+   (void)ft_len; (void)ft_word;  /* Unused functions. */
 }
 #line 1 "mem.c"
 #include <stdlib.h>
@@ -25665,8 +25682,7 @@ local const struct sentencizer2_config en_amalg_config = {
 /* Generated code, don't edit! */
 
 local const char *const fr_sequoia_features[] = {
-   "l_shape+l_len",
-   "l_word+r_shape",
+   "l_unimask+l_shape",
    NULL
 };
 
@@ -25680,17 +25696,9 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 
    buf = stack;
    *buf++ = 1;
+   buf = ft_unimask(buf, l);
+   *buf++ = '+';
    buf = ft_shape(buf, l);
-   *buf++ = '+';
-   buf = ft_len(buf, l);
-   *buf++ = '\0';
-   bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 2;
-   buf = ft_word(buf, l);
-   *buf++ = '+';
-   buf = ft_shape(buf, r);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
@@ -25700,7 +25708,7 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
-      .version = "265770862b427ec3f790f1af86a306cf76dd8600",
+      .version = "a0f3caae85624fc5489efbc2ec939baf164c4c37",
       .features = fr_sequoia_features,
    },
    .at_eos = fr_sequoia_at_eos,
