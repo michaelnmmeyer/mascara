@@ -5,7 +5,6 @@ Options:
    -l, --lang=<string>      tokenization language [en]
    -f, --format=<string>    token format string [%%s\n]
    -e, --eos=<string>       string to append at the end of a sentence [\n]
-
    -L, --list               display a list of the available languages
    -h, --help               display this message
        --version            display the library version

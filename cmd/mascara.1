@@ -22,11 +22,6 @@ option to obtain a list of the supported languages. If a language for which
 there is no specific support is given, a generic tokenizer will be used.
 
 .TP
-.B \-L, \-\-list
-Display a list of the supported languages. Language names are abbreviated to an
-ISO 639-1 two-letters code.
-
-.TP
 .B \-f, \-\-format=<string> [%s\\\\n]
 Token format string. Substitutions are performed in a manner similar to
 .B printf(1).
@@ -48,6 +43,11 @@ String to display at the end of a sentence. Passing the empty string disables
 sentence segmentation. Supports the same escape sequences as the
 .B \-f
 option.
+
+.TP
+.B \-L, \-\-list
+Display a list of the supported languages. Language names are abbreviated to an
+ISO 639-1 two-letters code.
 
 .TP
 .B \-h, \-\-help
