@@ -35,7 +35,7 @@ print("#define MR_VOWEL_MAX %d" % HIGH)
 print('#define MR_VOWELS U"%s"' % "".join(VOWELS))
 print()
 print("""\
-static bool mr_is_vowel(char32_t c)
+local bool mr_is_vowel(char32_t c)
 {
    static const uint32_t tbl[] = {""")
 for num in bitset:

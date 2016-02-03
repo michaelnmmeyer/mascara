@@ -19,7 +19,7 @@ local bool {{name}}_at_eos(const struct bayes *mdl,
    buf = stack;
    *buf++ = {{feat_no}};
 % for sub_feat_no, sub_feat in enumerate(fs, 1):
-   buf = mr_ft_{{sub_feat.split("_")[1]}}(buf, {{sub_feat.split("_")[0]}});
+   buf = ft_{{sub_feat.split("_")[1]}}(buf, {{sub_feat.split("_")[0]}});
    *buf++ = '{{sub_feat_no < len(fs) and VALUE_JOIN_STRING or "\\0"}}';
 % end
    bayes_feed(mdl, vec, stack);

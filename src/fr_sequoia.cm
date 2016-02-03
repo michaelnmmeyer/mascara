@@ -16,17 +16,17 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 
    buf = stack;
    *buf++ = 1;
-   buf = mr_ft_shape(buf, l);
+   buf = ft_shape(buf, l);
    *buf++ = '+';
-   buf = mr_ft_len(buf, l);
+   buf = ft_len(buf, l);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
-   buf = mr_ft_word(buf, l);
+   buf = ft_word(buf, l);
    *buf++ = '+';
-   buf = mr_ft_shape(buf, r);
+   buf = ft_shape(buf, r);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 

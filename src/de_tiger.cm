@@ -17,19 +17,19 @@ local bool de_tiger_at_eos(const struct bayes *mdl,
 
    buf = stack;
    *buf++ = 1;
-   buf = mr_ft_case(buf, l);
+   buf = ft_case(buf, l);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
-   buf = mr_ft_suffix3(buf, l);
+   buf = ft_suffix3(buf, l);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 3;
-   buf = mr_ft_shape(buf, r);
+   buf = ft_shape(buf, r);
    *buf++ = '\0';
    bayes_feed(mdl, vec, stack);
 
