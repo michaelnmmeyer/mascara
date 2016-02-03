@@ -84,8 +84,8 @@ EXTRACTORS = {
 }
 
 def compound_extractor(feat_names):
-   if isinstance(feat_names, str):
-      return feat_names, EXTRACTORS[feat_names]
+   if len(feat_names) == 1:
+      return feat_names[0], EXTRACTORS[feat_names[0]]
    def extract(ctx):
       return VALUE_JOIN_STRING.join(EXTRACTORS[name](ctx) for name in feat_names)
    return FEATURE_JOIN_STRING.join(feat_names), extract

@@ -31,7 +31,7 @@ local bool {{name}}_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config {{name}}_config = {
    .bayes_config = {
       .name = "{{name}}",
-      .version = {{version}},
+      .version = "{{version}}",
       .features = {{name}}_features,
    },
    .at_eos = {{name}}_at_eos,

@@ -46,7 +46,7 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
-      .version = 1,
+      .version = "88bffb5fe177988b5495fa1a50c8214d6853ff4d",
       .features = en_amalg_features,
    },
    .at_eos = en_amalg_at_eos,

@@ -232,7 +232,7 @@ struct bayes;
 /* Model descriptor. */
 struct bayes_config {
    const char *name;
-   unsigned version;
+   const char *version;
    const char *const *features;
 };
 
@@ -21174,7 +21174,7 @@ local int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
       return MR_EMAGIC;
    
    char sig[MAX_STRING_LEN + 1];
-   int len = snprintf(sig, sizeof sig, "%s %u", cfg->name, cfg->version);
+   int len = snprintf(sig, sizeof sig, "%s %s", cfg->name, cfg->version);
    if (len < 0 || (size_t)len >= sizeof sig || match_signature(fp, sig))
       return MR_EMAGIC;
 
@@ -25600,7 +25600,7 @@ local bool de_tiger_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config de_tiger_config = {
    .bayes_config = {
       .name = "de_tiger",
-      .version = 1,
+      .version = "eb08c5255af2da38f30ed963259a0d4c5535829c",
       .features = de_tiger_features,
    },
    .at_eos = de_tiger_at_eos,
@@ -25655,7 +25655,7 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
-      .version = 1,
+      .version = "88bffb5fe177988b5495fa1a50c8214d6853ff4d",
       .features = en_amalg_features,
    },
    .at_eos = en_amalg_at_eos,
@@ -25700,7 +25700,7 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
-      .version = 1,
+      .version = "265770862b427ec3f790f1af86a306cf76dd8600",
       .features = fr_sequoia_features,
    },
    .at_eos = fr_sequoia_at_eos,

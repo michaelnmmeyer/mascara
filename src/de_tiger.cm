@@ -39,7 +39,7 @@ local bool de_tiger_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config de_tiger_config = {
    .bayes_config = {
       .name = "de_tiger",
-      .version = 1,
+      .version = "eb08c5255af2da38f30ed963259a0d4c5535829c",
       .features = de_tiger_features,
    },
    .at_eos = de_tiger_at_eos,

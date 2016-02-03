@@ -148,7 +148,7 @@ local int load_fp(struct bayes **mdlp, FILE *fp, const struct bayes_config *cfg)
       return MR_EMAGIC;
    
    char sig[MAX_STRING_LEN + 1];
-   int len = snprintf(sig, sizeof sig, "%s %u", cfg->name, cfg->version);
+   int len = snprintf(sig, sizeof sig, "%s %s", cfg->name, cfg->version);
    if (len < 0 || (size_t)len >= sizeof sig || match_signature(fp, sig))
       return MR_EMAGIC;
 

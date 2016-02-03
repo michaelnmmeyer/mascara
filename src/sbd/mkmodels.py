@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, json, math, bottle
+import os, sys, json, math, hashlib, bottle
 from collections import defaultdict
 import context, features as ftrs
 
@@ -49,19 +49,22 @@ def encode_string(s):
    assert isinstance(s, str) and not "\0" in s
    return "%d:%s" % (len(s.encode("UTF-8")), s)
 
+def sha1(s):
+   return hashlib.sha1(s.encode("UTF-8")).hexdigest()
+
 """
 Model file format:
 
 mr_bayes 1
-<model_signature>
-eos <eos_prior> !eos <not_eos_prior>
+<model_name> <sha1>
+EOS <eos_prior> !EOS <not_eos_prior>
 features <num_features> values <num_values>
 <feature_name> <eos_unknown_prob> <not_eos_unknown_prob>
 ...
 <feature_no> <feature_value> <eos_prob> <not_eos_prob>
 ...
 """
-def dump_model(name, version, features, ctxs, fp):
+def dump_model(name, features, ctxs, fp):
    assert len(features) <= ftrs.MAX_FEATURES
    extractors = [ftrs.compound_extractor(f) for f in features]
 
@@ -72,9 +75,12 @@ def dump_model(name, version, features, ctxs, fp):
    priors, unk_probs, cond_probs = train(labeled_features())
    assert len(priors) == 2
 
-   p = lambda s: print(s, file=fp)
+   dummy_version = sha1("foobar")
+   buf = []
+   p = lambda s: buf.append("%s\n" % s)
+   
    p("mr_bayes 1")
-   p("%s %d" % (name, version))
+   p("%s %s" % (name, dummy_version))
    p("features %d values %d" % (len(unk_probs), len(cond_probs)))
    p("EOS %s !EOS %s" % (priors["EOS"].hex(), priors["!EOS"].hex()))
    feat_names = sorted(unk_probs, key=lambda s: s.encode("UTF-8"))
@@ -86,9 +92,14 @@ def dump_model(name, version, features, ctxs, fp):
       fval = encode_string(fval)
       peos, pneos = probs["EOS"], probs["!EOS"]
       p("%s %s %s %s" % (feat_no, fval, peos.hex(), pneos.hex()))
+   
+   buf = "".join(buf)
+   version = sha1(buf)
+   buf = buf.replace(dummy_version, version)
+   fp.write(buf)
+   return version   
 
 def dump_code(name, version, features, cout):
-   features = [isinstance(f, str) and [f] or f for f in features]
    max_compound_features = max(len(f) for f in features)
    params = {
       "max_compound_features": max_compound_features,
@@ -106,12 +117,14 @@ def mkmodel(config):
    this_dir = os.path.dirname(os.path.abspath(__file__))
    root_dir = os.path.dirname(os.path.dirname(this_dir))
    
-   name, version = config["name"], config["version"]
-   features = config["features"]
+   name = config["name"]
+   features = [isinstance(f, str) and [f] or f for f in config["features"]]
+   features.sort(key=lambda fs: ftrs.FEATURE_JOIN_STRING.join(fs).encode("UTF-8"))
+
    with open(os.path.join(CORPORA_DIR, name + ".tok")) as fp:
       ctxs = context.read_contexts(fp)
    with open(os.path.join(root_dir, "models", name + ".mdl"), "w") as fp:
-      dump_model(name, version, features, ctxs, fp)
+      version = dump_model(name, features, ctxs, fp)
    with open(os.path.join(root_dir, "src", name + ".cm"), "w") as fp:
       dump_code(name, version, features, fp)
 

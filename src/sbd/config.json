@@ -1,7 +1,6 @@
 [
 {
    "name": "fr_sequoia",
-   "version": 1,
    "features": [["l_shape","l_len"],["l_word","r_shape"]],
    "accuracy": 99.250493,
    "precision": 97.929150,
@@ -10,7 +9,6 @@
 },
 {
    "name": "de_tiger",
-   "version": 1,
    "features": ["l_case","l_suffix3","r_shape"],
    "accuracy": 99.468386,
    "precision": 98.289084,
@@ -19,7 +17,6 @@
 },
 {
    "name": "en_amalg",
-   "version": 1,
    "features": ["l_mask","l_suffix3","r_prefix4","r_shape"],
    "accuracy": 99.075498,
    "precision": 96.307840,

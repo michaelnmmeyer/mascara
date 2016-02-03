@@ -36,7 +36,7 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config fr_sequoia_config = {
    .bayes_config = {
       .name = "fr_sequoia",
-      .version = 1,
+      .version = "265770862b427ec3f790f1af86a306cf76dd8600",
       .features = fr_sequoia_features,
    },
    .at_eos = fr_sequoia_at_eos,

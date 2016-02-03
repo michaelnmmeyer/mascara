@@ -9,7 +9,7 @@ struct bayes;
 /* Model descriptor. */
 struct bayes_config {
    const char *name;
-   unsigned version;
+   const char *version;
    const char *const *features;
 };
 
