@@ -221,7 +221,9 @@ local int bayes_load(struct bayes **mdl, const char *path,
    int err = ferror(fp);
    fclose(fp);
 
-   return err ? MR_EIO : ret;
+   if (ret)
+      return err ? MR_EIO : ret;
+   return MR_OK;
 }
 
 local void bayes_dealloc(struct bayes *mdl)
