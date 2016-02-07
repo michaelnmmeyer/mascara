@@ -47,16 +47,24 @@ check{
 
 -- Handle suffixes correctly. We choose the longest possible suffix when there
 -- are several possibilities.
+-- Must also cope with Unicode hyphens, apostrophes, etc.
 check{
-   input = [[
-   dit-il
-   a-t-il
-   ]],
+   input = "dit-il a-t-il dit\xe2\x80\x90il",
    lang = "fr",
    format = {"str", "type"},
    output = {
       {"dit", "LATIN"}, {"-il", "SUFFIX"},
       {"a", "LATIN"}, {"-t-il", "SUFFIX"},
+      {"dit", "LATIN"}, {"\xe2\x80\x90il", "SUFFIX"},
+   }
+}
+check{
+   input = "we've we’ve",
+   lang = "en",
+   format = {"str", "type"},
+   output = {
+      {"we", "LATIN"}, {"'ve", "SUFFIX"},
+      {"we", "LATIN"}, {"’ve", "SUFFIX"},
    }
 }
 

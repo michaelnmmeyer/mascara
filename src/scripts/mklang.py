@@ -15,6 +15,21 @@ DATA
 }%%
 """
 
+# Keep that in sync with symbol.rl!
+HYPHEN = (
+   "\N{HYPHEN-MINUS}",
+   "\N{HYPHEN}",
+   "\N{NON-BREAKING HYPHEN}",
+   "\N{SMALL HYPHEN-MINUS}",
+)
+
+# Keep that in sync with symbol.rl!
+APOSTROPHE = (
+   "'",
+   "‘",
+   "’",
+)
+
 def mkregex(word):
    buf = []
    for c in word:
@@ -23,6 +38,8 @@ def mkregex(word):
       # Apostrophe.
       if c == "'":
          buf.append('(apostrophe)')
+      elif c == "-":
+         buf.append("(hyphen)")
       # Ligatures, case-insensitive.
       elif c == "œ":
          buf.append('("Œ"|"œ"|"OE"i)')
@@ -30,39 +47,40 @@ def mkregex(word):
          buf.append('("Æ"|"æ"|"AE"i)')
       # Make all letters match both uppercase and lowercase equivalents.
       elif c.isalpha():
-         buf.append('("%s"|"%s")' % (c.upper(), c.casefold()))
+         buf.append('("%s"|"%s")' % (c.upper(), c.lower()))
       else:
          buf.append('("%s")' % c)
    return "(%s)" % "".join(buf)
 
 # For suffixes.
 def mkreversed_regex(form):
-   def append(buf, regex, *letters):
-      if not letters:
-         return buf.append(regex)
+   def append(buf, *letters):
+      assert letters
       reversed_letters = []
       for letter in letters:
          # "é" = 195 169 -> 169.195
          letter = ".".join("%d" % byte for byte in reversed(letter.encode("UTF-8")))
          reversed_letters.append(letter)
-      buf.append(regex % tuple(reversed_letters))
+      buf.append("(%s)" % "|".join(reversed_letters))
 
    buf = []
    for c in form:
       c = c.lower()
       # Apostrophe.
       if c == "'":
-         append(buf, "(%s|%s|%s)", "'", "’", "´")
+         append(buf, *APOSTROPHE)
+      elif c == "-":
+         append(buf, *HYPHEN)
       # Ligatures
       elif c == "œ":
-         append(buf, '(%s|%s|%s|%s|%s|%s)', "Œ", "œ", "OE", "Oe", "oE", "oe")
+         append(buf, "Œ", "œ", "OE", "Oe", "oE", "oe")
       elif c == "æ":
-         append(buf, '(%s|%s|%s|%s|%s|%s)', "Æ", "æ", "AE", "Ae", "aE", "ae")
+         append(buf, "Æ", "æ", "AE", "Ae", "aE", "ae")
       # Letters matching uppercase and lowercase.
       elif c.isalpha():
-         append(buf, "(%s|%s)", c.upper(), c.casefold())
+         append(buf, c.upper(), c.lower())
       else:
-         append(buf, "(%s)", c)
+         append(buf, c)
    return "(%s)" % "".join(reversed(buf))
 
 def mkmachine(tks, lang, category):

@@ -8,70 +8,82 @@
 
 #line 10 "gen/fr_suffix_match.ic"
 static const char _fr_suffix_match_key_offsets[] = {
-	0, 0, 2, 3, 9, 12, 14, 15, 
-	21, 25, 27, 31, 33, 35, 41, 43, 
-	45, 49, 51, 52, 72
+	0, 0, 2, 6, 7, 8, 9, 10, 
+	16, 22, 24, 28, 29, 30, 31, 32, 
+	38, 42, 44, 48, 50, 52, 58, 60, 
+	62, 66, 68, 69, 89
 };
 
 static const unsigned char _fr_suffix_match_trans_keys[] = {
-	76u, 108u, 45u, 67u, 74u, 76u, 99u, 106u, 
-	108u, 45u, 76u, 108u, 69u, 101u, 45u, 67u, 
-	79u, 85u, 99u, 111u, 117u, 77u, 84u, 109u, 
-	116u, 73u, 105u, 69u, 79u, 101u, 111u, 85u, 
-	117u, 69u, 101u, 69u, 76u, 85u, 101u, 108u, 
-	117u, 76u, 108u, 79u, 111u, 78u, 86u, 110u, 
-	118u, 84u, 116u, 195u, 65u, 69u, 73u, 76u, 
-	78u, 82u, 83u, 85u, 89u, 97u, 101u, 105u, 
-	108u, 110u, 114u, 115u, 117u, 121u, 128u, 160u, 
-	84u, 116u, 0
+	76u, 108u, 45u, 163u, 144u, 145u, 128u, 226u, 
+	185u, 239u, 67u, 74u, 76u, 99u, 106u, 108u, 
+	45u, 76u, 108u, 163u, 144u, 145u, 69u, 101u, 
+	45u, 163u, 144u, 145u, 128u, 226u, 185u, 239u, 
+	67u, 79u, 85u, 99u, 111u, 117u, 77u, 84u, 
+	109u, 116u, 73u, 105u, 69u, 79u, 101u, 111u, 
+	85u, 117u, 69u, 101u, 69u, 76u, 85u, 101u, 
+	108u, 117u, 76u, 108u, 79u, 111u, 78u, 86u, 
+	110u, 118u, 84u, 116u, 195u, 65u, 69u, 73u, 
+	76u, 78u, 82u, 83u, 85u, 89u, 97u, 101u, 
+	105u, 108u, 110u, 114u, 115u, 117u, 121u, 128u, 
+	160u, 84u, 116u, 0
 };
 
 static const char _fr_suffix_match_single_lengths[] = {
-	0, 2, 1, 6, 3, 2, 1, 6, 
+	0, 2, 2, 1, 1, 1, 1, 6, 
+	4, 2, 2, 1, 1, 1, 1, 6, 
 	4, 2, 4, 2, 2, 6, 2, 2, 
 	4, 2, 1, 20, 2
 };
 
 static const char _fr_suffix_match_range_lengths[] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 1, 0, 0, 0, 0, 0, 
+	1, 0, 1, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0
 };
 
-static const char _fr_suffix_match_index_offsets[] = {
-	0, 0, 3, 5, 12, 16, 19, 21, 
-	28, 33, 36, 41, 44, 47, 54, 57, 
-	60, 65, 68, 70, 91
+static const unsigned char _fr_suffix_match_index_offsets[] = {
+	0, 0, 3, 7, 9, 11, 13, 15, 
+	22, 28, 31, 35, 37, 39, 41, 43, 
+	50, 55, 58, 63, 66, 69, 76, 79, 
+	82, 87, 90, 92, 113
 };
 
 static const char _fr_suffix_match_indicies[] = {
-	0, 0, 1, 3, 2, 0, 0, 4, 
-	0, 0, 4, 1, 3, 5, 5, 1, 
-	6, 6, 1, 7, 1, 0, 8, 9, 
-	0, 8, 9, 1, 0, 0, 0, 0, 
-	1, 6, 6, 1, 0, 6, 0, 6, 
-	1, 10, 10, 1, 9, 9, 1, 11, 
-	12, 13, 11, 12, 13, 1, 4, 4, 
-	1, 14, 14, 1, 0, 0, 0, 0, 
-	1, 0, 0, 1, 9, 1, 9, 15, 
-	16, 12, 17, 18, 19, 20, 0, 9, 
-	15, 16, 12, 17, 18, 19, 20, 0, 
-	21, 21, 1, 0, 0, 22, 0
+	0, 0, 1, 3, 5, 4, 2, 6, 
+	2, 3, 2, 7, 2, 3, 2, 0, 
+	0, 8, 0, 0, 8, 1, 3, 9, 
+	9, 5, 4, 1, 10, 10, 1, 11, 
+	13, 12, 1, 14, 1, 11, 1, 15, 
+	1, 11, 1, 0, 16, 17, 0, 16, 
+	17, 1, 0, 0, 0, 0, 1, 10, 
+	10, 1, 0, 10, 0, 10, 1, 18, 
+	18, 1, 17, 17, 1, 19, 20, 21, 
+	19, 20, 21, 1, 8, 8, 1, 22, 
+	22, 1, 0, 0, 0, 0, 1, 0, 
+	0, 1, 17, 1, 17, 23, 24, 20, 
+	25, 26, 27, 28, 0, 17, 23, 24, 
+	20, 25, 26, 27, 28, 0, 29, 29, 
+	1, 0, 0, 30, 0
 };
 
 static const char _fr_suffix_match_trans_targs[] = {
-	2, 0, 19, 19, 4, 5, 6, 20, 
-	8, 1, 12, 14, 9, 15, 16, 3, 
-	7, 10, 11, 13, 17, 18, 19
+	2, 0, 27, 27, 3, 5, 4, 6, 
+	8, 9, 10, 28, 11, 13, 12, 14, 
+	16, 1, 20, 22, 17, 23, 24, 7, 
+	15, 18, 19, 21, 25, 26, 27
 };
 
 static const char _fr_suffix_match_trans_actions[] = {
-	0, 0, 1, 2, 0, 0, 0, 3, 
+	0, 0, 1, 2, 0, 0, 0, 0, 
+	0, 0, 0, 3, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 6
 };
 
 static const char _fr_suffix_match_to_state_actions[] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 4, 0
@@ -80,18 +92,20 @@ static const char _fr_suffix_match_to_state_actions[] = {
 static const char _fr_suffix_match_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 5, 0
 };
 
-static const char _fr_suffix_match_eof_trans[] = {
-	0, 0, 3, 0, 0, 0, 0, 0, 
+static const unsigned char _fr_suffix_match_eof_trans[] = {
+	0, 0, 3, 3, 3, 3, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 23
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 31
 };
 
-static const int fr_suffix_match_start = 19;
+static const int fr_suffix_match_start = 27;
 
-static const int fr_suffix_match_en_main = 19;
+static const int fr_suffix_match_en_main = 27;
 
 
 #line 17 "gen/fr_suffix_match.rl"
@@ -122,7 +136,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
    const unsigned char *const eof = pe;
 
    
-#line 126 "gen/fr_suffix_match.ic"
+#line 140 "gen/fr_suffix_match.ic"
 	{
 	cs = fr_suffix_match_start;
 	ts = 0;
@@ -132,7 +146,7 @@ static size_t fr_suffix(const unsigned char *p, const unsigned char *pe)
 
 #line 44 "gen/fr_suffix_match.rl"
    
-#line 136 "gen/fr_suffix_match.ic"
+#line 150 "gen/fr_suffix_match.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -148,7 +162,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 152 "gen/fr_suffix_match.ic"
+#line 166 "gen/fr_suffix_match.ic"
 	}
 
 	_keys = _fr_suffix_match_trans_keys + _fr_suffix_match_key_offsets[cs];
@@ -234,7 +248,7 @@ _eof_trans:
 #line 11 "gen/fr_suffix_match.rl"
 	{act = 1;}
 	break;
-#line 238 "gen/fr_suffix_match.ic"
+#line 252 "gen/fr_suffix_match.ic"
 	}
 
 _again:
@@ -245,7 +259,7 @@ _again:
 #line 1 "NONE"
 	{act = 0;}
 	break;
-#line 249 "gen/fr_suffix_match.ic"
+#line 263 "gen/fr_suffix_match.ic"
 	}
 
 	if ( cs == 0 )

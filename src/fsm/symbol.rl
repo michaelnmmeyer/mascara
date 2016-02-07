@@ -74,6 +74,7 @@ HYPHEN = 0xe2 0x80 0x90;
 NON_BREAKING_HYPHEN = 0xe2 0x80 0x91;
 SMALL_HYPHEN_MINUS = 0xef 0xb9 0xa3;
 
+# Keep that in sync with mklang.py!
 hyphen =
   HYPHEN_MINUS
 | HYPHEN
@@ -103,6 +104,19 @@ dash =
 | SMALL_EM_DASH
 | TWO_EM_DASH
 | THREE_EM_DASH
+;
+
+# See http://www.unicode.org/reports/tr29/#ATerm
+FULL_STOP = ".";
+ONE_DOT_LEADER = 0xe2 0x80 0xa4;
+SMALL_FULL_STOP = 0xef 0xb9 0x92;
+FULLWIDTH_FULL_STOP = 0xef 0xbc 0x8e;
+
+period =
+  FULL_STOP
+| ONE_DOT_LEADER
+| SMALL_FULL_STOP
+| FULLWIDTH_FULL_STOP
 ;
 
 ellipsis =

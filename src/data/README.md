@@ -4,7 +4,8 @@ Before adding a new word to one of the *.txt files:
 
    We generate automatically all possible forms.
 
-*  Replace Unicode single quotes with the ASCII equivalent (').
+*  Replace Unicode single quotes with the ASCII equivalent ('). Do the same for
+   hyphens.
 
 *  Escape the character # with a backslash.
 
