@@ -19,7 +19,9 @@ include whitespace "whitespace.rl";
 # this point. Disambiguation should be done with a specific module. Here, we are
 # merely interested in knowing that the token is some kind of number.
 
-generic_number = ("-" | "+")? digit+ (("." | "," | horizontal_whitespace+) digit+)* ("e"i ("-" | "+")? digit+)?;
+generic_number = (minus | "+")? digit+
+                 (("." | "," | horizontal_whitespace+) digit+)*
+                 ("e"i (minus | "+")? digit+)?;
 
 # Decade.
 #
@@ -40,7 +42,10 @@ decade = ("19" | "20") digit "0" apostrophe "s"i
 #     (01) 55 1234 5678
 #
 
-phone_number = ("+" digit+ horizontal_whitespace?)? (("-" | "/")? (digit+ | ("(" digit+ ")")) horizontal_whitespace?)+ digit+;
+phone_number = ("+" digit+ horizontal_whitespace?)?
+               ((hyphen | "/")?
+               (digit+ | ("(" digit+ ")")) horizontal_whitespace?)+
+               digit+;
 
 # Hexadecimal.
 #
