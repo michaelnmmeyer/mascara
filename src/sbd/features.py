@@ -7,7 +7,7 @@ MAX_FEATURE_LEN = 128
 MAX_FEATURES = 0xff - 1
 
 FEATURE_JOIN_STRING = "+"
-VALUE_JOIN_STRING = "+"
+VALUE_JOIN_STRING = '\x01'    # Not common
 
 VOWELS = "aeiouyáéíóúàèìòùäëïöüâêîôûāēīōū"
 VOWELS += VOWELS.upper()

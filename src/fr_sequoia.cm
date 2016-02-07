@@ -16,7 +16,7 @@ local bool fr_sequoia_at_eos(const struct bayes *mdl,
    buf = stack;
    *buf++ = 1;
    buf = ft_unimask(buf, l);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    return vec[EOS] >= vec[NOT_EOS];

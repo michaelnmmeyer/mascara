@@ -18,21 +18,21 @@ local bool it_tut_at_eos(const struct bayes *mdl,
    buf = stack;
    *buf++ = 1;
    buf = ft_case(buf, l);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
    buf = ft_suffix2(buf, l);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 3;
    buf = ft_prefix4(buf, r);
-   *buf++ = '+';
+   *buf++ = 1;
    buf = ft_unimask(buf, r);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    return vec[EOS] >= vec[NOT_EOS];
@@ -41,7 +41,7 @@ local bool it_tut_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config it_tut_config = {
    .bayes_config = {
       .name = "it_tut",
-      .version = "5ab6c2ba7d5343df502b9153e6ba784cc1d382e2",
+      .version = "01a7cc9b7d7124a8e8baf4b6688c60eb519a6507",
       .features = it_tut_features,
    },
    .at_eos = it_tut_at_eos,

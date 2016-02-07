@@ -19,25 +19,25 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
    buf = stack;
    *buf++ = 1;
    buf = ft_mask(buf, l);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
    buf = ft_suffix3(buf, l);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 3;
    buf = ft_prefix4(buf, r);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 4;
    buf = ft_shape(buf, r);
-   *buf++ = '\0';
+   *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    return vec[EOS] >= vec[NOT_EOS];
