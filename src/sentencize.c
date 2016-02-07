@@ -37,8 +37,8 @@ local void sentence_clear(struct sentence *sent)
 /* Conditions for reattaching a period to the token that precedes it are:
  * - There must be a single period (no ellipsis).
  * - This must not be the last period in the input text.
- * - The previous token must be a likely abbreviation (type latin or abbr), not
- *   a symbol, etc.
+ * - The previous token must be a likely abbreviation (type latin or abbr) or
+ *   a number (ordinal), not a symbol, etc.
  * - The period immediately follows the previous token.
  */
 local bool can_reattach_period(const struct mr_token *lhs,
@@ -50,6 +50,8 @@ local bool can_reattach_period(const struct mr_token *lhs,
    switch (lhs->type) {
    case MR_ABBR:
    case MR_LATIN:
+   case MR_SUFFIX:
+   case MR_NUM:
       return true;
    default:
       return false;

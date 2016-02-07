@@ -35,6 +35,13 @@ check{
        "have", "two", "children", '"', "."}
    },
 }
+-- Reattach periods at the end of an ordinal.
+check{
+   input = "Am 31. Dezember",
+   output = {{"Am", "31.", "Dezember"}},
+   lang = "de",
+   impl = "bayes",  -- Not recognized as sentence boundary by the FSM.
+}
 
 -- Recognize paragraph breaks when appropriate.
 check{
