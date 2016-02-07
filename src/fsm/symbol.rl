@@ -69,17 +69,32 @@ closing_bracket = ")" | "]" | "}";
 
 bracket = opening_bracket | closing_bracket;
 
-HYPHEN_MINUS = "-";        # The one on the keyboard.
-HYPHEN = 0xe2 0x80 0x90;   # Other one.
+HYPHEN_MINUS = "-";                    # The one on the keyboard.
+HYPHEN = 0xe2 0x80 0x90;
+NON_BREAKING_HYPHEN = 0xe2 0x80 0x91;
+SMALL_HYPHEN_MINUS = 0xef 0xb9 0xa3;
 
 hyphen =
   HYPHEN_MINUS
 | HYPHEN
+| NON_BREAKING_HYPHEN
+| SMALL_HYPHEN_MINUS
 ;
 
+FIGURE_DASH = 0xe2 0x80 0x92;
+EN_DASH = 0xe2 0x80 0x93;
+EM_DASH = 0xe2 0x80 0x94;
+SMALL_EM_DASH = 0xef 0xb9 0x98;
+TWO_EM_DASH = 0xe2 0xb8 0xba;
+THREE_EM_DASH = 0xe2 0xb8 0xbb;
+
 dash =
-  "–"     # EN DASH
-| "—"     # EM DASH
+  FIGURE_DASH
+| EN_DASH
+| EM_DASH
+| SMALL_EM_DASH
+| TWO_EM_DASH
+| THREE_EM_DASH
 ;
 
 ellipsis =

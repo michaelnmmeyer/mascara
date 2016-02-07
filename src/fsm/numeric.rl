@@ -60,7 +60,7 @@ hexadecimal = "0x"i (digit | [a-f] | [A-F])+;
 # difficult to do here. The expression is ambiguous if we have 1906-07 (could
 # be a substraction).
 
-number_other = digit+ (":" | dash) digit+;
+number_other = digit+ (":" | dash | hyphen) digit+;
 
 numeric = generic_number | decade | phone_number | hexadecimal | number_other;
 
