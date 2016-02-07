@@ -18,7 +18,6 @@ check{
 check{
    input = "Ah! princesse﹒ Hello M﹒ Johnes﹒",
    lang = "fr",
-   impl = "bayes",  -- Not supported by the FSM FIXME.
    output = {
       {"Ah", "!", "princesse", "﹒"},
       {"Hello", "M﹒", "Johnes", "﹒"},
