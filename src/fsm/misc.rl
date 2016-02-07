@@ -26,7 +26,7 @@ include symbol "symbol.rl";
 #
 # Mostly concerns French.
 
-abbreviation = latin_letter{1,2} ("." hyphen? latin_letter)+;
+abbreviation = latin_letter{1,2} (period hyphen? latin_letter)+;
 
 # Email.
 #

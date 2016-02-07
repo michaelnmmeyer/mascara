@@ -67,7 +67,7 @@ prefix = en_prefix apostrophe;
 # Initials that don't appear immediately before a full word are otherwise
 # classified as abbreviations.
 
-word_chunk = (apostrophe | hyphen | ("." hyphen?) | "&") latin+;
+word_chunk = (apostrophe | hyphen | (period hyphen?) | "&") latin+;
 
 word_tail = word_chunk* ("²" | "³" | "°")?;
 

@@ -20,7 +20,7 @@ include whitespace "whitespace.rl";
 # merely interested in knowing that the token is some kind of number.
 
 generic_number = (minus | "+")? digit+
-                 (("." | "," | horizontal_whitespace+) digit+)*
+                 ((period | "," | horizontal_whitespace+) digit+)*
                  ("e"i (minus | "+")? digit+)?;
 
 # Decade.

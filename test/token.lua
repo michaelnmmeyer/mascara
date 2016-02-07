@@ -164,11 +164,10 @@ check{
       {"E.-F.-Schumacher-Gesellschaft", "LATIN"},
    }
 }
-
--- Like abobe, but with HYPHEN instead of HYPHEN-MINUS.
+-- Like abobe, but with HYPHEN instead of HYPHEN-MINUS and Unicode periods.
 check{
-   input = "J.‐C. Marchianni",
-   output = {"J.‐C", ".", "Marchianni"},
+   input = "J﹒‐C﹒ Marchianni",
+   output = {"J﹒‐C", "﹒", "Marchianni"},
 }   
 
 -- Abbreviations.
