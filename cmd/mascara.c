@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../mascara.h"
+#include "../src/lib/utf8proc.h"
 #include "cmd.h"
 #include "print_str.ic"
 
@@ -80,7 +81,7 @@ static void print_eos(const char *s)
 
 #define MAX_FILE_SIZE (50 * 1024 * 1024)
 
-static char *read_file(const char *path, size_t *sizep)
+static void *read_file(const char *path, size_t *sizep)
 {
    FILE *fp = stdin;
    if (path) {
@@ -88,19 +89,25 @@ static char *read_file(const char *path, size_t *sizep)
       if (!fp)
          die("cannot open '%s':", path);
    }
-   char *data = malloc(MAX_FILE_SIZE); // FIXME later
-   size_t size = fread(data, 1, MAX_FILE_SIZE, fp);
+   uint8_t *str = malloc(MAX_FILE_SIZE); // FIXME later
+   size_t len = fread(str, 1, MAX_FILE_SIZE, fp);
 
    if (ferror(fp))
       die("IO error:");
-   if (size == MAX_FILE_SIZE && !feof(fp))
+   if (len == MAX_FILE_SIZE && !feof(fp))
       die("input file too large (limit is %d)", MAX_FILE_SIZE);
 
    if (fp != stdin)
       fclose(fp);
 
-   *sizep = size;
-   return data;
+   uint8_t *norm;
+   ssize_t ret = utf8proc_map(str, len, &norm, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+   if (ret < 0)
+      die("cannot process input file: %s", utf8proc_errmsg(ret));
+   free(str);
+
+   *sizep = ret;
+   return norm;
 }
 
 noreturn static void version(void)
