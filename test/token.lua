@@ -157,6 +157,12 @@ check{
    }
 }
 
+-- Like abobe, but with HYPHEN instead of HYPHEN-MINUS.
+check{
+   input = "J.‐C. Marchianni",
+   output = {"J.‐C", ".", "Marchianni"},
+}   
+
 -- Abbreviations.
 check{
    input = [[Ph.D.]],

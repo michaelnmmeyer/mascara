@@ -22,8 +22,6 @@ local char *ft_##name(char [restrict static MAX_FEATURE_LEN + 1],              \
 $(prefix4)
 $(suffix2)
 $(suffix3)
-$(len)
-$(word)
 $(case)
 $(shape)
 $(mask)

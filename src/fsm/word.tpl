@@ -66,7 +66,7 @@ prefix = $LANG_prefix apostrophe;
 # Initials that don't appear immediately before a full word are otherwise
 # classified as abbreviations.
 
-word_chunk = (apostrophe | "-" | ("." "-"?) | "&") latin+;
+word_chunk = (apostrophe | hyphen | ("." hyphen?) | "&") latin+;
 
 word_tail = word_chunk* ("²" | "³" | "°")?;
 
@@ -80,8 +80,8 @@ word_normal = "°"? latin+ word_tail;
 #     désir(s)
 #     4-(parahydroxyphenyl)-2-butanone
 
-word_bracket = "(" latin_letter latin* ")" "-"? latin+ word_tail
-             | latin+ word_chunk* "-"? "(" latin_letter latin* ")" ("-"? latin+ word_tail)?
+word_bracket = "(" latin_letter latin* ")" hyphen? latin+ word_tail
+             | latin+ word_chunk* hyphen? "(" latin_letter latin* ")" (hyphen? latin+ word_tail)?
              ;
 
 # Word containing double quotes. Mostly used in German:
@@ -93,7 +93,7 @@ word_bracket = "(" latin_letter latin* ")" "-"? latin+ word_tail
 word_double_quote = opening_double_quote
                     latin+ word_chunk*
                     closing_double_quote
-                    "-" latin+ word_chunk*;
+                    hyphen latin+ word_chunk*;
 
 # Substraction needed below for correct tokenization of prefixes.
 

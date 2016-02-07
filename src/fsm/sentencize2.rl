@@ -35,7 +35,7 @@ sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 #    e.g.
 #    i.e.
 #
-thing_with_periods = latin+ ("." "-"? latin+)+;
+thing_with_periods = latin+ ("." hyphen? latin+)+;
 
 # Discard when followed by a lowercase letter, including exclamations:
 #

@@ -69,9 +69,16 @@ closing_bracket = ")" | "]" | "}";
 
 bracket = opening_bracket | closing_bracket;
 
+HYPHEN_MINUS = "-";        # The one on the keyboard.
+HYPHEN = 0xe2 0x80 0x90;   # Other one.
+
+hyphen =
+  HYPHEN_MINUS
+| HYPHEN
+;
+
 dash =
-  "-"
-| "–"     # EN DASH
+  "–"     # EN DASH
 | "—"     # EM DASH
 ;
 
@@ -108,6 +115,7 @@ symbol =
 | "©"
 
 # Dashes.
+| hyphen
 | "-"+
 | dash
 
