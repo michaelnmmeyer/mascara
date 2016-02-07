@@ -170,7 +170,7 @@ check{
       {"E.-F.-Schumacher-Gesellschaft", "LATIN"},
    }
 }
--- Like abobe, but with HYPHEN instead of HYPHEN-MINUS and Unicode periods.
+-- Like above, but with HYPHEN instead of HYPHEN-MINUS and Unicode periods.
 check{
    input = "J﹒‐C﹒ Marchianni",
    output = {"J﹒‐C", "﹒", "Marchianni"},
@@ -197,7 +197,7 @@ check{
       {"~/foo/bar", "PATH"},
    }
 }
--- But otherwise don't split on '/'.
+-- But otherwise split on '/'.
 check{
    input = "SARAJEWO/HELSINKI",
    output = {"SARAJEWO", "/", "HELSINKI"},
