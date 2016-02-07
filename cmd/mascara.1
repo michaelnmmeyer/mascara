@@ -12,6 +12,10 @@ mascara - tokenize a text file
 Mascara is a natural language tokenizer. It segments a text into tokens, and,
 optionally, sentences.
 
+A text file encoded in UTF-8 is expected as input. Unicode NFC normalization is
+performed on the input text before it is segmented. If no file name is given,
+the standard input is read.
+
 .SS Options
 
 .TP
