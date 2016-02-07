@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "lib/utf8proc.h"
 #include "api.h"
 #include "sentencize.h"
 #include "mem.h"
@@ -61,12 +62,25 @@ local bool can_reattach_period(const struct mr_token *lhs,
 local bool sentencizer_reattach_period(struct sentence *sent,
                                        const struct mr_token *tk)
 {
-   if (tk->len == 1 && *tk->str == '.' && sent->len) {
+   if (!sent->len)
+      return false;
+
+   /* Must be kept in sync with symbol.rl. We could flag periods in the
+    * tokenizer to avoid this, or amend the sentence FSM.
+    */
+   int32_t c;
+   const ssize_t clen = utf8proc_iterate((const uint8_t *)tk->str, tk->len, &c);
+   if (clen <= 0 || (size_t)clen != tk->len)
+      return false;
+   
+   switch (c) {
+   case U'.': case U'․': case U'﹒': case U'．': {
       struct mr_token *lhs = &sent->tokens[sent->len - 1];
       if (can_reattach_period(lhs, tk)) {
-         lhs->len++;
+         lhs->len += tk->len;
          return true;
       }
+   }
    }
    return false;
 }

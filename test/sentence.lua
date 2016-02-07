@@ -18,7 +18,7 @@ check{
 check{
    input = "Ah! princesse﹒ Hello M﹒ Johnes﹒",
    lang = "fr",
-   impl = "bayes",  -- Not recognized as sentence boundary by the FSM.
+   impl = "bayes",  -- Not supported by the FSM FIXME.
    output = {
       {"Ah", "!", "princesse", "﹒"},
       {"Hello", "M﹒", "Johnes", "﹒"},
@@ -59,6 +59,16 @@ check{
 check{
    input = "foo\r\n\nbar",
    output = {{"foo"}, {"bar"}},
+}
+
+-- Special case
+check{
+   input = "(und vor Gelons Tod 216 v﹒ Chr﹒)﹒ Er widerlegte",
+   output = {
+      {"(", "und", "vor", "Gelons", "Tod", "216", "v﹒", "Chr﹒", ")", "﹒"},
+      {"Er", "widerlegte"},
+   },
+   impl = "fsm",  -- Doesn't concern the classifier.
 }
 
 -- Special case: '!' + lowercase.

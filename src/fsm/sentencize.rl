@@ -14,7 +14,7 @@ include symbol "symbol.rl";
 # Character classes.
 #-------------------------------------------------------------------------------
 
-eos_marker = "." | ellipsis | "?"+ | "!"+;
+eos_marker = period | ellipsis | "?"+ | "!"+;
 
 # Symbols that can appear at the end of a sentence, after the terminal period.
 # Only useful for English. In French, these should appear _before_ the
@@ -35,18 +35,18 @@ sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 #    e.g.
 #    i.e.
 #
-thing_with_periods = latin+ ("." latin+)+ "."?;
+thing_with_periods = latin+ (period latin+)+ period?;
 
 # A token followed by a period followed by a one of these characters is a
 # likely abbreviation.
 #
-period_punct = latin+ "." sent_trail* ("," | ";" | ":" | "?" | "!");
+period_punct = latin+ period sent_trail* ("," | ";" | ":");
 
 # Example:
 #
 #    John J. Doe.
 #
-name_initial = latin_uppercase "." whitespace latin_uppercase;
+name_initial = latin_uppercase period whitespace latin_uppercase;
 
 # Examples:
 #
@@ -58,7 +58,7 @@ name_initial = latin_uppercase "." whitespace latin_uppercase;
 # We could add consonants containing diacritics, but this is unlikely to be
 # helpful. Adding uppercase consonants is not a good idea.
 #
-abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ ".";
+abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ period;
 
 # Discard when followed by a lowercase letter, including exclamations:
 #
@@ -77,12 +77,20 @@ not_eos = thing_with_periods
         | email | uri
         ;
 
+# Discard when a terminator is followed by a closing bracket or closing quote
+# and then another terminator:
+#
+#    (und vor Gelons Tod 216 v. Chr.). Er widerlegte
+#
+lookahead = eos_marker sent_trail* (period | "?" | "!");
+   
+
 #-------------------------------------------------------------------------------
 # Main.
 #-------------------------------------------------------------------------------
 
 find_eos := |*
-   "." sent_trail* => {
+   period sent_trail* => {
       *period = ts;
       goto found;
    };
@@ -90,14 +98,11 @@ find_eos := |*
       *period = NULL;
       goto found;
    };
-   # Discard when the period is followed by a closing bracket or closing
-   # quote and then another period (which indicateds that it was an
-   # abbreviation):
-   #
-   #    (und vor Gelons Tod 216 v. Chr.). Er widerlegte
-   #
-   eos_marker sent_trail* "." => {
-      fhold;
+   lookahead => {
+      /* Drop one code point. */
+      do te--;
+      while ((*te & 0xc0) == 0x80);
+      fexec te;
    };
    paragraph_break => {
       /* Don't include the paragraph break itself in the sentence. */

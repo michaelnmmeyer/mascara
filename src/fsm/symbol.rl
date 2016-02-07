@@ -107,6 +107,7 @@ dash =
 ;
 
 # See http://www.unicode.org/reports/tr29/#ATerm
+# Must be kept in sync with sentence.c.
 FULL_STOP = ".";
 ONE_DOT_LEADER = 0xe2 0x80 0xa4;
 SMALL_FULL_STOP = 0xef 0xb9 0x92;
