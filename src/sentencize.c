@@ -44,8 +44,6 @@ local void sentence_clear(struct sentence *sent)
 local bool can_reattach_period(const struct mr_token *lhs,
                                const struct mr_token *period)
 {
-   assert(period->len == 1 && *period->str == '.');
-   
    if (lhs->offset + lhs->len != period->offset)
       return false;
    

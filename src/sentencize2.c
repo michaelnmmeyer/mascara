@@ -72,7 +72,7 @@ local void sentencizer2_reattach_period(struct sentence *sent)
    struct mr_token *period = &sent->tokens[sent->len - 2];
 
    if (can_reattach_period(&period[-1], period)) {
-      period[-1].len++;
+      period[-1].len += period->len;
       *period = period[1];
       sent->len--;
    }

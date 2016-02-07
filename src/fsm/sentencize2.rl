@@ -35,7 +35,7 @@ sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 #    e.g.
 #    i.e.
 #
-thing_with_periods = latin+ ("." hyphen? latin+)+;
+thing_with_periods = latin+ (period hyphen? latin+)+;
 
 # Discard when followed by a lowercase letter, including exclamations:
 #
@@ -53,7 +53,7 @@ not_eos = thing_with_periods | no_capital | email | uri;
 
 find_eos := |*
 
-   "." sent_trail* => {
+   period sent_trail* => {
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
       /* If the sentence has grown too large, stop there. */
@@ -62,7 +62,7 @@ find_eos := |*
       /* If there is tokenization mismatch between ourselves and the tokenizer,
        * (should not happen!), don't do anything.
        */
-      } else if (rhs[-1].len != 1 || *rhs[-1].str != '.') {
+      } else if (rhs[-1].str != (const char *)ts) {
          ;
       /* If we're at eos, fetch the tokens trailing the current sentence and
        * stop there.

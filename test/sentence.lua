@@ -7,6 +7,18 @@ check{
    },
 }
 
+-- Recognize Unicode periods, and reattach them correctly when they're part of
+-- an abbreviation.
+check{
+   input = "Ah! princesse﹒ Hello M﹒ Johnes﹒",
+   lang = "fr",
+   impl = "bayes",  -- Not recognized as sentence boundary by the FSM.
+   output = {
+      {"Ah", "!", "princesse", "﹒"},
+      {"Hello", "M﹒", "Johnes", "﹒"},
+   },
+}
+
 -- Reattach periods correctly.
 check{
    input = [[
