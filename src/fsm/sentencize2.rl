@@ -114,6 +114,8 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
    /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
+   if (tkr->sent.len < 2)
+      tkr->sent.len = 2;
 
 fini: {
    const size_t len = tkr->sent.len - 2;

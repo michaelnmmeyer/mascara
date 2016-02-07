@@ -29296,6 +29296,8 @@ _again:
    /* At EOS, flush the remaining tokens. */
    te = eof;
    fetch_tokens(tkr, te);
+   if (tkr->sent.len < 2)
+      tkr->sent.len = 2;
 
 fini: {
    const size_t len = tkr->sent.len - 2;

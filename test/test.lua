@@ -40,6 +40,10 @@ local function check_token(test)
       if not tk then break end
       add_token(tokens, format, tk)
    end
+   if #tokens == 0 then
+      assert(test.output == nil)
+      return
+   end
    if #tokens ~= #test.output then return check_fail(test.output, tokens) end
    for i, tk in ipairs(tokens) do
       if type(tk) ~= "table" then

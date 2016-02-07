@@ -1,3 +1,9 @@
+-- Don't yield anything if there is no input.
+check{
+   input = "",
+   output = nil
+}
+
 -- Don't mess up offsets when the input text starts with a BOM.
 check{
    input = "\xef\xbb\xbffoo",

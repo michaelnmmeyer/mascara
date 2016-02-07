@@ -1,3 +1,9 @@
+-- Don't emit anything if there is no input.
+check{
+   input = "",
+   output = {},
+}
+
 -- Emit the last sentence in the input text even if not followed by an explicit
 -- terminator.
 check{
