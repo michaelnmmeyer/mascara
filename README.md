@@ -29,9 +29,8 @@ covered by more restrictive licenses. Here are the corpora used for creating
 each model:
 
 * `en_amalg`: [Brown corpus](http://clu.uni.no/icame/brown/bcm.html), excerpts
-  from the [Penn Treebank](http://www.cis.upenn.edu/~treebank/home.html)
-  distributed with NLTK, [BNC 1000 Gold
-  Trees](http://nclt.computing.dcu.ie/~jfoster/resources/bnc1000.html)
+  from the [Wall Street Journal](http://www.cis.upenn.edu/~treebank/home.html),
+  [BNC 1000 Gold Trees](http://nclt.computing.dcu.ie/~jfoster/resources/bnc1000.html)
 * `fr_sequoia`: [Sequoia corpus](https://www.rocq.inria.fr/alpage-wiki/tiki-index.php?page=CorpusSequoia)
 * `de_tiger`: [Tiger corpus](http://www.ims.uni-stuttgart.de/forschung/ressourcen/korpora/tiger.en.html)
 * `it_tut`: [Turin University Treebank corpus](http://www.di.unito.it/~tutreeb/)
