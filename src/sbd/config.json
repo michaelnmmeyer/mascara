@@ -25,10 +25,10 @@
 },
 {
    "name": "en_amalg",
-   "features": ["l_mask","l_suffix3","r_prefix4","r_shape"],
-   "accuracy": 99.075498,
-   "precision": 96.307840,
-   "recall": 98.987004,
-   "F1": 97.597697
+   "features": ["l_suffix4","r_prefix4",["r_shape","l_mask"]],
+   "accuracy": 98.857646,
+   "precision": 99.864130,
+   "recall": 98.826851,
+   "F1": 99.342783
 }
 ]

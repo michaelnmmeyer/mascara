@@ -1,10 +1,9 @@
 /* Generated code, don't edit! */
 
 local const char *const en_amalg_features[] = {
-   "l_mask",
-   "l_suffix3",
+   "l_suffix4",
    "r_prefix4",
-   "r_shape",
+   "r_shape+l_mask",
    NULL
 };
 
@@ -12,31 +11,27 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
-   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
+   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
 
    bayes_init(mdl, vec);
 
    buf = stack;
    *buf++ = 1;
-   buf = ft_mask(buf, l);
+   buf = ft_suffix4(buf, l);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
-   buf = ft_suffix3(buf, l);
-   *buf++ = 0;
-   bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 3;
    buf = ft_prefix4(buf, r);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
-   *buf++ = 4;
+   *buf++ = 3;
    buf = ft_shape(buf, r);
+   *buf++ = 1;
+   buf = ft_mask(buf, l);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
@@ -46,7 +41,7 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
-      .version = "88bffb5fe177988b5495fa1a50c8214d6853ff4d",
+      .version = "2dfc3fe383117e291283561da775d396889c30e0",
       .features = en_amalg_features,
    },
    .at_eos = en_amalg_at_eos,

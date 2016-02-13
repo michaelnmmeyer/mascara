@@ -23,4 +23,4 @@ dump bnc1000gold en
 dump brown en
 dump amalg en
 dump tiger de
-dump treebank en
+dump wsj en
