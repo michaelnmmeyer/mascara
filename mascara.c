@@ -8,7 +8,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.8"
+#define MR_VERSION "0.9"
 
 #include <stddef.h>
 
