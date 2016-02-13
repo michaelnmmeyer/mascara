@@ -48,15 +48,15 @@ cmd/%.ic: cmd/%.rl
 mascara.h: src/api.h
 	cp $< $@
 
-mascara.c: $(wildcard src/*.h src/*.c src/*.cm src/gen/*.ic)
-	src/scripts/mkamalg.py src/*.c > $@
+mascara.c: $(wildcard src/*.h src/*.c src/*.cm src/gen/*.ic src/lib/*.c)
+	src/scripts/mkamalg.py src/*.c src/lib/*.c > $@
 
 mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
 	$(CC) $(CFLAGS) -DMR_HOME='"$(PREFIX)/share/mascara"' mascara.c \
-	   cmd/mascara.c src/lib/kabak.c cmd/cmd.c -o $@
+	   cmd/mascara.c cmd/cmd.c -o $@
 
 examples/%: examples/%.c $(AMALG)
-	$(CC) $(CFLAGS) $< mascara.c src/lib/kabak.c -o $@
+	$(CC) $(CFLAGS) $< mascara.c -o $@
 
 test/mascara.so: test/mascara.c $(AMALG)
-	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c src/lib/kabak.c -o $@
+	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c -o $@
