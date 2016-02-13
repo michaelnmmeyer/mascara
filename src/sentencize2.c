@@ -32,6 +32,8 @@ local void sentencizer2_fini(struct mascara *imp)
    struct sentencizer2 *tkr = (void *)imp;
    bayes_dealloc(tkr->bayes);
    free(tkr->sent.tokens);
+   kb_fini(&tkr->lhs);
+   kb_fini(&tkr->rhs);
 }
 
 local void sentencizer2_set_text(struct mascara *imp,
@@ -80,29 +82,26 @@ local void sentencizer2_reattach_period(struct sentence *sent)
 
 local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
-   if (rhs->str == (const char *)szr->pe)
-      return true;
-
    const struct mr_token *lhs = &rhs[-2];
 
-   char lstr[MAX_FEATURE_LEN + 1];
+   kb_transform(&szr->lhs, lhs->str, lhs->len, KB_MERGE);
+   if (szr->lhs.len > MAX_FEATURE_LEN)
+      goto fail;
+
+   kb_transform(&szr->rhs, rhs->str, rhs->len, KB_MERGE);
+   if (szr->rhs.len > MAX_FEATURE_LEN)
+      goto fail;
+
    const struct mr_token ltk = {
-      .str = lstr,
-      .len = normalize(lstr, lhs),
+      .str = szr->lhs.str,
+      .len = szr->lhs.len,
       .type = lhs->type,
    };
-   if (ltk.len == NORM_FAILURE)
-      goto fail;
-
-   char rstr[MAX_FEATURE_LEN + 1];
    const struct mr_token rtk = {
-      .str = rstr,
-      .len = normalize(rstr, rhs),
+      .str = szr->rhs.str,
+      .len = szr->rhs.len,
       .type = rhs->type,
    };
-   if (rtk.len == NORM_FAILURE)
-      goto fail;
-
    return szr->at_eos(szr->bayes, &ltk, &rtk);
 
 fail:
@@ -142,7 +141,11 @@ local int sentencizer2_init(struct sentencizer2 *tkr,
                             const struct tokenizer_vtab *vtab,
                             const struct sentencizer2_config *cfg)
 {
-   *tkr = (struct sentencizer2){.base.imp = &sentencizer2_imp};
+   *tkr = (struct sentencizer2){
+      .base.imp = &sentencizer2_imp,
+      .lhs = KB_INIT,
+      .rhs = KB_INIT,
+   };
 
    const char *home = mr_home;
    if (!home)

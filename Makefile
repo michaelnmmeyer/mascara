@@ -53,10 +53,10 @@ mascara.c: $(wildcard src/*.h src/*.c src/*.cm src/gen/*.ic)
 
 mascara: $(AMALG) cmd/mascara.ih cmd/print_str.ic cmd/mascara.c cmd/cmd.c
 	$(CC) $(CFLAGS) -DMR_HOME='"$(PREFIX)/share/mascara"' mascara.c \
-	   cmd/mascara.c src/lib/utf8proc.c cmd/cmd.c -o $@
+	   cmd/mascara.c src/lib/kabak.c cmd/cmd.c -o $@
 
 examples/%: examples/%.c $(AMALG)
-	$(CC) $(CFLAGS) $< mascara.c src/lib/utf8proc.c -o $@
+	$(CC) $(CFLAGS) $< mascara.c src/lib/kabak.c -o $@
 
 test/mascara.so: test/mascara.c $(AMALG)
-	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c src/lib/utf8proc.c -o $@
+	$(CC) $(CFLAGS) -fPIC -shared $< mascara.c src/lib/kabak.c -o $@

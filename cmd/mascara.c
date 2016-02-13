@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../mascara.h"
-#include "../src/lib/utf8proc.h"
+#include "../src/lib/kabak.h"
 #include "cmd.h"
 #include "print_str.ic"
 
@@ -89,7 +89,7 @@ static void *read_file(const char *path, size_t *sizep)
       if (!fp)
          die("cannot open '%s':", path);
    }
-   uint8_t *str = malloc(MAX_FILE_SIZE); // FIXME later
+   char *str = malloc(MAX_FILE_SIZE); // FIXME later
    size_t len = fread(str, 1, MAX_FILE_SIZE, fp);
 
    if (ferror(fp))
@@ -100,14 +100,11 @@ static void *read_file(const char *path, size_t *sizep)
    if (fp != stdin)
       fclose(fp);
 
-   uint8_t *norm;
-   ssize_t ret = utf8proc_map(str, len, &norm, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
-   if (ret < 0)
-      die("cannot process input file: %s", utf8proc_errmsg(ret));
+   struct kabak nrm = KB_INIT;
+   kb_transform(&nrm, str, len, 0);
    free(str);
 
-   *sizep = ret;
-   return norm;
+   return kb_detach(&nrm, sizep);
 }
 
 noreturn static void version(void)

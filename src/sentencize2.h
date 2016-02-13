@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "imp.h"
 #include "bayes.h"
+#include "lib/kabak.h"
 
 typedef bool at_eos_fn(const struct bayes *,
                        const struct mr_token *lhs, const struct mr_token *rhs);
@@ -29,6 +30,8 @@ struct sentencizer2 {
     * of the next sentence, or a dummy one if at the end of the text.
     */
    struct sentence sent;
+   
+   struct kabak lhs, rhs;
 };
 
 local const struct sentencizer2_config *find_sentencizer2(const char *lang);

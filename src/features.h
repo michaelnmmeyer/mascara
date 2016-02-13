@@ -10,11 +10,6 @@
  * doesn't exceed MAX_FEATURE_LEN.
  */
 
-#define NORM_FAILURE SIZE_MAX
-
-local size_t normalize(char [restrict static MAX_FEATURE_LEN],
-                       const struct mr_token *);
-
 #define $(name)                                                                \
 local char *ft_##name(char [restrict static MAX_FEATURE_LEN + 1],              \
                       const struct mr_token *);

@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include "lib/utf8proc.h"
+#include "lib/kabak.h"
 #include "api.h"
 #include "sentencize.h"
 #include "mem.h"
@@ -68,9 +68,9 @@ local bool sentencizer_reattach_period(struct sentence *sent,
    /* Must be kept in sync with symbol.rl. We could flag periods in the
     * tokenizer to avoid this, or amend the sentence FSM.
     */
-   int32_t c;
-   const ssize_t clen = utf8proc_iterate((const uint8_t *)tk->str, tk->len, &c);
-   if (clen <= 0 || (size_t)clen != tk->len)
+   size_t clen;
+   char32_t c = kb_decode(tk->str, &clen);
+   if (clen <= 0 || clen != tk->len)
       return false;
    
    switch (c) {

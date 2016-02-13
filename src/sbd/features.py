@@ -65,13 +65,14 @@ def mkuni_cat_table():
    from os.path import dirname, abspath, join
    
    parent_dir = dirname(dirname(abspath(__file__)))
-   utf8proc_h = join(parent_dir, "lib", "utf8proc.h")
-   with open(utf8proc_h) as fp:
+   kabak_h = join(parent_dir, "lib", "kabak.h")
+   with open(kabak_h) as fp:
       code = fp.read()
-   cats = re.findall(r"UTF8PROC_CATEGORY_([A-Z]{2})\s*=\s*(\d+)", code)
+   assert "enum kb_category" in code
+   cats = re.findall(r"KB_CATEGORY_([A-Z]{2})", code)
    assert len(cats) == 30
    tbl = {}
-   for cat, num in cats:
+   for num, cat in enumerate(cats, 1):
       cat, num = cat.lower(), int(num)
       assert not cat in tbl
       c = chr(num + ord('0'))
