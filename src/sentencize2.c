@@ -60,7 +60,7 @@ local struct mr_token *fetch_tokens(struct sentencizer2 *szr,
             .str = (const char *)szr->pe,
             .type = MR_UNK,
          });
-         return &sent->tokens[sent->len - 1];
+         break;
       }
       sentence_add(sent, tk);
    };
@@ -80,6 +80,9 @@ local void sentencizer2_reattach_period(struct sentence *sent)
 
 local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
+   if (rhs->str == (const char *)szr->pe)
+      return true;
+
    const struct mr_token *lhs = &rhs[-2];
 
    char lstr[MAX_FEATURE_LEN + 1];

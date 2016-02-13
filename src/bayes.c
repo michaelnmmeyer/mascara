@@ -23,7 +23,7 @@ struct bayes {
 
 #define MAX_STRING_LEN 512
 #define MAX_FEATURES (0xff - 1)
-#define MAX_VALUES 10000
+#define MAX_VALUES 15000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
 local int read_name(FILE *fp, const char *name, double unk_probs[static 2])

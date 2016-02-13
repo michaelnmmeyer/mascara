@@ -24,6 +24,17 @@ check{
    },
 }
 
+-- Always emit a separate period if at the end of the input text. We're sure
+-- there is a sentence ending in this case.
+check{
+   input = "Mr. Mr.",
+   lang = "en",
+   output = {
+      {"Mr.", "Mr", "."},
+   },
+   impl = "bayes" -- FIXME: Doesn't work with the FSM impl.
+}
+
 -- Reattach periods correctly.
 check{
    input = [[

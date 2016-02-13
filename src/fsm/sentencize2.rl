@@ -56,7 +56,9 @@ find_eos := |*
    period sent_trail* => {
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,

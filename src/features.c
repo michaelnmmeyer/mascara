@@ -66,6 +66,11 @@ local char *ft_suffix3(char *buf, const struct mr_token *tk)
    return ft_suffix(buf, tk, 3);
 }
 
+local char *ft_suffix4(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 4);
+}
+
 local char *ft_case(char *buf, const struct mr_token *tk)
 {
    memcpy(buf, tk->len == 0 || first_upper(tk) ? "LCAP" : "LLOW", 4);

@@ -22618,7 +22618,7 @@ struct bayes {
 
 #define MAX_STRING_LEN 512
 #define MAX_FEATURES (0xff - 1)
-#define MAX_VALUES 10000
+#define MAX_VALUES 15000
 
 /* <feature_name> <eos_unknown_prob> <not_eos_unknown_prob> */
 local int read_name(FILE *fp, const char *name, double unk_probs[static 2])
@@ -23559,6 +23559,11 @@ local char *ft_suffix3(char *buf, const struct mr_token *tk)
    return ft_suffix(buf, tk, 3);
 }
 
+local char *ft_suffix4(char *buf, const struct mr_token *tk)
+{
+   return ft_suffix(buf, tk, 4);
+}
+
 local char *ft_case(char *buf, const struct mr_token *tk)
 {
    memcpy(buf, tk->len == 0 || first_upper(tk) ? "LCAP" : "LLOW", 4);
@@ -23602,7 +23607,7 @@ local bool mr_is_vowel(char32_t c)
    }
    return false;
 }
-#line 83 "features.c"
+#line 88 "features.c"
 
 local char *ft_mask(char *buf, const struct mr_token *tk)
 {
@@ -27286,10 +27291,9 @@ local const struct sentencizer2_config de_tiger_config = {
 /* Generated code, don't edit! */
 
 local const char *const en_amalg_features[] = {
-   "l_mask",
-   "l_suffix3",
+   "l_suffix4",
    "r_prefix4",
-   "r_shape",
+   "r_shape+l_mask",
    NULL
 };
 
@@ -27297,31 +27301,27 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
                             const struct mr_token *l, const struct mr_token *r)
 {
    double vec[2];
-   char stack[1 + MAX_FEATURE_LEN * 1 + 1], *buf;
+   char stack[1 + MAX_FEATURE_LEN * 2 + 2], *buf;
 
    bayes_init(mdl, vec);
 
    buf = stack;
    *buf++ = 1;
-   buf = ft_mask(buf, l);
+   buf = ft_suffix4(buf, l);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
    *buf++ = 2;
-   buf = ft_suffix3(buf, l);
-   *buf++ = 0;
-   bayes_feed(mdl, vec, stack);
-
-   buf = stack;
-   *buf++ = 3;
    buf = ft_prefix4(buf, r);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
    buf = stack;
-   *buf++ = 4;
+   *buf++ = 3;
    buf = ft_shape(buf, r);
+   *buf++ = 1;
+   buf = ft_mask(buf, l);
    *buf++ = 0;
    bayes_feed(mdl, vec, stack);
 
@@ -27331,7 +27331,7 @@ local bool en_amalg_at_eos(const struct bayes *mdl,
 local const struct sentencizer2_config en_amalg_config = {
    .bayes_config = {
       .name = "en_amalg",
-      .version = "88bffb5fe177988b5495fa1a50c8214d6853ff4d",
+      .version = "2dfc3fe383117e291283561da775d396889c30e0",
       .features = en_amalg_features,
    },
    .at_eos = en_amalg_at_eos,
@@ -27473,7 +27473,7 @@ local struct mr_token *fetch_tokens(struct sentencizer2 *szr,
             .str = (const char *)szr->pe,
             .type = MR_UNK,
          });
-         return &sent->tokens[sent->len - 1];
+         break;
       }
       sentence_add(sent, tk);
    };
@@ -27493,6 +27493,9 @@ local void sentencizer2_reattach_period(struct sentence *sent)
 
 local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
+   if (rhs->str == (const char *)szr->pe)
+      return true;
+
    const struct mr_token *lhs = &rhs[-2];
 
    char lstr[MAX_FEATURE_LEN + 1];
@@ -27524,7 +27527,7 @@ fail:
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 97 "fsm/sentencize2.rl"
+#line 99 "fsm/sentencize2.rl"
 
 
 
@@ -29096,7 +29099,7 @@ static const int mr_sentencize2_en_find_eos = 392;
 static const int mr_sentencize2_en_main = 1;
 
 
-#line 100 "fsm/sentencize2.rl"
+#line 102 "fsm/sentencize2.rl"
 
 static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
@@ -29118,7 +29121,7 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
 	act = 0;
 	}
 
-#line 112 "fsm/sentencize2.rl"
+#line 114 "fsm/sentencize2.rl"
    
 #line 1601 "gen/sentencize2.ic"
 	{
@@ -29197,11 +29200,11 @@ _eof_trans:
 
 	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 94 "fsm/sentencize2.rl"
+#line 96 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 95 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 392; goto _again;} }
 	break;
 	case 8:
@@ -29209,7 +29212,7 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 15:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
 	case 19:
@@ -29217,7 +29220,9 @@ _eof_trans:
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -29240,21 +29245,21 @@ _eof_trans:
    }}
 	break;
 	case 18:
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 17:
-#line 86 "fsm/sentencize2.rl"
+#line 88 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 16:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 12:
@@ -29262,7 +29267,9 @@ _eof_trans:
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -29285,21 +29292,21 @@ _eof_trans:
    }}
 	break;
 	case 10:
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 9:
-#line 86 "fsm/sentencize2.rl"
+#line 88 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 7:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -29309,7 +29316,9 @@ _eof_trans:
 	{{p = ((te))-1;}
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -29344,9 +29353,9 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 94 "fsm/sentencize2.rl"
+#line 96 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 95 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 392; goto _again;} }
 	break;
 	case 13:
@@ -29358,16 +29367,16 @@ _eof_trans:
 	case 11:
 #line 1 "NONE"
 	{te = p+1;}
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{act = 2;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{act = 4;}
 	break;
-#line 1848 "gen/sentencize2.ic"
+#line 1854 "gen/sentencize2.ic"
 	}
 
 _again:
@@ -29376,7 +29385,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 1857 "gen/sentencize2.ic"
+#line 1863 "gen/sentencize2.ic"
 	}
 
 	if ( cs == 0 )
@@ -29395,7 +29404,7 @@ _again:
 	_out: {}
 	}
 
-#line 113 "fsm/sentencize2.rl"
+#line 115 "fsm/sentencize2.rl"
 
    /* At EOS, flush the remaining tokens. */
    te = eof;
@@ -29414,7 +29423,7 @@ fini: {
    (void)mr_sentencize2_en_find_eos;
 }
 }
-#line 111 "sentencize2.c"
+#line 114 "sentencize2.c"
 
 local size_t sentencizer2_next(struct mascara *imp, struct mr_token **tks)
 {

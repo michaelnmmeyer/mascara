@@ -1,7 +1,7 @@
 
 #line 1 "fsm/sentencize2.rl"
 
-#line 97 "fsm/sentencize2.rl"
+#line 99 "fsm/sentencize2.rl"
 
 
 
@@ -1573,7 +1573,7 @@ static const int mr_sentencize2_en_find_eos = 392;
 static const int mr_sentencize2_en_main = 1;
 
 
-#line 100 "fsm/sentencize2.rl"
+#line 102 "fsm/sentencize2.rl"
 
 static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tks)
 {
@@ -1595,7 +1595,7 @@ static size_t mr_sentencize2_next(struct sentencizer2 *tkr, struct mr_token **tk
 	act = 0;
 	}
 
-#line 112 "fsm/sentencize2.rl"
+#line 114 "fsm/sentencize2.rl"
    
 #line 1601 "gen/sentencize2.ic"
 	{
@@ -1674,11 +1674,11 @@ _eof_trans:
 
 	switch ( _mr_sentencize2_trans_actions[_trans] ) {
 	case 3:
-#line 94 "fsm/sentencize2.rl"
+#line 96 "fsm/sentencize2.rl"
 	{ start = p; }
 	break;
 	case 4:
-#line 95 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 392; goto _again;} }
 	break;
 	case 8:
@@ -1686,7 +1686,7 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 15:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{te = p+1;}
 	break;
 	case 19:
@@ -1694,7 +1694,9 @@ _eof_trans:
 	{te = p;p--;{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -1717,21 +1719,21 @@ _eof_trans:
    }}
 	break;
 	case 18:
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 17:
-#line 86 "fsm/sentencize2.rl"
+#line 88 "fsm/sentencize2.rl"
 	{te = p;p--;{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 16:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{te = p;p--;}
 	break;
 	case 12:
@@ -1739,7 +1741,9 @@ _eof_trans:
 	{{p = ((te))-1;}{
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -1762,21 +1766,21 @@ _eof_trans:
    }}
 	break;
 	case 10:
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, te);
       goto fini;
    }}
 	break;
 	case 9:
-#line 86 "fsm/sentencize2.rl"
+#line 88 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}{
       fetch_tokens(tkr, ts);
       goto fini;
    }}
 	break;
 	case 7:
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{{p = ((te))-1;}}
 	break;
 	case 5:
@@ -1786,7 +1790,9 @@ _eof_trans:
 	{{p = ((te))-1;}
       const struct mr_token *rhs = fetch_tokens(tkr, ts + 1);
       
-      /* If the sentence has grown too large, stop there. */
+      /* If the sentence has grown too large or we're at the end of the text,
+       * stop there.
+       */
       if (!rhs) {
          goto fini;
       /* If there is tokenization mismatch between ourselves and the tokenizer,
@@ -1821,9 +1827,9 @@ _eof_trans:
 	}
 	break;
 	case 2:
-#line 94 "fsm/sentencize2.rl"
+#line 96 "fsm/sentencize2.rl"
 	{ start = p; }
-#line 95 "fsm/sentencize2.rl"
+#line 97 "fsm/sentencize2.rl"
 	{ {p = (( start))-1;} {stack[top++] = cs; cs = 392; goto _again;} }
 	break;
 	case 13:
@@ -1835,16 +1841,16 @@ _eof_trans:
 	case 11:
 #line 1 "NONE"
 	{te = p+1;}
-#line 81 "fsm/sentencize2.rl"
+#line 83 "fsm/sentencize2.rl"
 	{act = 2;}
 	break;
 	case 6:
 #line 1 "NONE"
 	{te = p+1;}
-#line 91 "fsm/sentencize2.rl"
+#line 93 "fsm/sentencize2.rl"
 	{act = 4;}
 	break;
-#line 1848 "gen/sentencize2.ic"
+#line 1854 "gen/sentencize2.ic"
 	}
 
 _again:
@@ -1853,7 +1859,7 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 1857 "gen/sentencize2.ic"
+#line 1863 "gen/sentencize2.ic"
 	}
 
 	if ( cs == 0 )
@@ -1872,7 +1878,7 @@ _again:
 	_out: {}
 	}
 
-#line 113 "fsm/sentencize2.rl"
+#line 115 "fsm/sentencize2.rl"
 
    /* At EOS, flush the remaining tokens. */
    te = eof;

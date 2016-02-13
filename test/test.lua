@@ -3,9 +3,9 @@ local mascara = require("mascara")
 
 local all_good = true
 
-local function check_fail(expected, output)
+local function check_fail(impl, expected, output)
    local caller_caller = assert(debug.getinfo(3))
-   print(string.format("fail at line %d:", caller_caller.currentline))
+   print(string.format("fail at line %d for <%s>:", caller_caller.currentline, impl))
    print("== Expected:")
    print(json.stringify(expected))
    print("== Have:")
@@ -44,16 +44,16 @@ local function check_token(test)
       assert(test.output == nil)
       return
    end
-   if #tokens ~= #test.output then return check_fail(test.output, tokens) end
+   if #tokens ~= #test.output then return check_fail("token", test.output, tokens) end
    for i, tk in ipairs(tokens) do
       if type(tk) ~= "table" then
          if tk ~= test.output[i] then
-            return check_fail(test.output, tokens)
+            return check_fail("token", test.output, tokens)
          end
       else
          for j, attr in ipairs(tk) do
             if attr ~= test.output[i][j] then
-               return check_fail(test.output, tokens)
+               return check_fail("token", test.output, tokens)
             end
          end
       end
@@ -82,14 +82,14 @@ local function check_sentence_impl(config, test)
       end
       table.insert(sents, copy)
    end
-   if #sents ~= #test.output then return check_fail(test.output, sents) end
+   if #sents ~= #test.output then return check_fail(config, test.output, sents) end
    for i, sent in ipairs(sents) do
       if #sent ~= #test.output[i] then
-         return check_fail(test.output, sents)
+         return check_fail(config, test.output, sents)
       end
       for j, tk in ipairs(sent) do
          if tk ~= test.output[i][j] then
-            return check_fail(test.output, sents)
+            return check_fail(config, test.output, sents)
          end
       end
    end
