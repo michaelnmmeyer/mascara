@@ -3,15 +3,30 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdint.h>
 #include <uchar.h>
 
-#define KB_VERSION "0.2"
+#define KB_VERSION "0.5"
+
+enum {
+   KB_OK,      /* No error. */
+   KB_FINI,    /* End of iteration (not an error). */
+   KB_EUTF8,   /* Invalid UTF-8 sequence. */
+};
+
+/* Returns a string describing an error code. */
+const char *kb_strerror(int err);
+
+
+/*******************************************************************************
+ * Dynamic buffer.
+ ******************************************************************************/
 
 struct kabak {
    char *str;        /* Zero-terminated. */
    size_t len;       /* Length in bytes. */
    size_t alloc;
-   unsigned flags;
 };
 
 #define KB_INIT {.str = ""}
@@ -29,9 +44,13 @@ void kb_catc(struct kabak *restrict, char32_t);
  */
 void *kb_grow(struct kabak *, size_t size);
 
-/* Truncate to the empty string. */
+/* Truncation to the empty string. */
 void kb_clear(struct kabak *);
 
+/* Returns a buffer's contents as an allocated string.
+ * The returned string must be freed with free(). It is zero-terminated. If
+ * "len" is not NULL, it is filled with the length of the returned string.
+ */
 char *kb_detach(struct kabak *restrict, size_t *restrict len);
 
 
@@ -39,42 +58,139 @@ char *kb_detach(struct kabak *restrict, size_t *restrict len);
  * Normalization.
  ******************************************************************************/
 
+#define KB_REPLACEMENT_CHAR 0xFFFD
+
 enum {
-   KB_MERGE = 1 << 0,      /* NFKC, with additional custom mappings. */
-   KB_CASE_FOLD = 1 << 3,  /* Case folding. */
-   KB_DIACR_FOLD = 1 << 4, /* Diacritic removal. */
+   /* Compose code points. */
+   KB_COMPOSE = 1 << 0,
+   
+   /* Decompose code points. */
+   KB_DECOMPOSE = 1 << 1,
+   
+   /* Use compatibility mappings, with custom additional mappings. Must be
+    * combined with KB_COMPOSE or KB_DECOMPOSE to be taken into account.
+    */
+   KB_COMPAT = 1 << 2,
+   
+   /* Lump some characters together. */
+   KB_LUMP = 1 << 3,
+   
+   /* Use Unicode casefold mappings. */
+   KB_CASE_FOLD = 1 << 4,
+
+   /* Drop code points in Default_Ignorable_Code_Point. See
+    * http://www.unicode.org/Public/8.0.0/ucd/DerivedCoreProperties.txt
+    */
+   KB_STRIP_IGNORABLE = 1 << 5,
+   
+   /* Drop code points in categories Cn (Other, Not Assigned) and Co (Other,
+    * Private Use). Code points in Cs (Other, Surrogate) don't appear in UTF-8
+    * strings.
+    */
+   KB_STRIP_UNKNOWN = 1 << 6,
+   
+   /* Drop diacritical marks (categories Mc, Me, and Mn). Must be combined with
+    * KB_COMPOSE or KB_DECOMPOSE to be taken into account.
+    */
+   KB_STRIP_DIACRITIC = 1 << 7,
+
+   /* NFC normalization. */
+   KB_NFC = KB_COMPOSE | KB_DECOMPOSE,
+   
+   /* NFKC normalization (with custom additional mappings). */
+   KB_NFKC = KB_COMPOSE | KB_DECOMPOSE | KB_COMPAT,
 };
 
-/* Invalid code points are replaced with REPLACEMENT CHARACTER (U+FFFD).
- * Unassigned code points and non-characters are deemed to be valid. Only
- * surrogates and code points > 0x10FFFF are considered invalid. The output
- * buffer is cleared beforehand.
+/* Transforms a string in some way.
+ * On success, returns KB_OK, otherwise an error code. In both cases, the
+ * output buffer is filled with the normalized string.
+ * Bytes that cannot form valid UTF-8 sequences are replaced with REPLACEMENT
+ * CHARACTER (U+FFFD). Unassigned code points and non-characters are deemed to
+ * be valid. Only surrogates and code points > 0x10FFFF are considered invalid.
+ * The output buffer is cleared beforehand.
  */
-void kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
-                  unsigned opts);
+int kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
+                 unsigned opts);
+
+
+/*******************************************************************************
+ * I/O.
+ ******************************************************************************/
+
+/* FILE object wrapper. */
+struct kb_file {
+   FILE *fp;
+   size_t pending;
+   uint8_t backup[4];
+   char32_t last;
+};
+
+/* Wraps an opened file for reading UTF-8 data from it.
+ * The file can be opened in binary mode. It must not be used while the
+ * kb_file structure is in use. It must be closed by the caller after use if
+ * necessary. We assume that no data has been read from the file yet, and check
+ * for a leading BOM.
+ */
+void kb_wrap(struct kb_file *restrict, FILE *restrict);
+
+/* Reads a single line from a file and, optionally, normalizes it.
+ * All possible EOL sequences are supported. The EOL sequence at the end of a
+ * line, if any, is trimmed. The last line of the file is skipped if empty.
+ * Returns KB_OK if a line was read, KB_FINI if at EOF, otherwise an error code.
+ * I/O errors are not reported and must be checked separately. Notes above
+ * kb_transform() apply here, too.
+ */
+int kb_get_line(struct kb_file *restrict, struct kabak *restrict,
+                unsigned opts);
 
 
 /*******************************************************************************
  * UTF-8.
  ******************************************************************************/
 
-/* Decodes a single code point. Typical usage:
+/* Decodes a single code point.
+ * *clen is filled with the number of decoded bytes.
+ * Typical usage:
  *
  *   for (size_t i = 0, clen; i < len; i += clen)
  *      char32_t c = kb_decode(&str[i], &clen);
+ *
+ * The provided UTF-8 string must be valid.
  */
 char32_t kb_decode(const char *restrict str, size_t *restrict clen);
 
-/* Encodes a single code point. */
+/* Safe version of kb_decode().
+ *
+ * Bytes that cannot form valid UTF-8 sequences are replaced with REPLACEMENT
+ * CHARACTER (U+FFFD). In this case, *clen is set to 1. If at the end of the
+ * string, REPLACEMENT CHARACTER is also returned, but *clen is set to 0.
+ * Typical usage:
+ *
+ *   for (size_t i = 0, clen; i < len; i += clen) {
+ *      char32_t c = kb_decode_s(&str[i], len - i, &clen);
+ *      if (c == KB_REPLACEMENT_CHAR && clen == 1)
+ *         puts("encoding error");
+ *   }
+ */
+char32_t kb_decode_s(const char *restrict str, size_t len,
+                     size_t *restrict clen);
+
+/* Encodes a single code point.
+ * Returns the number of bytes written.
+ * The provided code point must be valid.
+ */
 size_t kb_encode(char buf[static 4], char32_t c);
 
-/* Counts the number of code points in a UTF-8 string. */
+/* Counts the number of code points in a UTF-8 string.
+ * The provided UTF-8 string must be valid.
+ */
 size_t kb_count(const char *str, size_t len);
 
 /* Returns the offset of the nth code point of a string.
- * If n is negative, code points are counted from the end of the input string.
+ * If n is negative, code points are counted from the end of the string.
  * If the input string contains less than abs(n) code point, the string length
  * is returned if n is strictly positive, zero otherwise.
+ * The provided UTF-8 string must be valid.
  */
 size_t kb_offset(const char *str, size_t len, ptrdiff_t n);
 
@@ -84,7 +200,8 @@ size_t kb_offset(const char *str, size_t len, ptrdiff_t n);
  ******************************************************************************/
 
 enum kb_category {
-   KB_CATEGORY_LU = 1,
+   KB_CATEGORY_CN,
+   KB_CATEGORY_LU,
    KB_CATEGORY_LL,
    KB_CATEGORY_LT,
    KB_CATEGORY_LM,
@@ -113,7 +230,6 @@ enum kb_category {
    KB_CATEGORY_CF,
    KB_CATEGORY_CS,
    KB_CATEGORY_CO,
-   KB_CATEGORY_CN,
 };
 
 enum kb_category kb_category(char32_t);

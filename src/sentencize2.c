@@ -83,12 +83,13 @@ local void sentencizer2_reattach_period(struct sentence *sent)
 local bool at_eos(struct sentencizer2 *szr, const struct mr_token *rhs)
 {
    const struct mr_token *lhs = &rhs[-2];
+   const unsigned opts = KB_NFKC | KB_STRIP_IGNORABLE | KB_STRIP_UNKNOWN;
 
-   kb_transform(&szr->lhs, lhs->str, lhs->len, KB_MERGE);
+   kb_transform(&szr->lhs, lhs->str, lhs->len, opts);
    if (szr->lhs.len > MAX_FEATURE_LEN)
       goto fail;
 
-   kb_transform(&szr->rhs, rhs->str, rhs->len, KB_MERGE);
+   kb_transform(&szr->rhs, rhs->str, rhs->len, opts);
    if (szr->rhs.len > MAX_FEATURE_LEN)
       goto fail;
 
