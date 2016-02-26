@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <uchar.h>
+#include <stdarg.h>
 
-#define KB_VERSION "0.5"
+#define KB_VERSION "0.6"
 
 enum {
    KB_OK,      /* No error. */
@@ -17,6 +18,9 @@ enum {
 
 /* Returns a string describing an error code. */
 const char *kb_strerror(int err);
+
+/* Function to call when a fatal error occurs. */
+void kb_on_error(void (*handler)(const char *msg));
 
 
 /*******************************************************************************
@@ -38,6 +42,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
+
+/* Appends formatted data to a buffer. */
+void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 
 /* Ensures that there's enough room for storing "size" more bytes.
  * Returns a pointer to the end of the buffer.

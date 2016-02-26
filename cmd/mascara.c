@@ -167,6 +167,11 @@ static void display_langs(void)
       puts(*langs++);
 }
 
+noreturn static void die_msg(const char *msg)
+{
+   die("%s", msg);
+}
+
 int main(int argc, char **argv)
 {
    const char *fmt = "%s\n";
@@ -193,6 +198,7 @@ int main(int argc, char **argv)
    const char *home = getenv("MR_HOME");
    mr_home = home ? home : MR_HOME;
 
+   mr_on_error(die_msg);
    if (list)
       display_langs();
    else

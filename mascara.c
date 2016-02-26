@@ -8,7 +8,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.9"
+#define MR_VERSION "0.10"
 
 #include <stddef.h>
 
@@ -29,13 +29,10 @@ enum {
 /* Returns a string describing an error code. */
 const char *mr_strerror(int err);
 
-/* Maximum allowed length of a sentence, in tokens. Sentences that would grow
- * larger than that are split in chunks. This is done to avoid pathological
- * cases.
- */
-#define MR_MAX_SENTENCE_LEN 1000
+/* Installs a handler for fatal errors. */
+void mr_on_error(void (*handler)(const char *msg));
 
-/* See the readme file for informations about these. */
+/* Token types. See the readme file for informations about these. */
 enum mr_type {
    MR_UNK,
    MR_LATIN,
@@ -118,6 +115,12 @@ size_t mr_next(struct mascara *, struct mr_token **);
 #include <stdbool.h>
 
 #define local static
+
+/* Maximum allowed length of a sentence, in tokens. Sentences that would grow
+ * larger than that are split in chunks. This is done to avoid pathological
+ * cases.
+ */
+#define MR_MAX_SENTENCE_LEN 1000
 
 struct mascara;
 struct mr_token;
@@ -267,8 +270,9 @@ local void bayes_feed(const struct bayes *, double [static 2],
 #include <stdio.h>
 #include <stdint.h>
 #include <uchar.h>
+#include <stdarg.h>
 
-#define KB_VERSION "0.5"
+#define KB_VERSION "0.6"
 
 enum {
    KB_OK,      /* No error. */
@@ -278,6 +282,9 @@ enum {
 
 /* Returns a string describing an error code. */
 const char *kb_strerror(int err);
+
+/* Function to call when a fatal error occurs. */
+void kb_on_error(void (*handler)(const char *msg));
 
 
 /*******************************************************************************
@@ -299,6 +306,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
+
+/* Appends formatted data to a buffer. */
+void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 
 /* Ensures that there's enough room for storing "size" more bytes.
  * Returns a pointer to the end of the buffer.
@@ -23278,17 +23288,24 @@ local char *ft_unimask(char *buf, const struct mr_token *tk)
 #include <stdlib.h>
 #include <stdio.h>
 
+local void (*mr_error_handler)(const char *msg);
+
+void mr_on_error(void (*handler)(const char *msg))
+{
+   kb_on_error(handler);
+   mr_error_handler = handler;
+}
+
 local noreturn void fatal(const char *msg, ...)
 {
-   va_list ap;
-
-   fputs("mascara: ", stderr);
-   va_start(ap, msg);
-   vfprintf(stderr, msg, ap);
-   va_end(ap);
-   putc('\n', stderr);
-   fflush(stderr);
-
+   if (mr_error_handler) {
+      char str[1024];
+      va_list ap;
+      va_start(ap, msg);
+      vsnprintf(str, sizeof str, msg, ap);
+      va_end(ap);
+      mr_error_handler(str);
+   }   
    abort();
 }
 
@@ -29112,8 +29129,9 @@ local size_t tokenizer_next(struct mascara *imp, struct mr_token **tkp)
 #include <stdio.h>
 #include <stdint.h>
 #include <uchar.h>
+#include <stdarg.h>
 
-#define KB_VERSION "0.5"
+#define KB_VERSION "0.6"
 
 enum {
    KB_OK,      /* No error. */
@@ -29123,6 +29141,9 @@ enum {
 
 /* Returns a string describing an error code. */
 const char *kb_strerror(int err);
+
+/* Function to call when a fatal error occurs. */
+void kb_on_error(void (*handler)(const char *msg));
 
 
 /*******************************************************************************
@@ -29144,6 +29165,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
+
+/* Appends formatted data to a buffer. */
+void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 
 /* Ensures that there's enough room for storing "size" more bytes.
  * Returns a pointer to the end of the buffer.
@@ -29563,10 +29587,18 @@ int kb_get_line(struct kb_file *restrict fp, struct kabak *restrict kb,
 #include <string.h>
 #include <stdnoreturn.h>
 
+local void (*kb_error_handler)(const char *);
+
 local noreturn void kb_oom(void)
 {
-   fprintf(stderr, "kabak: out of memory");
+   if (kb_error_handler)
+      kb_error_handler("out of memory");
    abort();
+}
+
+void kb_on_error(void (*handler)(const char *))
+{
+   kb_error_handler = handler;
 }
 
 void kb_fini(struct kabak *kb)
@@ -29618,6 +29650,38 @@ void kb_catc(struct kabak *restrict kb, char32_t c)
    const size_t clen = kb_encode(buf, c);
    buf[clen] = '\0';
    kb->len += clen;
+}
+
+static size_t kb_vsnprintf_unsigned(char *restrict buf, size_t size,
+                                    const char *restrict fmt, va_list ap)
+{
+   int len = vsnprintf(buf, size, fmt, ap);
+   return len < 0 ? 0 : len;
+}
+
+static void kb_vprintf(struct kabak *restrict kb, const char *restrict fmt,
+                       va_list ap)
+{
+   va_list copy;
+   va_copy(copy, ap);
+   size_t avail = kb->alloc - kb->len;
+   size_t size = kb_vsnprintf_unsigned(&kb->str[kb->len], avail, fmt, copy);
+   va_end(copy);
+
+   if (size >= avail) {
+      char *restrict buf = kb_grow(kb, size);
+      avail = kb->alloc - kb->len;
+      size = kb_vsnprintf_unsigned(buf, avail, fmt, ap);
+   }
+   kb->len += size;
+}
+
+void kb_printf(struct kabak *restrict kb, const char *restrict fmt, ...)
+{
+   va_list ap;
+   va_start(ap, fmt);
+   kb_vprintf(kb, fmt, ap);
+   va_end(ap);
 }
 
 char *kb_detach(struct kabak *restrict kb, size_t *restrict len)

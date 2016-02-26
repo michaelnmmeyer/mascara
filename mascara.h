@@ -1,7 +1,7 @@
 #ifndef MASCARA_H
 #define MASCARA_H
 
-#define MR_VERSION "0.9"
+#define MR_VERSION "0.10"
 
 #include <stddef.h>
 
@@ -22,13 +22,10 @@ enum {
 /* Returns a string describing an error code. */
 const char *mr_strerror(int err);
 
-/* Maximum allowed length of a sentence, in tokens. Sentences that would grow
- * larger than that are split in chunks. This is done to avoid pathological
- * cases.
- */
-#define MR_MAX_SENTENCE_LEN 1000
+/* Installs a handler for fatal errors. */
+void mr_on_error(void (*handler)(const char *msg));
 
-/* See the readme file for informations about these. */
+/* Token types. See the readme file for informations about these. */
 enum mr_type {
    MR_UNK,
    MR_LATIN,

@@ -2,17 +2,24 @@
 #include <stdio.h>
 #include "mem.h"
 
+local void (*mr_error_handler)(const char *msg);
+
+void mr_on_error(void (*handler)(const char *msg))
+{
+   kb_on_error(handler);
+   mr_error_handler = handler;
+}
+
 local noreturn void fatal(const char *msg, ...)
 {
-   va_list ap;
-
-   fputs("mascara: ", stderr);
-   va_start(ap, msg);
-   vfprintf(stderr, msg, ap);
-   va_end(ap);
-   putc('\n', stderr);
-   fflush(stderr);
-
+   if (mr_error_handler) {
+      char str[1024];
+      va_list ap;
+      va_start(ap, msg);
+      vsnprintf(str, sizeof str, msg, ap);
+      va_end(ap);
+      mr_error_handler(str);
+   }   
    abort();
 }
 
