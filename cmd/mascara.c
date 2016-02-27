@@ -85,26 +85,31 @@ static void *read_file(const char *path, size_t *sizep)
 {
    FILE *fp = stdin;
    if (path) {
-      fp = fopen(path, "r");
+      fp = fopen(path, "rb");
       if (!fp)
          die("cannot open '%s':", path);
    }
-   char *str = malloc(MAX_FILE_SIZE); // FIXME later
-   size_t len = fread(str, 1, MAX_FILE_SIZE, fp);
-
+   struct kb_file strm;
+   kb_wrap(&strm, fp);
+   
+   struct kabak str = KB_INIT;
+   struct kabak line = KB_INIT;
+   
+   int ret = KB_OK;
+   const unsigned opts = KB_NFC | KB_STRIP_IGNORABLE;
+   while ((ret = kb_get_line(&strm, &line, opts)) != KB_FINI) {
+      kb_cat(&str, line.str, line.len);
+      kb_catb(&str, '\n');
+      if (str.len > MAX_FILE_SIZE)
+         die("input file too large (limit is %d)", MAX_FILE_SIZE);
+   }
    if (ferror(fp))
-      die("IO error:");
-   if (len == MAX_FILE_SIZE && !feof(fp))
-      die("input file too large (limit is %d)", MAX_FILE_SIZE);
+      die("I/O error:");
 
    if (fp != stdin)
       fclose(fp);
-
-   struct kabak nrm = KB_INIT;
-   kb_transform(&nrm, str, len, 0);
-   free(str);
-
-   return kb_detach(&nrm, sizep);
+   kb_fini(&line);
+   return kb_detach(&str, sizep);
 }
 
 noreturn static void version(void)

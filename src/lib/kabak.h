@@ -43,6 +43,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
 
+/* Appends a single byte to a buffer. */
+void kb_catb(struct kabak *restrict, int);
+
 /* Appends formatted data to a buffer. */
 void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 

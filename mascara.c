@@ -307,6 +307,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
 
+/* Appends a single byte to a buffer. */
+void kb_catb(struct kabak *restrict, int);
+
 /* Appends formatted data to a buffer. */
 void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 
@@ -29166,6 +29169,9 @@ void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
 void kb_catc(struct kabak *restrict, char32_t);
 
+/* Appends a single byte to a buffer. */
+void kb_catb(struct kabak *restrict, int);
+
 /* Appends formatted data to a buffer. */
 void kb_printf(struct kabak *restrict, const char *restrict fmt, ...);
 
@@ -29642,14 +29648,24 @@ void kb_cat(struct kabak *restrict kb, const char *restrict str, size_t len)
    char *restrict buf = kb_grow(kb, len);
    memcpy(buf, str, len);
    buf[len] = '\0';
+   kb->len += len;
 }
 
 void kb_catc(struct kabak *restrict kb, char32_t c)
 {
    char *restrict buf = kb_grow(kb, 4);
-   const size_t clen = kb_encode(buf, c);
+   size_t clen = kb_encode(buf, c);
    buf[clen] = '\0';
    kb->len += clen;
+}
+
+void kb_catb(struct kabak *restrict kb, int c)
+{
+   kb_assert(c >= 0 && c <= 0xff);
+   char *restrict buf = kb_grow(kb, 1);
+   *buf++ = c;
+   *buf = '\0';
+   kb->len++;
 }
 
 static size_t kb_vsnprintf_unsigned(char *restrict buf, size_t size,
@@ -51667,8 +51683,6 @@ bool kb_is_number(char32_t c)
  */
 bool kb_is_space(char32_t c)
 {
-   kb_assert(kb_code_point_valid(c));
-
    if (c == 0x0020 || (c >= 0x0009 && c <= 0x000d) || c == 0x0085)
       return true;
 
