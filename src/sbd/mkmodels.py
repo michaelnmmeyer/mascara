@@ -41,7 +41,7 @@ def train(labeled_features):
          freq = freqs.get(label, 0)
          prob = (freq + SMOOTH) / (label_freq + SMOOTH * len(features[fname]))
          probs[label] = math.log2(prob)
-      cond_probs[(fname, fval)] = probs
+      cond_probs[fname, fval] = probs
 
    return priors, unk_probs, cond_probs
 
