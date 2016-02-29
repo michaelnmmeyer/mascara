@@ -1,6 +1,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include "../mascara.h"
+#define local extern
+#include "../src/imp.h"
 
 #define MR_MT "mascara"
 

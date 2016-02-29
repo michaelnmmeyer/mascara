@@ -3,7 +3,9 @@
 
 #include <stdbool.h>
 
-#define local static
+#ifndef local
+   #define local static
+#endif
 
 /* Maximum allowed length of a sentence, in tokens. Sentences that would grow
  * larger than that are split in chunks. This is done to avoid pathological
