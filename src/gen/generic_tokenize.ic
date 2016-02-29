@@ -163,7 +163,7 @@ static const short _tokenize_generic_key_offsets[] = {
 	13359, 13392, 13426, 13442, 13457, 13501, 13540, 13583, 
 	13627, 13664, 13707, 13745, 13789, 13806, 13851, 13896, 
 	13933, 13977, 14010, 14049, 14087, 14125, 14163, 14212, 
-	14261, 14297, 14314, 14357, 14376, 14414
+	14261, 14297, 14314, 14357, 14376, 14411
 };
 
 static const unsigned char _tokenize_generic_trans_keys[] = {
@@ -1964,14 +1964,13 @@ static const unsigned char _tokenize_generic_trans_keys[] = {
 	223u, 224u, 238u, 240u, 247u, 32u, 40u, 64u, 
 	194u, 226u, 9u, 13u, 48u, 57u, 128u, 191u, 
 	192u, 223u, 224u, 239u, 240u, 247u, 248u, 255u, 
-	32u, 35u, 64u, 92u, 95u, 96u, 124u, 127u, 
-	194u, 195u, 202u, 203u, 225u, 226u, 234u, 239u, 
-	0u, 8u, 9u, 13u, 14u, 31u, 48u, 57u, 
-	128u, 191u, 192u, 193u, 196u, 201u, 204u, 223u, 
-	224u, 238u, 240u, 247u, 248u, 255u, 32u, 40u, 
-	64u, 194u, 226u, 9u, 13u, 48u, 57u, 128u, 
-	191u, 192u, 223u, 224u, 239u, 240u, 247u, 248u, 
-	255u, 0
+	35u, 64u, 92u, 95u, 96u, 124u, 127u, 194u, 
+	195u, 202u, 203u, 225u, 226u, 234u, 239u, 0u, 
+	8u, 14u, 31u, 33u, 47u, 48u, 57u, 58u, 
+	126u, 192u, 193u, 196u, 201u, 204u, 223u, 224u, 
+	238u, 240u, 247u, 32u, 40u, 64u, 194u, 226u, 
+	9u, 13u, 48u, 57u, 128u, 191u, 192u, 223u, 
+	224u, 239u, 240u, 247u, 248u, 255u, 0
 };
 
 static const char _tokenize_generic_single_lengths[] = {
@@ -2121,7 +2120,7 @@ static const char _tokenize_generic_single_lengths[] = {
 	9, 10, 4, 3, 12, 11, 11, 12, 
 	9, 11, 10, 12, 5, 13, 13, 9, 
 	12, 9, 11, 10, 10, 10, 17, 17, 
-	16, 5, 15, 5, 16, 5
+	16, 5, 15, 5, 15, 5
 };
 
 static const char _tokenize_generic_range_lengths[] = {
@@ -2271,7 +2270,7 @@ static const char _tokenize_generic_range_lengths[] = {
 	12, 12, 6, 6, 16, 14, 16, 16, 
 	14, 16, 14, 16, 6, 16, 16, 14, 
 	16, 12, 14, 14, 14, 14, 16, 16, 
-	10, 6, 14, 7, 11, 7
+	10, 6, 14, 7, 10, 7
 };
 
 static const short _tokenize_generic_index_offsets[] = {
@@ -2421,7 +2420,7 @@ static const short _tokenize_generic_index_offsets[] = {
 	10036, 10058, 10081, 10092, 10102, 10131, 10157, 10185, 
 	10214, 10238, 10266, 10291, 10320, 10332, 10362, 10392, 
 	10416, 10445, 10467, 10493, 10518, 10543, 10568, 10602, 
-	10636, 10663, 10675, 10705, 10718, 10746
+	10636, 10663, 10675, 10705, 10718, 10744
 };
 
 static const short _tokenize_generic_indicies[] = {
@@ -3764,12 +3763,12 @@ static const short _tokenize_generic_indicies[] = {
 	1195, 1196, 90, 90, 1, 258, 1, 259, 
 	1, 259, 1, 92, 947, 92, 119, 1016, 
 	1017, 1025, 222, 2, 4, 6, 1025, 219, 
-	1025, 3, 5, 7, 1025, 1, 1017, 90, 
-	1018, 90, 90, 91, 90, 90, 94, 95, 
-	97, 98, 126, 127, 128, 129, 90, 1017, 
-	90, 335, 1017, 92, 96, 92, 119, 1016, 
-	1017, 1, 1025, 222, 2, 4, 6, 1025, 
-	1036, 1025, 3, 5, 7, 1025, 1, 0
+	1025, 3, 5, 7, 1025, 1, 90, 1018, 
+	90, 90, 91, 90, 90, 94, 95, 97, 
+	98, 126, 127, 128, 129, 90, 90, 1, 
+	335, 1, 92, 96, 92, 119, 1016, 1017, 
+	1025, 222, 2, 4, 6, 1025, 1036, 1025, 
+	3, 5, 7, 1025, 1, 0
 };
 
 static const short _tokenize_generic_trans_targs[] = {
@@ -4538,7 +4537,7 @@ static const int tokenize_generic_en_main = 1064;
 static void generic_init(struct tokenizer *tkr)
 {
    
-#line 4542 "gen/generic_tokenize.ic"
+#line 4541 "gen/generic_tokenize.ic"
 	{
 	 tkr->cs = tokenize_generic_start;
 	 tkr->ts = 0;
@@ -4552,7 +4551,7 @@ static void generic_init(struct tokenizer *tkr)
 static void generic_exec(struct tokenizer *tkr, struct mr_token *tk)
 {
    
-#line 4556 "gen/generic_tokenize.ic"
+#line 4555 "gen/generic_tokenize.ic"
 	{
 	int _klen;
 	const unsigned char *_keys;
@@ -4568,7 +4567,7 @@ _resume:
 #line 1 "NONE"
 	{ tkr->ts = ( tkr->p);}
 	break;
-#line 4572 "gen/generic_tokenize.ic"
+#line 4571 "gen/generic_tokenize.ic"
 	}
 
 	_keys = _tokenize_generic_trans_keys + _tokenize_generic_key_offsets[ tkr->cs];
@@ -4800,7 +4799,7 @@ _eof_trans:
 #line 69 "gen/generic_tokenize.rl"
 	{ tkr->act = 10;}
 	break;
-#line 4804 "gen/generic_tokenize.ic"
+#line 4803 "gen/generic_tokenize.ic"
 	}
 
 _again:
@@ -4811,7 +4810,7 @@ _again:
 #line 1 "NONE"
 	{ tkr->act = 0;}
 	break;
-#line 4815 "gen/generic_tokenize.ic"
+#line 4814 "gen/generic_tokenize.ic"
 	}
 
 	if (  tkr->cs == 0 )

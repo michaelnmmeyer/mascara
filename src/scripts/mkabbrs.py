@@ -28,5 +28,5 @@ DATA
 
 }%%"""
 
-ret = TPL.replace("DATA", " |\n".join('"%s."' % abbr for abbr in sorted(ABBRS)))
+ret = TPL.replace("DATA", " |\n".join('"%s"' % abbr for abbr in sorted(ABBRS)))
 sys.stdout.buffer.write(ret.encode("UTF-8"))

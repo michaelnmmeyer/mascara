@@ -35,7 +35,24 @@ sent_lead = opening_bracket | opening_single_quote | opening_double_quote;
 #    e.g.
 #    i.e.
 #
-thing_with_periods = latin+ (period latin+)+ period?;
+abbr_or_number = latin+ (period latin+)+;
+
+# Examples:
+#
+#    cf.
+#    bzw.
+#    p. 5
+#    pp. 6-7
+#
+# We could add consonants containing diacritics, but this is unlikely to be
+# helpful. Adding uppercase consonants is not a good idea.
+#
+abbr_consonant = [bcdfghjklmnpqrstvwxz]+;
+
+with_terminal_period = abbr_or_number
+                     | abbr_lexicon
+                     | abbr_consonant
+                     ;
 
 # A token followed by a period followed by a one of these characters is a
 # likely abbreviation.
@@ -48,17 +65,6 @@ period_punct = latin+ period sent_trail* ("," | ";" | ":");
 #
 name_initial = latin_uppercase period whitespace latin_uppercase;
 
-# Examples:
-#
-#    cf.
-#    bzw.
-#    p. 5
-#    pp. 6-7
-#
-# We could add consonants containing diacritics, but this is unlikely to be
-# helpful. Adding uppercase consonants is not a good idea.
-#
-abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ period;
 
 # Discard when followed by a lowercase letter, including exclamations:
 #
@@ -68,14 +74,13 @@ abbreviation_consonant = [bcdfghjklmnpqrstvwxz]+ period;
 #
 no_capital = eos_marker sent_trail* whitespace* sent_lead* latin_lowercase;
 
-not_eos = thing_with_periods
-        | period_punct
-        | name_initial
-        | no_capital
-        | abbr_lexicon
-        | abbreviation_consonant
-        | email | uri
-        ;
+without_terminal_period = abbr_or_number
+                        | period_punct
+                        | name_initial
+                        | no_capital
+                        | email
+                        | uri
+                        ;
 
 # Discard when a terminator is followed by a closing bracket or closing quote
 # and then another terminator:
@@ -110,9 +115,15 @@ find_eos := |*
       *period = NULL;
       goto found;
    };
-   any;
-   latin_letter+;
-   not_eos;
+   with_terminal_period % { *period = fpc; } period whitespace* => {
+      /* If at the end of the text, split there and emit a separate period, even
+       * if we've recognized an abbreviation. Otherwise, consume.
+       */
+      if (te == eof)
+         goto found;
+   };
+   without_terminal_period;
+   any | latin_letter+;
 *|;
 
 main := whitespace* %{ start = fpc; }
@@ -132,6 +143,7 @@ static const unsigned char *next_sentence(struct sentencizer *tkr,
    const unsigned char *pe = tkr->pe;
    const unsigned char *const eof = pe;
 
+   /* Start offset of the current sentence. */
    const unsigned char *start = NULL;
 
    %% write init;

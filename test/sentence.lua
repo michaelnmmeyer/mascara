@@ -32,7 +32,13 @@ check{
    output = {
       {"Mr.", "Mr", "."},
    },
-   impl = "bayes" -- FIXME: Doesn't work with the FSM impl.
+}
+check{
+   input = "Mr﹒ Mr﹒  ",
+   lang = "en",
+   output = {
+      {"Mr﹒", "Mr", "﹒"},
+   },
 }
 
 -- Reattach periods correctly.
