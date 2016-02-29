@@ -71,6 +71,13 @@ check{
    output = {{"foo"}, {"bar"}},
 }
 
+-- Don't split if a comma, etc., follows:
+check{
+   input = "foo., bar",
+   output = {{"foo.", ",", "bar"}},
+   impl = "fsm",
+}
+
 -- Special case
 check{
    input = "(und vor Gelons Tod 216 v﹒ Chr﹒)﹒ Er widerlegte",
