@@ -134,7 +134,7 @@ symbol =
 | ":"
 | "!"
 | "?"
-| "."
+| period
 
 # Ellipsis, repeated punctuation characters.
 | ellipsis
@@ -158,7 +158,7 @@ symbol =
 | dash
 
 # Math.
-| "-"
+| minus
 | "+"+
 | "*"+    # 2 * 5, 6 ** 3, etc.
 | "^"
