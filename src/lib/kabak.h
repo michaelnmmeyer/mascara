@@ -8,7 +8,7 @@
 #include <uchar.h>
 #include <stdarg.h>
 
-#define KB_VERSION "0.6"
+#define KB_VERSION "0.7"
 
 enum {
    KB_OK,      /* No error. */
@@ -37,7 +37,7 @@ struct kabak {
 
 void kb_fini(struct kabak *);
 
-/* Append data at the end of a buffer. */
+/* Appends data at the end of a buffer. */
 void kb_cat(struct kabak *restrict, const char *restrict str, size_t len);
 
 /* Encodes a code point to UTF-8 and appends it to a buffer. */
@@ -57,6 +57,9 @@ void *kb_grow(struct kabak *, size_t size);
 /* Truncation to the empty string. */
 void kb_clear(struct kabak *);
 
+/* Truncation to a given length (in bytes). */
+void kb_truncate(struct kabak *, size_t len);
+
 /* Returns a buffer's contents as an allocated string.
  * The returned string must be freed with free(). It is zero-terminated. If
  * "len" is not NULL, it is filled with the length of the returned string.
@@ -68,6 +71,10 @@ char *kb_detach(struct kabak *restrict, size_t *restrict len);
  * Normalization.
  ******************************************************************************/
 
+/* Each byte that cannot be part of a valid UTF-8 sequence is replaced with
+ * this code point. Unassigned code points and non-characters are deemed to be
+ * valid. Only surrogates and code points > 0x10FFFF are considered invalid.
+ */
 #define KB_REPLACEMENT_CHAR 0xFFFD
 
 enum {
@@ -111,13 +118,9 @@ enum {
    KB_NFKC = KB_COMPOSE | KB_DECOMPOSE | KB_COMPAT,
 };
 
-/* Transforms a string in some way.
+/* Transforms a string in some way and appends it to a buffer.
  * On success, returns KB_OK, otherwise an error code. In both cases, the
- * output buffer is filled with the normalized string.
- * Bytes that cannot form valid UTF-8 sequences are replaced with REPLACEMENT
- * CHARACTER (U+FFFD). Unassigned code points and non-characters are deemed to
- * be valid. Only surrogates and code points > 0x10FFFF are considered invalid.
- * The output buffer is cleared beforehand.
+ * normalized string is appended to the provided buffer.
  */
 int kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
                  unsigned opts);
@@ -144,13 +147,24 @@ struct kb_file {
 void kb_wrap(struct kb_file *restrict, FILE *restrict);
 
 /* Reads a single line from a file and, optionally, normalizes it.
+ * The input buffer is cleared beforehand.
  * All possible EOL sequences are supported. The EOL sequence at the end of a
  * line, if any, is trimmed. The last line of the file is skipped if empty.
  * Returns KB_OK if a line was read, KB_FINI if at EOF, otherwise an error code.
- * I/O errors are not reported and must be checked separately. Notes above
- * kb_transform() apply here, too.
+ * I/O errors are not reported and must be checked separately.
  */
 int kb_get_line(struct kb_file *restrict, struct kabak *restrict,
+                unsigned opts);
+
+/* Reads a single paragraph from a file, and, optionally, normalizes it.
+ * A paragraph is a series of one or more contiguous lines that all contain at
+ * least one non-whitespace character. The longest possible series of lines that
+ * don't contain a PARAGRAPH SEPARATOR (U+2029) is systematically selected.
+ * Each line of the paragraph is followed by a LINE FEED ('\n') in the output.
+ * Returns KB_OK if a paragraph was read, KB_FINI if at EOF, otherwise an error
+ * code. I/O errors are not reported and must be checked separately.
+ */
+int kb_get_para(struct kb_file *restrict, struct kabak *restrict,
                 unsigned opts);
 
 

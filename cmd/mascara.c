@@ -18,9 +18,6 @@ static void print_format(const char *fmt, const struct mr_token *tk)
    case 'l':
       printf("%zu", tk->len);
       break;
-   case 'o':
-      printf("%zu", tk->offset);
-      break;
    case '%':            /* '%' + '%' */
    case '\0':           /* '%' at the end of the format string. */
       putchar('%');
@@ -79,39 +76,6 @@ static void print_eos(const char *s)
    }
 }
 
-#define MAX_FILE_SIZE (50 * 1024 * 1024)
-
-static void *read_file(const char *path, size_t *sizep)
-{
-   FILE *fp = stdin;
-   if (path) {
-      fp = fopen(path, "rb");
-      if (!fp)
-         die("cannot open '%s':", path);
-   }
-   struct kb_file strm;
-   kb_wrap(&strm, fp);
-   
-   struct kabak str = KB_INIT;
-   struct kabak line = KB_INIT;
-   
-   int ret = KB_OK;
-   const unsigned opts = KB_NFC | KB_STRIP_IGNORABLE;
-   while ((ret = kb_get_line(&strm, &line, opts)) != KB_FINI) {
-      kb_cat(&str, line.str, line.len);
-      kb_catb(&str, '\n');
-      if (str.len > MAX_FILE_SIZE)
-         die("input file too large (limit is %d)", MAX_FILE_SIZE);
-   }
-   if (ferror(fp))
-      die("I/O error:");
-
-   if (fp != stdin)
-      fclose(fp);
-   kb_fini(&line);
-   return kb_detach(&str, sizep);
-}
-
 noreturn static void version(void)
 {
    const char *msg =
@@ -122,25 +86,58 @@ noreturn static void version(void)
    exit(EXIT_SUCCESS);
 }
 
-static void tokenize_with_eos(struct mascara *mr,
+static const unsigned norm_opts = KB_NFC | KB_STRIP_IGNORABLE;
+
+static void tokenize_with_eos(struct kb_file *fp, struct mascara *mr,
                               const char *fmt, const char *eos)
 {
-   struct mr_token *tks;
-   size_t len;
+   struct kabak para = KB_INIT;
 
-   while ((len = mr_next(mr, &tks))) {
-      for (size_t i = 0; i < len; i++)
-         print_token(fmt, &tks[i]);
-      print_eos(eos);
+   while (kb_get_para(fp, &para, norm_opts) != KB_FINI) {
+      mr_set_text(mr, para.str, para.len);
+      struct mr_token *tks;
+      size_t len;
+      while ((len = mr_next(mr, &tks))) {
+         for (size_t i = 0; i < len; i++)
+            print_token(fmt, &tks[i]);
+         print_eos(eos);
+      }
    }
+   kb_fini(&para);
 }
 
-static void tokenize_without_eos(struct mascara *mr, const char *fmt)
+static void tokenize_without_eos(struct kb_file *fp, struct mascara *mr,
+                                 const char *fmt)
 {
-   struct mr_token *tk;
+   struct kabak para = KB_INIT;
 
-   while (mr_next(mr, &tk))
-      print_token(fmt, tk);
+   while (kb_get_para(fp, &para, norm_opts) != KB_FINI) {
+      mr_set_text(mr, para.str, para.len);
+      struct mr_token *tk;
+      while (mr_next(mr, &tk))
+         print_token(fmt, tk);
+   }
+   kb_fini(&para);
+}
+
+static void open_file(struct kb_file *strm, const char *path)
+{
+   FILE *fp = stdin;
+   if (path) {
+      fp = fopen(path, "rb");
+      if (!fp)
+         die("cannot open '%s':", path);
+   }
+   kb_wrap(strm, fp);
+}
+
+static void close_file(struct kb_file *strm)
+{
+   FILE *fp = strm->fp;
+   if (ferror(fp))
+      die("I/O error:");
+   
+   fclose(fp);
 }
 
 static void tokenize(const char *path, const char *lang,
@@ -152,16 +149,15 @@ static void tokenize(const char *path, const char *lang,
    if (ret)
       die("cannot create tokenizer: %s", mr_strerror(ret));
 
-   size_t len;
-   char *str = read_file(path, &len);
+   struct kb_file fp;
+   open_file(&fp, path);
 
-   mr_set_text(mr, str, len);
    if (mode == MR_TOKEN)
-      tokenize_without_eos(mr, fmt);
+      tokenize_without_eos(&fp, mr, fmt);
    else
-      tokenize_with_eos(mr, fmt, eos);
+      tokenize_with_eos(&fp, mr, fmt, eos);
 
-   free(str);
+   close_file(&fp);
    mr_dealloc(mr);
 }
 
