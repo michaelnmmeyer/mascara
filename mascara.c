@@ -23010,7 +23010,7 @@ local int match_signature(FILE *fp, const char *str)
 
 local size_t pad(size_t n, size_t align)
 {
-   return n + ((n + align - 1) & ~(align - 1));
+   return (n + align - 1) & ~(align - 1);
 }
 #define pad(n, type) pad(n, alignof(type))
 
