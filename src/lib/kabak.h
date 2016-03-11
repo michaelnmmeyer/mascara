@@ -14,6 +14,7 @@ enum {
    KB_OK,      /* No error. */
    KB_FINI,    /* End of iteration (not an error). */
    KB_EUTF8,   /* Invalid UTF-8 sequence. */
+   KB_ESYS,    /* System error. */
 };
 
 /* Returns a string describing an error code. */
@@ -130,13 +131,26 @@ int kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
  * I/O.
  ******************************************************************************/
 
-/* FILE object wrapper. */
+/* FILE object wrapper. Not to be accessed directly. */
 struct kb_file {
    FILE *fp;
    size_t pending;
    uint8_t backup[4];
    char32_t last;
+   int err;
 };
+
+/* Opens a file in read mode.
+ * If "path" is NULL or "-", the standard input is read.
+ * Returns KB_OK on success, an error code otherwise.
+ */
+int kb_open(struct kb_file *restrict, const char *restrict path);
+
+/* Closes a file opened with kb_open().
+ * Returns KB_OK on success and if no error happened while reading the file, an
+ * error code describing the last error otherwise.
+ */
+int kb_close(struct kb_file *restrict);
 
 /* Wraps an opened file for reading UTF-8 data from it.
  * The file can be opened in binary mode. It must not be used while the

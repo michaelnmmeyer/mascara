@@ -280,6 +280,7 @@ enum {
    KB_OK,      /* No error. */
    KB_FINI,    /* End of iteration (not an error). */
    KB_EUTF8,   /* Invalid UTF-8 sequence. */
+   KB_ESYS,    /* System error. */
 };
 
 /* Returns a string describing an error code. */
@@ -396,13 +397,26 @@ int kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
  * I/O.
  ******************************************************************************/
 
-/* FILE object wrapper. */
+/* FILE object wrapper. Not to be accessed directly. */
 struct kb_file {
    FILE *fp;
    size_t pending;
    uint8_t backup[4];
    char32_t last;
+   int err;
 };
+
+/* Opens a file in read mode.
+ * If "path" is NULL or "-", the standard input is read.
+ * Returns KB_OK on success, an error code otherwise.
+ */
+int kb_open(struct kb_file *restrict, const char *restrict path);
+
+/* Closes a file opened with kb_open().
+ * Returns KB_OK on success and if no error happened while reading the file, an
+ * error code describing the last error otherwise.
+ */
+int kb_close(struct kb_file *restrict);
 
 /* Wraps an opened file for reading UTF-8 data from it.
  * The file can be opened in binary mode. It must not be used while the
@@ -29436,6 +29450,7 @@ local size_t tokenizer_next(struct mascara *imp, struct mr_token **tkp)
 }
 #line 1 "kabak.c"
 #line 1 "io.c"
+#include <string.h>
 #line 1 "api.h"
 #ifndef KABAK_H
 #define KABAK_H
@@ -29453,6 +29468,7 @@ enum {
    KB_OK,      /* No error. */
    KB_FINI,    /* End of iteration (not an error). */
    KB_EUTF8,   /* Invalid UTF-8 sequence. */
+   KB_ESYS,    /* System error. */
 };
 
 /* Returns a string describing an error code. */
@@ -29569,13 +29585,26 @@ int kb_transform(struct kabak *restrict, const char *restrict str, size_t len,
  * I/O.
  ******************************************************************************/
 
-/* FILE object wrapper. */
+/* FILE object wrapper. Not to be accessed directly. */
 struct kb_file {
    FILE *fp;
    size_t pending;
    uint8_t backup[4];
    char32_t last;
+   int err;
 };
+
+/* Opens a file in read mode.
+ * If "path" is NULL or "-", the standard input is read.
+ * Returns KB_OK on success, an error code otherwise.
+ */
+int kb_open(struct kb_file *restrict, const char *restrict path);
+
+/* Closes a file opened with kb_open().
+ * Returns KB_OK on success and if no error happened while reading the file, an
+ * error code describing the last error otherwise.
+ */
+int kb_close(struct kb_file *restrict);
 
 /* Wraps an opened file for reading UTF-8 data from it.
  * The file can be opened in binary mode. It must not be used while the
@@ -29713,7 +29742,7 @@ bool kb_is_number(char32_t);
 bool kb_is_space(char32_t);
 
 #endif
-#line 2 "io.c"
+#line 3 "io.c"
 #line 1 "imp.h"
 #ifndef KB_IMP_H
 #define KB_IMP_H
@@ -29761,7 +29790,7 @@ local void kb_reencode(struct kabak *restrict kb, size_t len, unsigned opts,
 #endif
 
 #endif
-#line 3 "io.c"
+#line 4 "io.c"
 
 local int kb_getb(struct kb_file *fp)
 {
@@ -29882,10 +29911,10 @@ local bool kb_at_end(struct kb_file *restrict fp, struct kabak *restrict buf)
 
 void kb_wrap(struct kb_file *restrict fp, FILE *restrict xfp)
 {
-   fp->fp = xfp;
-   fp->pending = 0;
-   fp->last = KB_BAD_CHAR;
-   
+   *fp = (struct kb_file){
+      .fp = xfp,
+      .last = KB_BAD_CHAR,
+   };
    kb_skip_bom(fp);
 }
 
@@ -29899,7 +29928,7 @@ local int kb_fdecompose(struct kabak *restrict kb,
    size_t clen;
    while ((c = kb_getc(fp, &clen)) != KB_EOF && !kb_break_line(fp, c)) {
       if (c == KB_REPLACEMENT_CHAR && clen == 1)
-         ret = KB_EUTF8;
+         fp->err = ret = KB_EUTF8;
 
       char32_t *buf = kb_grow(kb, sizeof(char32_t[KB_MAX_DECOMPOSITION]));
       clen = kb_decompose_char(c, buf, opts);
@@ -29965,6 +29994,28 @@ int kb_get_para(struct kb_file *restrict fp, struct kabak *restrict kb,
    if (ret == KB_FINI && kb->len)
       return KB_OK;
    return ret;
+}
+
+int kb_open(struct kb_file *restrict strm, const char *restrict path)
+{
+   FILE *fp = stdin;
+   if (path && strcmp(path, "-")) {
+      fp = fopen(path, "rb");
+      if (!fp)
+         return KB_ESYS;
+   }
+   kb_wrap(strm, fp);
+   return KB_OK;
+}
+
+int kb_close(struct kb_file *restrict strm)
+{
+   FILE *fp = strm->fp;
+   if (ferror(fp))
+      strm->err = KB_ESYS;
+   if (fp != stdin && fclose(fp))
+      strm->err = KB_ESYS;
+   return strm->err;
 }
 #line 1 "str.c"
 #include <stdlib.h>
@@ -30107,6 +30158,7 @@ const char *kb_strerror(int err)
       [KB_OK] = "no error",
       [KB_FINI] = "end of iteration",
       [KB_EUTF8] = "invalid UTF-8 sequence",
+      [KB_ESYS] = "system error",
    };
    
    if (err >= 0 && (size_t)err < sizeof tbl / sizeof *tbl)
@@ -51813,9 +51865,9 @@ local void kb_reencode(struct kabak *restrict kb, size_t len, unsigned opts,
       void *restrict ustr = &kb->str[ofs];
       if (opts & KB_COMPOSE)
          len = kb_compose(ustr, len, opts);
-      kb->len = ofs - align + kb_encode_inplace(ustr, len, align);
+      len = ofs - align + kb_encode_inplace(ustr, len, align);
    }
-   kb_truncate(kb, kb->len);
+   kb_truncate(kb, len);
 }
 
 local size_t kb_pad(struct kabak *kb)

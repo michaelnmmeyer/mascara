@@ -4,18 +4,23 @@
 
 machine whitespace;
 
+# All newline characters. See:
+# http://unicode.org/reports/tr29/#Table_Word_Break_Property_Values
+
+CARRIAGE_RETURN = "\r";
+LINE_FEED = "\n";
+LINE_TABULATION = "\v";
+FORM_FEED = "\f";
 NEXT_LINE = 0xc2 0x85;
 LINE_SEPARATOR = 0xe2 0x80 0xa8;
 PARAGRAPH_SEPARATOR = 0xe2 0x80 0xa9;
 
-# All newline characters. See https://en.wikipedia.org/wiki/Newline
-
 new_line =
-  "\r"
-| "\n"
-| "\r\n"
-| "\v"
-| "\f"
+  CARRIAGE_RETURN
+| LINE_FEED
+| CARRIAGE_RETURN LINE_FEED
+| LINE_TABULATION
+| FORM_FEED
 | NEXT_LINE
 | LINE_SEPARATOR
 | PARAGRAPH_SEPARATOR
@@ -25,7 +30,6 @@ new_line =
 # We don't include non-latin whitespace characters. I don't know what to do
 # with them.
 
-LINE_TABULATION = 0x0b;
 NO_BREAK_SPACE = 0xc2 0xa0;
 EN_QUAD = 0xe2 0x80 0x80;
 EM_QUAD = 0xe2 0x80 0x81;

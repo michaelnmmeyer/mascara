@@ -120,26 +120,6 @@ static void tokenize_without_eos(struct kb_file *fp, struct mascara *mr,
    kb_fini(&para);
 }
 
-static void open_file(struct kb_file *strm, const char *path)
-{
-   FILE *fp = stdin;
-   if (path) {
-      fp = fopen(path, "rb");
-      if (!fp)
-         die("cannot open '%s':", path);
-   }
-   kb_wrap(strm, fp);
-}
-
-static void close_file(struct kb_file *strm)
-{
-   FILE *fp = strm->fp;
-   if (ferror(fp))
-      die("I/O error:");
-   
-   fclose(fp);
-}
-
 static void tokenize(const char *path, const char *lang,
                      const char *fmt, const char *eos)
 {
@@ -150,14 +130,17 @@ static void tokenize(const char *path, const char *lang,
       die("cannot create tokenizer: %s", mr_strerror(ret));
 
    struct kb_file fp;
-   open_file(&fp, path);
+   if (kb_open(&fp, path))
+      die("cannot open input file:");
 
    if (mode == MR_TOKEN)
       tokenize_without_eos(&fp, mr, fmt);
    else
       tokenize_with_eos(&fp, mr, fmt, eos);
 
-   close_file(&fp);
+   ret = kb_close(&fp);
+   if (ret)
+      die("could not process input file: %s", kb_strerror(ret));
    mr_dealloc(mr);
 }
 
