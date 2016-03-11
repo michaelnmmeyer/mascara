@@ -120,10 +120,9 @@ static void tokenize_without_eos(struct kb_file *fp, struct mascara *mr,
    kb_fini(&para);
 }
 
-static void tokenize(const char *path, const char *lang,
+static void tokenize(enum mr_mode mode, const char *path, const char *lang,
                      const char *fmt, const char *eos)
 {
-   enum mr_mode mode = *eos ? MR_SENTENCE : MR_TOKEN;
    struct mascara *mr;
    int ret = mr_alloc(&mr, lang, mode);
    if (ret)
@@ -133,7 +132,7 @@ static void tokenize(const char *path, const char *lang,
    if (kb_open(&fp, path))
       die("cannot open input file:");
 
-   if (mode == MR_TOKEN)
+   if (mode == MR_TOKEN || mode == MR_GRAPHEME)
       tokenize_without_eos(&fp, mr, fmt);
    else
       tokenize_with_eos(&fp, mr, fmt, eos);
@@ -161,6 +160,7 @@ int main(int argc, char **argv)
    const char *fmt = "%s\n";
    const char *lang = "en";
    const char *eos = "\n";
+   const char *mode = "sentence";
    bool list = false;
 
    struct option opts[] = {
@@ -168,6 +168,7 @@ int main(int argc, char **argv)
       {'l', "lang", OPT_STR(lang)},
       {'L', "list", OPT_BOOL(list)},
       {'e', "eos", OPT_STR(eos)},
+      {'m', "mode", OPT_STR(mode)},
       {'\0', "version", OPT_FUNC(version)},
       {0},
    };
@@ -179,6 +180,16 @@ int main(int argc, char **argv)
    if (argc > 1)
       die("excess arguments");
    
+   enum mr_mode m;
+   if (!strcmp(mode, "grapheme"))
+      m = MR_GRAPHEME;
+   else if (!strcmp(mode, "token"))
+      m = MR_TOKEN;
+   else if (!strcmp(mode, "sentence"))
+      m = MR_SENTENCE;
+   else
+      die("invalid tokenization mode: '%s'", mode);
+   
    const char *home = getenv("MR_HOME");
    mr_home = home ? home : MR_HOME;
 
@@ -186,5 +197,5 @@ int main(int argc, char **argv)
    if (list)
       display_langs();
    else
-      tokenize(*argv, lang, fmt, eos);
+      tokenize(m, *argv, lang, fmt, eos);
 }

@@ -4,8 +4,8 @@ A natural language tokenizer.
 
 ## Purpose
 
-This is a C library and command-line tool for performing Treebank-style
-tokenization and sentence boundary detection on written texts. It has specific
+This is a C library and command-line tool for segmenting written texts into
+grapheme clusters, natural language tokens, or sentences. It has specific
 support for English, French, Italian and German. A generic tokenizer is also
 available.
 
@@ -43,6 +43,14 @@ each model:
 The [`examples`](https://github.com/michaelnmmeyer/mascara/tree/master/examples)
 directory contains concrete usage examples. Compile these files with `make`, and
 use them like so:
+
+* Split a text into extended grapheme clusters:
+
+        $ examples/graphemes हृदय
+        हृ
+        द
+        य
+
 
 * Split a sentence into tokens:
 

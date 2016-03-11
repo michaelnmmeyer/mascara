@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "api.h"
 #include "imp.h"
+#include "graphemize.h"
 #include "tokenize.h"
 #include "sentencize.h"
 #include "sentencize2.h"
@@ -118,6 +119,13 @@ local int alloc_sentencizer2(struct mascara **mrp,
 
 int mr_alloc(struct mascara **mrp, const char *cfg, enum mr_mode mode)
 {
+   if (mode == MR_GRAPHEME) {
+      struct graphemizer *mr = mr_malloc(sizeof *mr);
+      graphemizer_init(mr);
+      *mrp = &mr->base;
+      return MR_OK;
+   }
+   
    char lang[3];
    const char *sbd = split_cfg(lang, cfg);
    const struct tokenizer_vtab *tk = find_tokenizer(lang);
@@ -148,7 +156,11 @@ int mr_alloc(struct mascara **mrp, const char *cfg, enum mr_mode mode)
 
 enum mr_mode mr_mode(const struct mascara *mr)
 {
-   return mr->imp == &mr_tokenizer_imp ? MR_TOKEN : MR_SENTENCE;
+   if (mr->imp == &mr_tokenizer_imp)
+      return MR_TOKEN;
+   if (mr->imp == &mr_graphemizer_imp)
+      return MR_GRAPHEME;
+   return MR_SENTENCE;
 }
 
 void mr_set_text(struct mascara *mr, const char *str, size_t len)

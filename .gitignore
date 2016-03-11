@@ -42,6 +42,7 @@ vgcore*
 mascara
 examples/tokens
 examples/sentences
+examples/graphemes
 
 # Private
 lab/

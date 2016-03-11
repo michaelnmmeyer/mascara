@@ -46,6 +46,7 @@ struct mascara;
 
 /* Tokenization modes. */
 enum mr_mode {
+   MR_GRAPHEME,   /* Iterate over extended grapheme clusters. */
    MR_TOKEN,      /* Iterate over tokens. */
    MR_SENTENCE,   /* Iterate over sentences (arrays of tokens). */
 };
@@ -85,12 +86,14 @@ struct mr_token {
    enum mr_type type;
 };
 
-/* Fetch the next token or sentence.
+/* Returns the next grapheme, token, or sentence in the input text.
  * Must be called after mr_set_text().
  * The behaviour of this function depends on the chosen tokenization mode:
- * - If it is MR_TOKEN, looks for the next token in the input text. If there is
- *   one, makes the provided token pointer point to a structure filled with
- *   informations about it, and returns 1.
+ * - If it is MR_GRAPHEME or MR_TOKEN, looks for the next grapheme or token in
+ *   the input text, respectively. If there is one, makes the provided token
+ *   pointer point to a structure filled with informations about it, and
+ *   returns 1. When MR_GRAPHEME is chosen, the token type is always set to
+ *   MR_UNK.
  * - If it is MR_SENTENCE, looks for the next sentence in the input text. If
  *   there is one, makes the provided token pointer point to an array of token
  *   structures, and returns the number of tokens in the sentence.

@@ -9,14 +9,24 @@ mascara - tokenize a text file
 
 .SH DESCRIPTION
 .SS Overview
-Mascara is a natural language tokenizer. It segments a text into tokens, and,
-optionally, sentences.
+Mascara is a natural language tokenizer. It segments a text into graphemes,
+tokens, or sentences.
 
 A text file encoded in UTF-8 is expected as input. Unicode NFC normalization is
 performed on the input text before it is segmented. If no file name is given,
 the standard input is read.
 
 .SS Options
+
+.TP
+.B \-m, \-\-mode=<grapheme|token|sentence> [sentence]
+Tokenization mode. Use
+.B grapheme
+to segment the input text into extended grapheme clusters,
+.B token
+to segment it into natural language tokens, or
+.B sentence
+to segment it into sentences.
 
 .TP
 .B \-l, \-\-lang=<string> [en]
@@ -40,8 +50,8 @@ Unknown escape sequences are emitted as is.
 
 .TP
 .B \-e, \-\-eos=<string> [\\\\n]
-String to display at the end of a sentence. Passing the empty string disables
-sentence segmentation. Supports the same escape sequences as the
+String to display at the end of a sentence. Supports the same escape sequences
+as the
 .B \-f
 option.
 

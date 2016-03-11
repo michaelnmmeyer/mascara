@@ -1,7 +1,8 @@
-Usage: %s [-l <lang>] [-f <format>] [-e <eos>] [--] [<file>]
+Usage: %s [-m <mode>] [-l <lang>] [-f <format>] [-e <eos>] [--] [<file>]
 Tokenize a file.
 
 Options:
+   -m, --mode=<string>      tokenization mode (grapheme|token|[sentence])
    -l, --lang=<string>      tokenization language [en]
    -f, --format=<string>    token format string [%%s\n]
    -e, --eos=<string>       string to append at the end of a sentence [\n]
