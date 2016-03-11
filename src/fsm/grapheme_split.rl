@@ -37,4 +37,5 @@ static void grapheme_split_init(struct graphemizer *tkr)
 static void grapheme_split_exec(struct graphemizer *tkr, struct mr_token *tk)
 {
    %% write exec;
+   (void)grapheme_split_en_main;
 }

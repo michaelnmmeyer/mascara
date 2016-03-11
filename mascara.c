@@ -24175,6 +24175,7 @@ _again:
 	}
 
 #line 40 "fsm/grapheme_split.rl"
+   (void)grapheme_split_en_main;
 }
 #line 6 "graphemize.c"
 
