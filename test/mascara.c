@@ -14,7 +14,7 @@ struct mr_lua {
 static int mr_lua_new(lua_State *lua)
 {
    const char *lang = luaL_checkstring(lua, 1);
-   const char *const modes[] = {"token", "sentence", NULL};
+   const char *const modes[] = {"grapheme", "token", "sentence", NULL};
    enum mr_mode mode = luaL_checkoption(lua, 2, "token", modes);
 
    struct mr_lua *mr = lua_newuserdata(lua, sizeof *mr);
