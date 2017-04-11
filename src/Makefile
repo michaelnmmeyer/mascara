@@ -17,11 +17,10 @@ CODE = gen/en_tokenize.ic gen/en_suffix_match.ic \
        gen/generic_tokenize.ic gen/generic_suffix_match.ic \
        gen/sentencize.ic gen/sentencize2.ic \
        gen/vowel.ic gen/grapheme_split.ic
-GRPROP = gen/grapheme_break_property.rl
 
 REST = $(wildcard fsm/*.rl)
 
-all: $(UNI) $(LANG) $(TPL) $(ABR) $(CODE) $(GRPROP)
+all: $(UNI) $(LANG) $(TPL) $(ABR) $(CODE)
 
 clean:
 	rm -f gen/*
@@ -51,9 +50,6 @@ $(UNI): scripts/mkunicode.py
 
 $(ABR): data/abbr_lexicon.txt scripts/mkabbrs.py
 	scripts/mkabbrs.py < $< > $@
-
-$(GRPROP): scripts/mkgrapheme.py
-	$< > $@
 
 gen/%_tokenize.rl: scripts/mktpl.py fsm/tokenize.tpl
 	$< $(notdir $(basename $@)) > $@
