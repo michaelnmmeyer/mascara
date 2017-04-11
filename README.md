@@ -5,9 +5,8 @@ A natural language tokenizer.
 ## Purpose
 
 This is a C library and command-line tool for segmenting written texts into
-grapheme clusters, natural language tokens, or sentences. It has specific
-support for English, French, Italian and German. A generic tokenizer is also
-available.
+grapheme clusters, tokens, or sentences. It has specific support for English,
+French, Italian and German. A generic tokenizer is also available.
 
 
 ## Building
