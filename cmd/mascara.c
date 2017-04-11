@@ -80,7 +80,7 @@ noreturn static void version(void)
 {
    const char *msg =
    "Mascara version "MR_VERSION"\n"
-   "Copyright (c) 2016 Michaël Meyer"
+   "Copyright (c) 2016-17 Michaël Meyer"
    ;
    puts(msg);
    exit(EXIT_SUCCESS);
