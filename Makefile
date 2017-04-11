@@ -21,7 +21,7 @@ check: test/mascara.so
 
 install: mascara
 	install -spm 0755 $< $(PREFIX)/bin/mascara
-	install -pm 0644 cmd/mascara.1 $(PREFIX)/share/man/man1
+	install -pm 0644 cmd/mascara.1 $(PREFIX)/share/man/man1/mascara.1
 	$(foreach model, $(wildcard models/*), \
 	   install -pDm +r $(model) $(PREFIX)/share/mascara/$(notdir $(model));)
 
